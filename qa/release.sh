@@ -29,23 +29,23 @@ function init_vars()
     REVISION="glusterfs.git";
 
     if [ "x$RELEASE_VERSION" = "x" ]; then
-	echo "FATAL: Unspecified \$RELEASE_VERSION"
-	exit 1
+        echo "FATAL: Unspecified \$RELEASE_VERSION"
+        exit 1
     fi
     VERSION="$RELEASE_VERSION";
 
     if [ "x$GERRIT_REFSPEC" = "x" ]; then
-	echo "FATAL: Unspecified \$GERRIT_REFSPEC"
-	exit 1
+        echo "FATAL: Unspecified \$GERRIT_REFSPEC"
+        exit 1
     fi
     REFSPEC="$GERRIT_REFSPEC";
 
     if [ "x$ANNOUNCE_EMAIL" = "x" ]; then
-	ANNOUNCE_EMAIL="avati@redhat.com, vbellur@redhat.com";
+        ANNOUNCE_EMAIL="avati@redhat.com, vbellur@redhat.com";
     fi
     EMAIL="$ANNOUNCE_EMAIL";
 
-#REPO=git://git.sv.gnu.org/glusterfs.git
+    #REPO=git://git.sv.gnu.org/glusterfs.git
     REPO="$(pwd)";
     BASEDIR="$HOME/work/releases";
     INSTALLDIR="$BASEDIR/$VERSION/install";
@@ -60,7 +60,6 @@ function init_vars()
     PATCHSET="";
 }
 
-
 function prepare_dirs()
 {
     rm -rf $BASEDIR;
@@ -68,7 +67,6 @@ function prepare_dirs()
     mkdir $BASEDIR/$VERSION;
     mkdir $INSTALLDIR;
 }
-
 
 function get_src()
 {
@@ -79,7 +77,6 @@ function get_src()
     sed -i "s/AC_INIT.*/AC_INIT([glusterfs],[$VERSION],[gluster-users@gluster.org])/g" configure.ac;
     git log > ChangeLog;
 }
-
 
 function make_tarball()
 {
@@ -92,25 +89,23 @@ function make_tarball()
     cp *.tar.gz ..
 }
 
-
 function make_rpm()
 {
     if [ "x$BUILD_RPMS" != "xtrue" ]; then
-	echo "Skipping RPMBUILD. BUILD_RPMS='$BUILD_RPMS'";
-	return;
+        echo "Skipping RPMBUILD. BUILD_RPMS='$BUILD_RPMS'";
+        return;
     fi
-
 
     rm -rvf $HOME/rpmbuild;
     if [ -d extras/LinuxRPM ]; then
         make -C extras/LinuxRPM glusterrpms;
-	if [ ! -d $RPMBUILD/x86_64 ]; then
-	    mkdir -p $RPMBUILD/x86_64 $RPMBUILD/noarch $RPMBUILD/SRPMS
+        if [ ! -d $RPMBUILD/x86_64 ]; then
+            mkdir -p $RPMBUILD/x86_64 $RPMBUILD/noarch $RPMBUILD/SRPMS
         fi
-	cp extras/LinuxRPM/*.x86_64.rpm $RPMBUILD/x86_64/
-	cp extras/LinuxRPM/*.noarch.rpm $RPMBUILD/noarch/
-	cp extras/LinuxRPM/*.src.rpm $RPMBUILD/SRPMS/
-    else 
+        cp extras/LinuxRPM/*.x86_64.rpm $RPMBUILD/x86_64/
+        cp extras/LinuxRPM/*.noarch.rpm $RPMBUILD/noarch/
+        cp extras/LinuxRPM/*.src.rpm $RPMBUILD/SRPMS/
+    else
         rpmbuild -ta $BASEDIR/$VERSION/glusterfs-$VERSION.tar.gz;
     fi
 }
@@ -186,7 +181,6 @@ This release is made off $PATCHSET
 EOF
 }
 
-
 function main()
 {
     init_vars;
@@ -204,6 +198,5 @@ function main()
     cp_tarball;
     announce_mail;
 }
-
 
 main "$@"
