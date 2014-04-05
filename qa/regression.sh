@@ -5,7 +5,7 @@ BASE="/build/install"
 ARCHIVED_BUILDS="/d/archived_builds"
 
 # Retrieve the Python version
-PY_VER=`python --version 2>&1|cut -d ' ' -f 2|cut -d "." -f 1-2`
+PY_VER=`python -c "import sys; print sys.version[:3]"`
 
 # Point to the build we're testing
 export PATH="${BASE}/sbin:${PATH}"
