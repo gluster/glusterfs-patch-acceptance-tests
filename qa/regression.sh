@@ -27,7 +27,7 @@ fi
 
 # If there are new core files in /, archive this build for later analysis
 cur_count=$(ls -l /core.*|wc -l);
-if [ $cur_count != $core_count ]; then
+if [ ${cur_count} != ${core_count} ]; then
     tar -czf ${ARCHIVED_BUILDS}/build-install-`date +%Y%m%d:%T`.tgz \
         ${BASE}/{sbin,bin,lib,libexec};
 fi
