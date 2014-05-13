@@ -30,8 +30,8 @@ fi
 cur_count=$(ls -l /core.*|wc -l);
 if [ ${cur_count} != ${core_count} ]; then
     mkdir -p ${BASE}/cores;
-	  mv /core* ${BASE}/cores;
-	  local filename=${ARCHIVED_BUILDS}/build-install-`date +%Y%m%d:%T`.tgz
+    mv /core* ${BASE}/cores;
+    local filename=${ARCHIVED_BUILDS}/build-install-`date +%Y%m%d:%T`.tgz
     tar -czf ${filename} ${BASE}/{sbin,bin,lib,libexec};
     echo Cores and build archived in ${filename}
     ## Forcefully fail the regression run if it has not already failed.
@@ -40,9 +40,9 @@ fi
 
 # If the regression run fails, then archive the glusterfs logs for later analysis
 if [ ${RET} -ne 0 ]; then
-	  local filename=${ARCHIVED_LOGS}/glusterfs-logs-`date +%Y%m%d:%T`.tgz
-	  tar -czf $filename ${BASE}/var;
-	  echo Logs archived in ${filename}
+    local filename=${ARCHIVED_LOGS}/glusterfs-logs-`date +%Y%m%d:%T`.tgz
+    tar -czf $filename ${BASE}/var;
+    echo Logs archived in ${filename}
 fi
 
 
