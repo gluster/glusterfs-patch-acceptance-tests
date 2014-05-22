@@ -27,7 +27,7 @@ elif [ -x ${BASE}/share/glusterfs/run-tests.sh ]; then
 fi
 
 # If there are new core files in /, archive this build for later analysis
-cur_count=$(ls -l /core.*|wc -l);
+cur_count=$(ls -l /core.* 2>/dev/null|wc -l);
 if [ ${cur_count} != ${core_count} ]; then
     mkdir -p ${BASE}/cores;
     mv /core* ${BASE}/cores;
@@ -40,7 +40,7 @@ fi
 
 # If the regression run fails, then archive the glusterfs logs for later analysis
 if [ ${RET} -ne 0 ]; then
-    local filename=${ARCHIVED_LOGS}/glusterfs-logs-`date +%Y%m%d:%T`.tgz
+    filename=${ARCHIVED_LOGS}/glusterfs-logs-`date +%Y%m%d:%T`.tgz
     tar -czf $filename ${BASE}/var;
     echo Logs archived in ${filename}
 fi
