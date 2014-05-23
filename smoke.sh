@@ -77,6 +77,14 @@ function main ()
     start_fs;
 
     run_tests;
+
+    RET=$?
+    if [ $RET -ne 0 ]; then
+        filename=/d/logs/smoke/glusterfs-logs-`date +%Y%m%d%T`.tgz
+        tar -czf $filename /build/install/var/log;
+        echo Logs archived in $filename
+    fi
+    return $RET
 }
 
 main "$@";
