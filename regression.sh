@@ -41,7 +41,7 @@ fi
 # If the regression run fails, then archive the glusterfs logs for later analysis
 if [ ${RET} -ne 0 ]; then
     filename=${ARCHIVED_LOGS}/regression/glusterfs-logs-`date +%Y%m%d:%T`.tgz
-    tar -czf $filename /var;
+    tar -czf $filename /var/log;
     echo Logs archived in ${filename}
 fi
 
