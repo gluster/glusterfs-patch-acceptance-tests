@@ -2,8 +2,9 @@
 
 # Set the locations we'll be using
 BASE="/build/install"
-ARCHIVED_BUILDS="/d/archived_builds"
-ARCHIVED_LOGS="/d/logs"
+ARCHIVED_BUILDS="/archives/archived_builds"
+ARCHIVED_LOGS="/archives/logs"
+TIMESTAMP=`date +%Y%m%d:%T`
 
 # Retrieve the Python version
 PY_VER=`python -c "import sys; print sys.version[:3]"`
@@ -29,21 +30,22 @@ fi
 # If there are new core files in /, archive this build for later analysis
 cur_count=$(ls -l /core.* 2>/dev/null|wc -l);
 if [ ${cur_count} != ${core_count} ]; then
-    mkdir -p ${BASE}/cores;
-    mv /core* ${BASE}/cores;
-    local filename=${ARCHIVED_BUILDS}/build-install-`date +%Y%m%d:%T`.tgz
-    tar -czf ${filename} ${BASE}/{sbin,bin,lib,libexec};
+    # Archive the build and any cores
+    mkdir -p ${BASE}/cores
+    mv /core* ${BASE}/cores
+    filename=${ARCHIVED_BUILDS}/build-install-${TIMESTAMP}.tgz
+    tar -czf ${filename} ${BASE}/{sbin,bin,lib,libexec,cores}
+
     echo Cores and build archived in ${filename}
-    ## Forcefully fail the regression run if it has not already failed.
+    # Forcefully fail the regression run if it has not already failed.
     RET=1
 fi
 
 # If the regression run fails, then archive the glusterfs logs for later analysis
 if [ ${RET} -ne 0 ]; then
-    filename=${ARCHIVED_LOGS}/regression/glusterfs-logs-`date +%Y%m%d:%T`.tgz
+    filename=${ARCHIVED_LOGS}/glusterfs-logs-${TIMESTAMP}.tgz
     tar -czf $filename /var/log;
     echo Logs archived in ${filename}
 fi
-
 
 exit ${RET};
