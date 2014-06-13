@@ -38,7 +38,7 @@ if [ ${cur_count} != ${core_count} ]; then
     filename=${ARCHIVED_BUILDS}/build-install-${TIMESTAMP}.tgz
     tar -czf ${ARCHIVE_BASE}/${filename} ${BASE}/{sbin,bin,lib,libexec,cores}
 
-    echo Cores and build archived in ${SERVER}/${filename}
+    echo Cores and build archived in http://${SERVER}/${filename}
     # Forcefully fail the regression run if it has not already failed.
     RET=1
 fi
@@ -47,7 +47,7 @@ fi
 if [ ${RET} -ne 0 ]; then
     filename=${ARCHIVED_LOGS}/glusterfs-logs-${TIMESTAMP}.tgz
     tar -czf ${ARCHIVE_BASE}/$filename /var/log;
-    echo Logs archived in ${SERVER}/${filename}
+    echo Logs archived in http://${SERVER}/${filename}
 fi
 
 exit ${RET};
