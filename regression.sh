@@ -14,6 +14,8 @@ PY_VER=`python -c "import sys; print sys.version[:3]"`
 # Point to the build we're testing
 export PATH="${BASE}/sbin:${PATH}"
 export PYTHONPATH="${BASE}/lib/python${PY_VER}/site-packages:${PYTHONPATH}"
+export LIBRARY_PATH="${BASE}/lib:${LIBRARY_PATH}"
+export LD_LIBRARY_PATH="${BASE}/lib:${LD_LIBRARY_PATH}"
 
 # Count the number of core files in /
 core_count=$(ls -l /core.*|wc -l);
