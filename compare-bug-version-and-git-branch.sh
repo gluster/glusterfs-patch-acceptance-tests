@@ -1,9 +1,14 @@
-#!/bin/bash -x
+#!/bin/bash
 #
 # Based on the 'rh-bugid' Jenkins job.
 #
 # Author: Niels de Vos <ndevos@redhat.com>
 #
+
+# export DEBUG before running, or set to non-zero for more verbose output
+#DEBUG=1
+DEBUG=${DEBUG:=0}
+[ "${DEBUG}" == '0' ] || set -x
 
 # Not all versions set GERRIT_TOPIC, set it to 'rfc' if no BUG was given
 [ -z "${BUG}" -a -z "${GERRIT_TOPIC}" ] && GERRIT_TOPIC='rfc'
@@ -15,8 +20,13 @@ if [ -z "${BUG}" -a "${GERRIT_TOPIC}" = "rfc" ]; then
 elif [ -z "${BUG}" ]; then
     echo "No BUG id, but topic '${GERRIT_TOPIC}' does not match 'rfc'."
     exit 1
+elif ! grep -q -e '^master$' -e '^release-' <<< "${GERRIT_BRANCH}" ; then
+    echo "Branch '${GERRIT_BRANCH}' can not be mapped to a version, assuming testing only."
+    exit 0
 fi
 
+
+[ "${DEBUG}" == '0' ] || BZQOPTS='--verbose'
 BUG_PRODUCT=""
 BZQTRY=0
 while [ -z "${BUG_PRODUCT}" ]; do
@@ -28,7 +38,7 @@ while [ -z "${BUG_PRODUCT}" ]; do
 
     # generate an 'export' statement and execute it
     # exports BUG_PRODUCT and BUG_VERSION
-    $(bugzilla --verbose query -b ${BUG} --outputformat='export BUG_PRODUCT=%{product} BUG_VERSION=%{version}')
+    $(bugzilla ${BZQOPTS} query -b ${BUG} --outputformat='export BUG_PRODUCT=%{product} BUG_VERSION=%{version}')
 done
 
 if [ "${BUG_PRODUCT}" != "GlusterFS" ]; then
@@ -43,7 +53,7 @@ if [ "${GERRIT_BRANCH}" = "master" ]; then
             exit 1
     fi
 
-    # BUG was filed against mainline/pre-release, change is for master
+    echo "BUG was filed against mainline/pre-release, change is for master."
     exit 0
 fi
 
@@ -57,6 +67,6 @@ if [ "${BUG_VER}" != "${GERRIT_VER}" ]; then
     exit 1
 fi
 
-# BUG was filed against a version, and the change is filed for the correct branch
+echo "BUG was filed against a version, and the change is filed for the correct branch."
 exit 0
 
