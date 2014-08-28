@@ -29,20 +29,20 @@ fi
 [ "${DEBUG}" == '0' ] || BZQOPTS='--verbose'
 BUG_PRODUCT=""
 BZQTRY=0
-while [ -z "${BUG_PRODUCT}" ]; do
+while [ -z "${BUG_PRODUCT}" -a ${BZQTRY} -le 3 ]; do
     BZQTRY=$((${BZQTRY} + 1))
     if [ "x${BZQTRY}" = "x3" ]; then
         echo "Failed to get details for BUG id ${BUG}, please contact an admin or email gluster-infra@gluster.org."
         echo 1
     fi
 
-    # generate an 'export' statement and execute it
-    # exports BUG_PRODUCT and BUG_VERSION
-    $(bugzilla ${BZQOPTS} query -b ${BUG} --outputformat='export BUG_PRODUCT=%{product} BUG_VERSION=%{version}')
+    BZQOUT=$(bugzilla ${BZQOPTS} query -b ${BUG} --outputformat='%{product}:%{version}')
+    BUG_PRODUCT=$(cut -d: -f1 <<< "${BZQOUT}")
+    BUG_VERSION=$(cut -d: -f2 <<< "${BZQOUT}")
 done
 
 if [ "${BUG_PRODUCT}" != "GlusterFS" ]; then
-    echo "BUG id ${BUG} belongs to '${BUG_PRODUCT}' and not GlusterFS"
+    echo "BUG id ${BUG} belongs to '${BUG_PRODUCT}' and not 'GlusterFS'."
     exit 1
 fi
 
