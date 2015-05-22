@@ -124,7 +124,7 @@ for ep in compute['endpoints']:
 
     try:
         response = requests.get(url + '/servers', headers=headers, verify=verifyssl, proxies=proxy)
-    except e:
+    except Exception, e:
         print e
         continue
 
