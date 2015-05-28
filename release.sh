@@ -74,7 +74,7 @@ function get_src()
     cd $BASEDIR/$VERSION/$REVISION;
     git checkout $REFSPEC;
     PATCHSET=$(git describe);
-    sed -i "s/AC_INIT.*/AC_INIT([glusterfs],[$VERSION],[gluster-users@gluster.org])/g" configure.ac;
+    sed -i "s/^AC_INIT(.*)$/AC_INIT([glusterfs],[${VERSION}],[gluster-users@gluster.org])/" configure.ac
     git log > ChangeLog;
 }
 
