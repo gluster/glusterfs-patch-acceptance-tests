@@ -13,7 +13,7 @@ DEBUG=${DEBUG:=0}
 # Not all versions set GERRIT_TOPIC, set it to 'rfc' if no BUG was given
 [ -z "${BUG}" -a -z "${GERRIT_TOPIC}" ] && GERRIT_TOPIC='rfc'
 
-BUG=$(git show --name-only --format=email | grep -i '^BUG: ' | cut -f2 -d ' ' | tail -1)
+BUG=$(git show --name-only --format=email | awk '{IGNORECASE=1} /^BUG:/{print $2}' | tail -1)
 if [ -z "${BUG}" -a "${GERRIT_TOPIC}" = "rfc" ]; then
     echo "No BUG id for rfc needed."
     exit 0
