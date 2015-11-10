@@ -36,10 +36,16 @@ while [ -z "${BUG_PRODUCT}" -a ${BZQTRY} -le 3 ]; do
         echo 1
     fi
 
-    BZQOUT=$(bugzilla ${BZQOPTS} query -b ${BUG} --outputformat='%{product}:%{version}')
+    BZQOUT=$(bugzilla ${BZQOPTS} query -b ${BUG} --outputformat='%{product}:%{version}:%{groups}')
     BUG_PRODUCT=$(cut -d: -f1 <<< "${BZQOUT}")
     BUG_VERSION=$(cut -d: -f2 <<< "${BZQOUT}")
+    BUG_GROUPS=$(cut -d: -f3 <<< "${BZQOUT}")
 done
+
+if [ "${BUG_GROUPS}" == '[]' ]; then
+    echo "BUG id ${BUG} is marked private, please remove the groups."
+    exit 1
+fi
 
 if [ "${BUG_PRODUCT}" != "GlusterFS" ]; then
     echo "BUG id ${BUG} belongs to '${BUG_PRODUCT}' and not 'GlusterFS'."
