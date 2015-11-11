@@ -42,7 +42,7 @@ while [ -z "${BUG_PRODUCT}" -a ${BZQTRY} -le 3 ]; do
     BUG_GROUPS=$(cut -d: -f3 <<< "${BZQOUT}")
 done
 
-if [ "${BUG_GROUPS}" == '[]' ]; then
+if [ "${BUG_GROUPS}" != '[]' ]; then
     echo "BUG id ${BUG} is marked private, please remove the groups."
     exit 1
 fi
