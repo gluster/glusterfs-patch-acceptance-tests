@@ -52,11 +52,11 @@ core_count=$(ls -l /core.*|wc -l);
 # Run the regression tests
 if [ -x ./run-tests.sh ]; then
     # If we're in the root of a GlusterFS source repo, use its tests
-    ./run-tests.sh
+    ./run-tests.sh $@
     RET=$?
 elif [ -x ${BASE}/share/glusterfs/run-tests.sh ]; then
     # Otherwise, use the tests in the installed location
-    ${BASE}/share/glusterfs/run-tests.sh
+    ${BASE}/share/glusterfs/run-tests.sh $@
     RET=$?
 fi
 
