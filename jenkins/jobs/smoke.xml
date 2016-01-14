@@ -60,10 +60,10 @@
         </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.data.GerritProject>
       </gerritProjects>
       <skipVote>
-        <onSuccessful>false</onSuccessful>
-        <onFailed>false</onFailed>
-        <onUnstable>false</onUnstable>
-        <onNotBuilt>false</onNotBuilt>
+        <onSuccessful>true</onSuccessful>
+        <onFailed>true</onFailed>
+        <onUnstable>true</onUnstable>
+        <onNotBuilt>true</onNotBuilt>
       </skipVote>
       <gerritBuildStartedVerifiedValue>0</gerritBuildStartedVerifiedValue>
       <gerritBuildStartedCodeReviewValue>0</gerritBuildStartedCodeReviewValue>
@@ -108,6 +108,7 @@
     <hudson.tasks.Shell>
       <command>#!/bin/bash
 
+BURL=${BUILD_URL}consoleFull
 
 # 2015-04-24 JC Further stuff to try and kill leftover processes from aborted runs
 sudo pkill -f regression.sh
@@ -144,6 +145,15 @@ sudo /opt/qa/smoke.sh
 RET=$?
 
 echo smoke.sh returned $RET
+
+if [ $RET = 0 ]; then
+    V=&quot;+1&quot;
+    VERDICT=&quot;SUCCESS&quot;
+else
+    V=&quot;-1&quot;
+    VERDICT=&quot;FAILED&quot;
+fi
+ssh build@review.gluster.org gerrit review --message &quot;&apos;$BURL : $VERDICT&apos;&quot; --project=glusterfs --label Smoke=$V $GIT_COMMIT
 
 exit $RET</command>
     </hudson.tasks.Shell>
