@@ -86,11 +86,11 @@ refs/changes/45/12345/6 &lt;br&gt;
       <serverName>__ANY__</serverName>
       <triggerOnEvents>
         <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginCommentAddedEvent>
-          <verdictCategory>Code-Review</verdictCategory>
+          <verdictCategory>Smoke</verdictCategory>
           <commentAddedTriggerApprovalValue>2</commentAddedTriggerApprovalValue>
         </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginCommentAddedEvent>
         <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginCommentAddedEvent>
-          <verdictCategory>Verified</verdictCategory>
+          <verdictCategory>Smoke</verdictCategory>
           <commentAddedTriggerApprovalValue>1</commentAddedTriggerApprovalValue>
         </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginCommentAddedEvent>
       </triggerOnEvents>
@@ -186,7 +186,7 @@ fi
 ###ssh build@review.gluster.org gerrit review --message &quot;&apos;$BURL : $VERDICT (Ignored)&apos;&quot; --project=glusterfs --code-review=0 $GIT_COMMIT
 
 # ED20150410 Voting NetBSD as user nb7build
-ssh nb7build@review.gluster.org gerrit review --message &quot;&apos;$BURL : $VERDICT&apos;&quot; --project=glusterfs --code-review=0 --verified=$V $GIT_COMMIT
+ssh nb7build@review.gluster.org gerrit review --message &quot;&apos;$BURL : $VERDICT&apos;&quot; --project=glusterfs --code-review=0 --label NetBSD-regression=$V $GIT_COMMIT
 exit $RET</command>
     </hudson.tasks.Shell>
   </builders>
