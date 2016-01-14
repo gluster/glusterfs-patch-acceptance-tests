@@ -1,0 +1,204 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>In development for now.  Please disable this if it causes problems.</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>GERRIT_REFSPEC</name>
+          <description>For review number 12345 and patch set 6, add: &lt;br&gt;
+refs/changes/45/12345/6 &lt;br&gt;
+
+45 being last two digits of review number.</description>
+          <defaultValue>refs/heads/master</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@2.4.0">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <refspec>$GERRIT_REFSPEC</refspec>
+        <url>git://review.gluster.org/glusterfs.git</url>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>$GERRIT_BRANCH</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions>
+      <hudson.plugins.git.extensions.impl.PerBuildTag/>
+      <hudson.plugins.git.extensions.impl.WipeWorkspace/>
+      <hudson.plugins.git.extensions.impl.BuildChooserSetting>
+        <buildChooser class="com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritTriggerBuildChooser" plugin="gerrit-trigger@2.17.2">
+          <separator>#</separator>
+        </buildChooser>
+      </hudson.plugins.git.extensions.impl.BuildChooserSetting>
+    </extensions>
+  </scm>
+  <assignedNode>netbsd7_regression</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers>
+    <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritTrigger plugin="gerrit-trigger@2.17.2">
+      <spec></spec>
+      <gerritProjects>
+        <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.data.GerritProject>
+          <compareType>PLAIN</compareType>
+          <pattern>glusterfs</pattern>
+          <branches>
+            <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.data.Branch>
+              <compareType>ANT</compareType>
+              <pattern>**</pattern>
+            </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.data.Branch>
+          </branches>
+          <disableStrictForbiddenFileVerification>false</disableStrictForbiddenFileVerification>
+        </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.data.GerritProject>
+      </gerritProjects>
+      <skipVote>
+        <onSuccessful>false</onSuccessful>
+        <onFailed>false</onFailed>
+        <onUnstable>false</onUnstable>
+        <onNotBuilt>false</onNotBuilt>
+      </skipVote>
+      <silentMode>false</silentMode>
+      <notificationLevel></notificationLevel>
+      <silentStartMode>false</silentStartMode>
+      <escapeQuotes>true</escapeQuotes>
+      <noNameAndEmailParameters>false</noNameAndEmailParameters>
+      <dependencyJobsNames></dependencyJobsNames>
+      <readableMessage>false</readableMessage>
+      <buildStartMessage></buildStartMessage>
+      <buildFailureMessage></buildFailureMessage>
+      <buildSuccessfulMessage></buildSuccessfulMessage>
+      <buildUnstableMessage></buildUnstableMessage>
+      <buildNotBuiltMessage></buildNotBuiltMessage>
+      <buildUnsuccessfulFilepath></buildUnsuccessfulFilepath>
+      <customUrl></customUrl>
+      <serverName>__ANY__</serverName>
+      <triggerOnEvents>
+        <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginCommentAddedEvent>
+          <verdictCategory>Code-Review</verdictCategory>
+          <commentAddedTriggerApprovalValue>2</commentAddedTriggerApprovalValue>
+        </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginCommentAddedEvent>
+        <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginCommentAddedEvent>
+          <verdictCategory>Verified</verdictCategory>
+          <commentAddedTriggerApprovalValue>1</commentAddedTriggerApprovalValue>
+        </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginCommentAddedEvent>
+      </triggerOnEvents>
+      <dynamicTriggerConfiguration>false</dynamicTriggerConfiguration>
+      <triggerConfigURL></triggerConfigURL>
+      <triggerInformationAction/>
+    </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritTrigger>
+  </triggers>
+  <concurrentBuild>true</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>#!/bin/sh
+
+### This script is still being developed.  Please email    ###
+### manu@netbsd.org if you notice any weirdness from it ###
+
+# Display all environment variables in the debugging log
+echo
+echo &quot;Display all environment variables&quot;
+echo &quot;*********************************&quot;
+echo
+MY_ENV=`env | sort`
+echo &quot;$MY_ENV&quot;
+echo
+
+BURL=${BUILD_URL}consoleFull
+
+# Remove any gluster daemon leftovers from aborted runs
+su -l root -c /opt/qa/cleanup.sh &gt;/dev/null 2&gt;&amp;1
+
+# Fix installation permissions
+su -l root -c &quot;chown -R jenkins /usr/pkg/lib/python2.7/site-packages/gluster&quot;
+
+# Clean up the git repo
+su -l root -c &quot;rm -rf $WORKSPACE/.gitignore $WORKSPACE/*&quot;
+su -l root -c &quot;chown -R jenkins $WORKSPACE&quot;
+cd $WORKSPACE
+git reset --hard HEAD
+
+# Clean up other Gluster dirs
+su -l root -c &quot;rm -rf /var/lib/glusterd/* /build/install /build/scratch&quot; &gt;/dev/null 2&gt;&amp;1
+
+# Remove the many left over socket files in /var/run
+su -l root -c &quot;rm -f /var/run/glusterd.socket&quot; &gt;/dev/null 2&gt;&amp;1
+
+# Remove GlusterFS log files from previous runs
+su -l root -c &quot;rm -rf /var/log/glusterfs/* /var/log/glusterfs/.cmd_log_history&quot; &gt;/dev/null 2&gt;&amp;1
+
+# Build Gluster
+echo
+echo &quot;Build GlusterFS&quot;
+echo &quot;***************&quot;
+echo
+set -x
+/opt/qa/build.sh
+RET=$?
+if [ $RET != 0 ]; then
+    # Build failed, so abort early
+    exit 1
+fi
+set +x
+echo
+
+# regression tests assumes build is done inside source directory
+# which is not the case here. The simpliest fix is to copy the
+# required object back to source directory
+cp /build/scratch/contrib/argp-standalone/libargp.a \
+   $WORKSPACE/contrib/argp-standalone
+
+# Run the regression test
+echo &quot;Run the regression test&quot;
+echo &quot;***********************&quot;
+echo
+set -x
+su -l root -c &quot;cd $WORKSPACE &amp;&amp; /opt/qa/regression.sh&quot;
+RET=$?
+if [ $RET = 0 ]; then
+    V=&quot;+1&quot;
+    R=&quot;0&quot;
+    VERDICT=&quot;SUCCESS&quot;
+else
+    V=&quot;-1&quot;
+    R=&quot;0&quot;
+    VERDICT=&quot;FAILED&quot;
+fi
+
+# Update Gerrit with the success/failure status
+# ssh build@review.gluster.org gerrit review --message &quot;&apos;$BURL : $VERDICT&apos;&quot; --project=glusterfs --verified=&quot;$V&quot; --code-review=&quot;$R&quot; $GIT_COMMIT
+# jdarcy commented out the above line on 2015-03-31.  Commentary follows.
+# We shouldn&apos;t be touching CR at all.  For V, we should set V+1 iff this test succeeded *and* the value was already 0 or 1, V-1 otherwise.
+# I don&apos;t know how to do that, but the various smoke tests must be doing something similar/equivalent.  It&apos;s also possible that this part
+# should be done as a post-build action instead.
+###ssh build@review.gluster.org gerrit review --message &quot;&apos;$BURL : $VERDICT (Ignored)&apos;&quot; --project=glusterfs --code-review=0 $GIT_COMMIT
+
+# ED20150410 Voting NetBSD as user nb7build
+ssh nb7build@review.gluster.org gerrit review --message &quot;&apos;$BURL : $VERDICT&apos;&quot; --project=glusterfs --code-review=0 --verified=$V $GIT_COMMIT
+exit $RET</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers>
+    <hudson.plugins.build__timeout.BuildTimeoutWrapper plugin="build-timeout@1.15">
+      <strategy class="hudson.plugins.build_timeout.impl.AbsoluteTimeOutStrategy">
+        <timeoutMinutes>300</timeoutMinutes>
+      </strategy>
+      <operationList>
+        <hudson.plugins.build__timeout.operations.FailOperation/>
+      </operationList>
+    </hudson.plugins.build__timeout.BuildTimeoutWrapper>
+  </buildWrappers>
+</project>

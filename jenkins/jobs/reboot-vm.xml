@@ -1,0 +1,75 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Reboot a VM in the &lt;a href=&quot;https://rackspace.com&quot;&gt;Rackspace Cloud&lt;/a&gt;.&#xd;
+&lt;br/&gt;&#xd;
+Sometimes rebooting fails, just try again... If it keeps on failing, notify ndevos and/or gluster-infra@gluster.org.</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>VM</name>
+          <description>Virtual machine to reboot</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>--hostname--</string>
+              <string>slave20.cloud.gluster.org</string>
+              <string>slave21.cloud.gluster.org</string>
+              <string>slave22.cloud.gluster.org</string>
+              <string>slave23.cloud.gluster.org</string>
+              <string>slave24.cloud.gluster.org</string>
+              <string>slave25.cloud.gluster.org</string>
+              <string>slave26.cloud.gluster.org</string>
+              <string>slave27.cloud.gluster.org</string>
+              <string>slave28.cloud.gluster.org</string>
+              <string>slave29.cloud.gluster.org</string>
+              <string>slave32.cloud.gluster.org</string>
+              <string>slave33.cloud.gluster.org</string>
+              <string>slave34.cloud.gluster.org</string>
+              <string>slave46.cloud.gluster.org</string>
+              <string>slave47.cloud.gluster.org</string>
+              <string>nbslave71.cloud.gluster.org</string>
+              <string>nbslave72.cloud.gluster.org</string>
+              <string>nbslave73.cloud.gluster.org</string>
+              <string>nbslave74.cloud.gluster.org</string>
+              <string>nbslave75.cloud.gluster.org</string>
+              <string>nbslave76.cloud.gluster.org</string>
+              <string>nbslave77.cloud.gluster.org</string>
+              <string>nbslave78.cloud.gluster.org</string>
+              <string>nbslave79.cloud.gluster.org</string>
+              <string>nbslave7c.cloud.gluster.org</string>
+              <string>nbslave7d.cloud.gluster.org</string>
+              <string>nbslave7e.cloud.gluster.org</string>
+              <string>nbslave7f.cloud.gluster.org</string>
+              <string>nbslave7g.cloud.gluster.org</string>
+              <string>nbslave7h.cloud.gluster.org</string>
+              <string>nbslave7i.cloud.gluster.org</string>
+              <string>nbslave7j.cloud.gluster.org</string>
+              <string>nbslave7k.cloud.gluster.org</string>
+              <string>freebsd0.cloud.gluster.org</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <assignedNode>master</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>#
+# This script needs to run as root, to access the credentials for the rackspace cloud.
+#
+sudo /usr/local/bin/reboot-vm.py ${VM}</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

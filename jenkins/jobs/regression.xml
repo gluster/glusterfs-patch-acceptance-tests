@@ -1,0 +1,126 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>glusterfs pre-commit regression test - DISABLED FOR NOW as it blocks smoke tests</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>CHANGE_ID</name>
+          <description>Change ID to run regression test</description>
+          <defaultValue>0</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>BRANCH</name>
+          <description>If CHANGE_ID is 0, then test the HEAD of this branch (no feedback to gerrit)</description>
+          <defaultValue>master</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@2.4.0">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <name></name>
+        <refspec></refspec>
+        <url>ssh://build@review.gluster.org/glusterfs.git</url>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>$BRANCH</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <gitTool>Default</gitTool>
+    <submoduleCfg class="list"/>
+    <extensions>
+      <hudson.plugins.git.extensions.impl.PerBuildTag/>
+    </extensions>
+  </scm>
+  <assignedNode>master</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>true</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash -x
+
+#
+# Please mail avati@redhat.com before saving any changes to the script
+#
+
+BURL=${BUILD_URL}consoleFull
+function finish()
+{
+   for rev in $(git rev-list origin/$BRANCH..FETCH_HEAD); do
+        ssh build@review.gluster.org gerrit review --message &quot;&apos;$BURL : $VERDICT&apos;&quot; --project=glusterfs --verified=&quot;$V&quot; --code-review=0 $rev
+    done
+}
+
+change=1
+if [ &quot;x$CHANGE_ID&quot; = &quot;x&quot; -o &quot;x$CHANGE_ID&quot; = &quot;x0&quot; ]; then
+    change=0
+fi
+
+git fetch origin
+
+if [ $change -eq 1 ]; then
+    REF=$(ssh build@review.gluster.org gerrit query --current-patch-set $CHANGE_ID | grep &apos;ref: &apos; | awk &apos;{print $2}&apos;)
+    BRANCH=$(ssh build@review.gluster.org gerrit query --current-patch-set $CHANGE_ID | grep &apos;branch: &apos; | awk &apos;{print $2}&apos;)
+
+    if [ &quot;x$REF&quot; = &quot;x&quot; ]; then
+        exit 1
+    fi
+
+    # I believe this code is not necessary if we use the &quot;Gerrit Trigger&quot;, found
+    # under the &quot;Source Code Management&quot; configuration section, under &quot;Git&quot;, in
+    # the &quot;Advanced&quot; button, &quot;Choosing Strategy&quot; field.
+
+    git checkout origin/$BRANCH
+    # FIXME: What entity defines REF?
+    git fetch origin $REF
+    git cherry-pick --allow-empty --keep-redundant-commits origin/$BRANCH..FETCH_HEAD
+    if [ $? -ne 0 ]; then
+        git cherry-pick --abort
+        git reset --hard origin/$BRANCH
+        ssh build@review.gluster.org gerrit review --message &quot;&apos;$BURL : MERGE CONFLICT&apos;&quot; --project=glusterfs --verified=&quot;-1&quot; --code-review=0 $(git rev-list origin/$BRANCH..FETCH_HEAD)
+        exit 1
+    fi
+fi
+
+/opt/qa/build.sh
+RET=$?
+if [ $RET != 0 ]; then
+    VERDICT=&quot;BUILD FAILURE&quot;
+    V=&quot;-1&quot;
+    finish
+    exit 1
+fi
+
+sudo -E bash -x /opt/qa/regression.sh
+
+RET=$?
+if [ $RET = 0 ]; then
+    V=&quot;+1&quot;
+    VERDICT=&quot;SUCCESS&quot;
+else
+    V=&quot;-1&quot;
+    VERDICT=&quot;FAILED&quot;
+fi
+
+if [ $change -eq 1 ]; then
+    finish
+fi
+
+exit $RET</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

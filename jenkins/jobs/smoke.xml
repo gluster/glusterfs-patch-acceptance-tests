@@ -1,0 +1,153 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>glusterfs pre-commit smoke test</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>GERRIT_REFSPEC</name>
+          <description></description>
+          <defaultValue>refs/heads/master</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@2.4.0">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <refspec>$GERRIT_REFSPEC</refspec>
+        <url>git://review.gluster.org/glusterfs.git</url>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>$GERRIT_BRANCH</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions>
+      <hudson.plugins.git.extensions.impl.PerBuildTag/>
+      <hudson.plugins.git.extensions.impl.BuildChooserSetting>
+        <buildChooser class="com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritTriggerBuildChooser" plugin="gerrit-trigger@2.17.2">
+          <separator>#</separator>
+        </buildChooser>
+      </hudson.plugins.git.extensions.impl.BuildChooserSetting>
+    </extensions>
+  </scm>
+  <assignedNode>smoke_tests</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers>
+    <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritTrigger plugin="gerrit-trigger@2.17.2">
+      <spec></spec>
+      <gerritProjects>
+        <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.data.GerritProject>
+          <compareType>PLAIN</compareType>
+          <pattern>glusterfs</pattern>
+          <branches>
+            <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.data.Branch>
+              <compareType>ANT</compareType>
+              <pattern>**</pattern>
+            </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.data.Branch>
+          </branches>
+          <disableStrictForbiddenFileVerification>false</disableStrictForbiddenFileVerification>
+        </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.data.GerritProject>
+      </gerritProjects>
+      <skipVote>
+        <onSuccessful>false</onSuccessful>
+        <onFailed>false</onFailed>
+        <onUnstable>false</onUnstable>
+        <onNotBuilt>false</onNotBuilt>
+      </skipVote>
+      <gerritBuildStartedVerifiedValue>0</gerritBuildStartedVerifiedValue>
+      <gerritBuildStartedCodeReviewValue>0</gerritBuildStartedCodeReviewValue>
+      <gerritBuildSuccessfulVerifiedValue>0</gerritBuildSuccessfulVerifiedValue>
+      <gerritBuildSuccessfulCodeReviewValue>0</gerritBuildSuccessfulCodeReviewValue>
+      <gerritBuildFailedVerifiedValue>-1</gerritBuildFailedVerifiedValue>
+      <gerritBuildFailedCodeReviewValue>0</gerritBuildFailedCodeReviewValue>
+      <gerritBuildUnstableVerifiedValue>0</gerritBuildUnstableVerifiedValue>
+      <gerritBuildUnstableCodeReviewValue>0</gerritBuildUnstableCodeReviewValue>
+      <gerritBuildNotBuiltVerifiedValue>0</gerritBuildNotBuiltVerifiedValue>
+      <gerritBuildNotBuiltCodeReviewValue>0</gerritBuildNotBuiltCodeReviewValue>
+      <silentMode>false</silentMode>
+      <notificationLevel></notificationLevel>
+      <silentStartMode>false</silentStartMode>
+      <escapeQuotes>true</escapeQuotes>
+      <noNameAndEmailParameters>false</noNameAndEmailParameters>
+      <dependencyJobsNames></dependencyJobsNames>
+      <readableMessage>false</readableMessage>
+      <buildStartMessage></buildStartMessage>
+      <buildFailureMessage></buildFailureMessage>
+      <buildSuccessfulMessage></buildSuccessfulMessage>
+      <buildUnstableMessage></buildUnstableMessage>
+      <buildNotBuiltMessage></buildNotBuiltMessage>
+      <buildUnsuccessfulFilepath></buildUnsuccessfulFilepath>
+      <customUrl></customUrl>
+      <serverName>__ANY__</serverName>
+      <triggerOnEvents>
+        <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginPatchsetCreatedEvent>
+          <excludeDrafts>false</excludeDrafts>
+          <excludeTrivialRebase>false</excludeTrivialRebase>
+          <excludeNoCodeChange>false</excludeNoCodeChange>
+        </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginPatchsetCreatedEvent>
+        <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginDraftPublishedEvent/>
+      </triggerOnEvents>
+      <dynamicTriggerConfiguration>false</dynamicTriggerConfiguration>
+      <triggerConfigURL></triggerConfigURL>
+      <triggerInformationAction/>
+    </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritTrigger>
+  </triggers>
+  <concurrentBuild>true</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+
+
+# 2015-04-24 JC Further stuff to try and kill leftover processes from aborted runs
+sudo pkill -f regression.sh
+sudo pkill -f run-tests.sh
+sudo pkill -f prove
+sudo pkill -f data-self-heal.t
+sudo pkill -f mock
+sudo pkill -f rpmbuild
+sudo pkill -f glusterd
+sudo pkill -f mkdir
+sudo umount -f /mnt/nfs/0
+sudo umount -f /mnt/nfs/1
+
+
+# 2015-02-25 JC Workaround for a permission denied problem
+# 2015-02-26 JC Added /var/lib/glusterd/groups/virt
+# 2015-03-20 JC Still getting failures on /var/lib/glusterd occasionally.  Adding echo statements to help diagnose...
+# 2015-03-20 JC Made the chown and chmod recursive
+JDIRS=&quot;/var/log/glusterfs /var/lib/glusterd /var/lib/glusterd/groups/virt /var/run/gluster /d /d/archived_builds /d/backends /d/build /d/logs /home/jenkins/root /build/*&quot;
+sudo mkdir -p $JDIRS
+echo Return code = $?
+sudo chown -RH jenkins:jenkins $JDIRS
+echo Return code = $?
+sudo chmod -R 755 $JDIRS
+echo Return code = $?
+
+sudo yum -y install cmockery2 cmockery2-devel
+/opt/qa/build.sh
+RET=$?
+if [ $RET -ne 0 ]; then
+    exit 1
+fi
+sudo /opt/qa/smoke.sh
+RET=$?
+
+echo smoke.sh returned $RET
+
+exit $RET</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>
