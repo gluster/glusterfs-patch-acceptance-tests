@@ -120,13 +120,13 @@ echo
 
 BURL=${BUILD_URL}consoleFull
 
-# Exit early with success if the change is on release-3.6
-# NetBSD regression doesn&apos;t run successfully on release-3.6
-if [ $GERRIT_BRANCH = &quot;release-3.6&quot; ]; then
-        echo &quot;Skipping regression run for release-3.6&quot;
+# Exit early with success if the change is on release-3.{5,6}
+# NetBSD regression doesn&apos;t run successfully on release-3.{5,6}
+if [ $GERRIT_BRANCH = &quot;release-3.5&quot; -o $GERRIT_BRANCH = &quot;release-3.6&quot; ]; then
+        echo &quot;Skipping regression run for ${GERRIT_BRANCH}&quot;
         RET=0
-    VERDICT=&quot;Skipped for release-3.6&quot;
-    V=&quot;+1&quot;
+        VERDICT=&quot;Skipped for ${GERRIT_BRANCH}&quot;
+        V=&quot;+1&quot;
         ssh nb7build@review.gluster.org gerrit review --message &quot;&apos;$BURL : $VERDICT&apos;&quot; --project=glusterfs --code-review=0 --label NetBSD-regression=$V $GIT_COMMIT
         exit $RET
 fi
