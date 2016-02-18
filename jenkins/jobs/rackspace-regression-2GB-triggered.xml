@@ -82,16 +82,19 @@ refs/changes/45/12345/6 &lt;br&gt;
       <buildNotBuiltMessage></buildNotBuiltMessage>
       <buildUnsuccessfulFilepath></buildUnsuccessfulFilepath>
       <customUrl></customUrl>
-      <serverName>__ANY__</serverName>
+      <serverName>review.gluster.org</serverName>
       <triggerOnEvents>
         <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginCommentAddedEvent>
-          <verdictCategory>Smoke</verdictCategory>
+          <verdictCategory>Verified</verdictCategory>
           <commentAddedTriggerApprovalValue>1</commentAddedTriggerApprovalValue>
         </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginCommentAddedEvent>
         <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginCommentAddedEvent>
-          <verdictCategory>Smoke</verdictCategory>
+          <verdictCategory>Code-Review</verdictCategory>
           <commentAddedTriggerApprovalValue>2</commentAddedTriggerApprovalValue>
         </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginCommentAddedEvent>
+        <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginCommentAddedContainsEvent>
+          <commentAddedCommentContains>recheck centos</commentAddedCommentContains>
+        </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginCommentAddedContainsEvent>
       </triggerOnEvents>
       <dynamicTriggerConfiguration>false</dynamicTriggerConfiguration>
       <triggerConfigURL></triggerConfigURL>
@@ -163,6 +166,7 @@ set -x
 RET=$?
 if [ $RET != 0 ]; then
     # Build failed, so abort early
+    # should we not pass this as verdict back to gerrit? Rtalur - 10/2/2016
     exit 1
 fi
 set +x
@@ -209,7 +213,7 @@ exit $RET</command>
   <buildWrappers>
     <hudson.plugins.build__timeout.BuildTimeoutWrapper plugin="build-timeout@1.15">
       <strategy class="hudson.plugins.build_timeout.impl.AbsoluteTimeOutStrategy">
-        <timeoutMinutes>300</timeoutMinutes>
+        <timeoutMinutes>500</timeoutMinutes>
       </strategy>
       <operationList>
         <hudson.plugins.build__timeout.operations.FailOperation/>
