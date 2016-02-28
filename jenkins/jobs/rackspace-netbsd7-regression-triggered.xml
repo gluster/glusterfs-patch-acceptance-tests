@@ -34,7 +34,6 @@ refs/changes/45/12345/6 &lt;br&gt;
     <submoduleCfg class="list"/>
     <extensions>
       <hudson.plugins.git.extensions.impl.PerBuildTag/>
-      <hudson.plugins.git.extensions.impl.WipeWorkspace/>
       <hudson.plugins.git.extensions.impl.BuildChooserSetting>
         <buildChooser class="com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritTriggerBuildChooser" plugin="gerrit-trigger@2.17.2">
           <separator>#</separator>
@@ -83,16 +82,19 @@ refs/changes/45/12345/6 &lt;br&gt;
       <buildNotBuiltMessage></buildNotBuiltMessage>
       <buildUnsuccessfulFilepath></buildUnsuccessfulFilepath>
       <customUrl></customUrl>
-      <serverName>__ANY__</serverName>
+      <serverName>review.gluster.org</serverName>
       <triggerOnEvents>
         <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginCommentAddedEvent>
-          <verdictCategory>Smoke</verdictCategory>
+          <verdictCategory>Code-Review</verdictCategory>
           <commentAddedTriggerApprovalValue>2</commentAddedTriggerApprovalValue>
         </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginCommentAddedEvent>
         <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginCommentAddedEvent>
-          <verdictCategory>Smoke</verdictCategory>
+          <verdictCategory>Verified</verdictCategory>
           <commentAddedTriggerApprovalValue>1</commentAddedTriggerApprovalValue>
         </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginCommentAddedEvent>
+        <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginCommentAddedContainsEvent>
+          <commentAddedCommentContains>recheck netbsd</commentAddedCommentContains>
+        </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginCommentAddedContainsEvent>
       </triggerOnEvents>
       <dynamicTriggerConfiguration>false</dynamicTriggerConfiguration>
       <triggerConfigURL></triggerConfigURL>
@@ -117,6 +119,17 @@ echo &quot;$MY_ENV&quot;
 echo
 
 BURL=${BUILD_URL}consoleFull
+
+# Exit early with success if the change is on release-3.{5,6}
+# NetBSD regression doesn&apos;t run successfully on release-3.{5,6}
+if [ $GERRIT_BRANCH = &quot;release-3.5&quot; -o $GERRIT_BRANCH = &quot;release-3.6&quot; ]; then
+        echo &quot;Skipping regression run for ${GERRIT_BRANCH}&quot;
+        RET=0
+        VERDICT=&quot;Skipped for ${GERRIT_BRANCH}&quot;
+        V=&quot;+1&quot;
+        ssh nb7build@review.gluster.org gerrit review --message &quot;&apos;$BURL : $VERDICT&apos;&quot; --project=glusterfs --code-review=0 --label NetBSD-regression=$V $GIT_COMMIT
+        exit $RET
+fi
 
 # Remove any gluster daemon leftovers from aborted runs
 su -l root -c /opt/qa/cleanup.sh &gt;/dev/null 2&gt;&amp;1
@@ -194,7 +207,7 @@ exit $RET</command>
   <buildWrappers>
     <hudson.plugins.build__timeout.BuildTimeoutWrapper plugin="build-timeout@1.15">
       <strategy class="hudson.plugins.build_timeout.impl.AbsoluteTimeOutStrategy">
-        <timeoutMinutes>300</timeoutMinutes>
+        <timeoutMinutes>500</timeoutMinutes>
       </strategy>
       <operationList>
         <hudson.plugins.build__timeout.operations.FailOperation/>
