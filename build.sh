@@ -3,7 +3,9 @@
 set -e
 
 SRC=$(pwd);
-rpm -qa | grep glusterfs | xargs --no-run-if-empty rpm -e
+if type rpm >/dev/null 2>&1; then
+    rpm -qa | grep glusterfs | xargs --no-run-if-empty rpm -e
+fi
 ./autogen.sh;
 P=/build;
 rm -rf $P/scratch;
