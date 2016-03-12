@@ -11,9 +11,11 @@ test-cases can be sent as GitHub pull requests.
 
 ## libgfapi-python
 Run the upstream functional tests from the
-(libgfapi-python)[https://github.com/gluster/libgfapi-python] master branch on
+[libgfapi-python](https://github.com/gluster/libgfapi-python) master branch on
 a single brick volume. This test currently installs the latest released version
-of GlusterFS from the CentOS Storage SIG. In future it should use the nightly
-builds from an other CentOS CI job that places the RPMs on
-http://artifacts.ci.centos.org/gluster/
+of GlusterFS from the CentOS Storage SIG.
 
+The job checks every two hours for updates of the [yum 
+metadata](http://artifacts.ci.centos.org/gluster/nightly/master/7/x86_64/repodata/repomd.xml)
+for CentOS-7/x86_64 and the nightly Gluster RPMs for the master branch. If the
+metadata has been updated, a new run is attempted.
