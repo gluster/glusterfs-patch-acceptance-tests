@@ -38,8 +38,8 @@ rtn_code=subprocess.call(cmd, shell=True)
 cmd="""ssh -t -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s '
 	yum -y install curl &&
 	curl -o build.sh %s &&
-	GERRIT_BRANCH="%s" bash build.sh'
-""" % (b['hosts'][0], script_url, os.getenv("GERRIT_BRANCH"))
+	CENTOS_VERSION="%s" CENTOS_ARCH="%s" GERRIT_BRANCH="%s" bash build.sh'
+""" % (b['hosts'][0], script_url, os.getenv("CENTOS_VERSION"), os.getenv("CENTOS_ARCH"), os.getenv("GERRIT_BRANCH"))
 rtn_code=subprocess.call(cmd, shell=True)
 
 # return the system(s) to duffy

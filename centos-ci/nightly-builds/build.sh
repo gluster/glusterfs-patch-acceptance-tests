@@ -66,10 +66,9 @@ SRPM=$(rpmbuild --define 'dist .autobuild' --define "_srcrpmdir ${PWD}" \
 
 # do the actual RPM build in mock
 # TODO: use a CentOS Storage SIG buildroot
-source /etc/os-release
-RESULTDIR=/srv/gluster/nightly/${GERRIT_BRANCH}/${VERSION_ID}/$(uname -m)
+RESULTDIR=/srv/gluster/nightly/${GERRIT_BRANCH}/${CENTOS_VERSION}/${CENTOS_ARCH}
 /usr/bin/mock \
-	--root epel-${VERSION_ID}-$(uname -m) \
+	--root epel-${CENTOS_VERSION}-${CENTOS_ARCH} \
 	--resultdir ${RESULTDIR} \
 	--rebuild ${SRPM}
 
