@@ -14,8 +14,9 @@
 import json, urllib, subprocess, sys, os
 
 url_base="http://admin.ci.centos.org:8080"
-ver=os.getenv("CENTOS_VERSION")
-arch=os.getenv("CENTOS_ARCH")
+# we just build on CentOS-7/x86_64, CentOS-6 does not have 'mock'?
+ver="7"
+arch="x86_64"
 count=1
 script_url=os.getenv("TEST_SCRIPT")
 
