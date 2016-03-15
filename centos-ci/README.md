@@ -9,6 +9,13 @@ test-cases can be sent as GitHub pull requests.
 
 # Current available tests
 
+## nightly-builds
+Create RPMs each night and sync them to artifacts.ci.centos.org. There is one
+main job is used as a scheduler (`gluster_nightly-rpm-builds`). The actual
+building is done by `gluster_build-rpms` and uses several environment
+parameters to decide what CentOS version, architecture and Gluster release to
+build.
+
 ## libgfapi-python
 Run the upstream functional tests from the
 [libgfapi-python](https://github.com/gluster/libgfapi-python) master branch on
