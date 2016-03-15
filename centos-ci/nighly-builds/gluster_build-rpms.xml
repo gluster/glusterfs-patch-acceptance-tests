@@ -1,0 +1,76 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Build RPMs from the master branch, each night.</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.17.1">
+      <projectUrl>https://github.com/gluster/glusterfs/</projectUrl>
+      <displayName></displayName>
+    </com.coravy.hudson.plugins.github.GithubProjectProperty>
+    <com.chikli.hudson.plugin.naginator.NaginatorOptOutProperty plugin="naginator@1.15">
+      <optOut>false</optOut>
+    </com.chikli.hudson.plugin.naginator.NaginatorOptOutProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>DUFFY_SCRIPT</name>
+          <description>Python script that reserves a machine from Duffy and starts the ${TEST_SCRIPT}.</description>
+          <defaultValue>https://raw.githubusercontent.com/gluster/glusterfs-patch-acceptance-tests/master/centos-ci/nightly-builds/jenkins-job.py</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>TEST_SCRIPT</name>
+          <description>Test script to execute on the reserved machine, should move to the gluster/glusterfs-patch-acceptance-tests at one point.</description>
+          <defaultValue>https://raw.githubusercontent.com/gluster/glusterfs-patch-acceptance-tests/master/centos-ci/nightly-builds/build.sh</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>GERRIT_BRANCH</name>
+          <description>Branch from the upstream git repository to build RPMs from.</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>master</string>
+              <string>release-3.7</string>
+              <string>release-3.6</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>CENTOS_VERSION</name>
+          <description>CentOS version to build the RPMs for.</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>7</string>
+              <string>6</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>CENTOS_ARCH</name>
+          <description>CentOS architecture to build the RPMs for.</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>x86_64</string>
+              <string>i686</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <assignedNode>gluster</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>curl -o jenkins-job.py ${DUFFY_SCRIPT}
+python jenkins-job.py</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>
