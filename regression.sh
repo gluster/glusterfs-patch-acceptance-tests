@@ -46,8 +46,21 @@ export PYTHONPATH="${BASE}/lib/python${PY_VER}/site-packages:${PYTHONPATH}"
 export LIBRARY_PATH="${BASE}/lib:${LIBRARY_PATH}"
 export LD_LIBRARY_PATH="${BASE}/lib:${LD_LIBRARY_PATH}"
 
+# save core_patterns
+case $(uname -s) in
+    'Linux')
+        old_core_pattern=$(/sbin/sysctl -n kernel.core_pattern)
+        /sbin/sysctl -w kernel.core_pattern="/%e-%p.core"
+        ;;
+    'NetBSD')
+        old_core_pattern=$(/sbin/sysctl -n kern.defcorename)
+        /sbin/sysctl -w kern.defcorename="/%n-%p.core"
+        ;;
+esac
+
 # Count the number of core files in /
-core_count=$(ls -l /core.*|wc -l);
+core_count=$(ls -l /*.core|wc -l);
+old_cores=$(ls /*.core);
 
 # Run the regression tests
 if [ -x ./run-tests.sh ]; then
@@ -61,11 +74,53 @@ elif [ -x ${BASE}/share/glusterfs/run-tests.sh ]; then
 fi
 
 # If there are new core files in /, archive this build for later analysis
-cur_count=$(ls -l /core.* 2>/dev/null|wc -l);
+cur_count=$(ls -l /*.core 2>/dev/null|wc -l);
+cur_cores=$(ls /*.core 2>/dev/null);
+
 if [ ${cur_count} != ${core_count} ]; then
+
+    declare -a corefiles
+    for word1 in ${cur_cores}; do
+        for word2 in ${old_cores}; do
+            if [ ${word1} == ${word2} ]; then
+                x=1
+                break;
+            fi
+        done
+        if [[ ${x} -eq 0 ]]; then
+            corefiles=("${corefiles[@]}" "${word1}")
+        fi
+        x=0
+    done
+
+    core_count=$(echo "${corefiles[@]}" | wc -w)
+    # Dump backtrace of generated corefiles
+    if [ ${core_count} -gt 0 ]; then
+        for corefile in "${corefiles[@]}"
+        do
+            executable_name=$(echo ${corefile} | awk -F'-' '{ print $1 }' \
+                              | cut -d'/' -f2)
+            executable_path=$(which ${executable_name})
+
+            echo ""
+            echo "========================================================="
+            echo "              Start printing backtrace"
+            echo "         program name : ${executable_path}"
+            echo "         corefile     : ${corefile}"
+            echo "========================================================="
+            gdb -nx --batch --quiet -ex "thread apply all bt full"         \
+                -ex "quit" --exec=${executable_path} --core=${corefile}
+            echo "========================================================="
+            echo "              Finish backtrace"
+            echo "         program name : ${executable_path}"
+            echo "         corefile     : ${corefile}"
+            echo "========================================================="
+            echo ""
+        done
+    fi
     # Archive the build and any cores
     mkdir -p ${BASE}/cores
-    mv /core* ${BASE}/cores
+    mv /*.core ${BASE}/cores
     filename=${ARCHIVED_BUILDS}/build-install-${TIMESTAMP}.tar
 
     # Remove temporary files generated to stash libraries from cores
@@ -73,7 +128,7 @@ if [ ${cur_count} != ${core_count} ]; then
     rm -f ${LIBLIST}.tmp
 
     #Generate library list from all cores
-    CORELIST="$(ls ${BASE}/cores/core.*)"
+    CORELIST="$(ls ${BASE}/cores/*.core)"
     for corefile in $CORELIST; do
         getliblistfromcore $corefile
     done
@@ -98,7 +153,7 @@ if [ ${cur_count} != ${core_count} ]; then
     echo Cores and build archived in http://${SERVER}/${filename}.bz2
     echo Open core using the following command to get a proper stack...
     echo Example: From root of extracted tarball
-    echo         "gdb -ex 'set sysroot ./' -ex 'core-file ./build/install/cores/core.xxx' <target, say ./build/install/sbin/glusterd>"
+    echo         "gdb -ex 'set sysroot ./' -ex 'core-file ./build/install/cores/xxx.core' <target, say ./build/install/sbin/glusterd>"
     # Forcefully fail the regression run if it has not already failed.
     RET=1
 fi
@@ -109,5 +164,15 @@ if [ ${RET} -ne 0 ]; then
     tar -czf ${ARCHIVE_BASE}/$filename /var/log/glusterfs /var/log/messages*;
     echo Logs archived in http://${SERVER}/${filename}
 fi
+
+# reset core_patterns
+case $(uname -s) in
+    'Linux')
+        /sbin/sysctl -w kernel.core_pattern="${old_core_pattern}"
+        ;;
+    'NetBSD')
+        /sbin/sysctl -w kern.defcorename="${old_core_pattern}"
+        ;;
+esac
 
 exit ${RET};
