@@ -1,0 +1,99 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <description>Run clang static analysis tool scan-build, triggerered on every gerrit CR revision</description>⇂
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.17.1">
+        <projectUrl>https://github.com/gluster/glusterfs</projectUrl>
+      <displayName></displayName>
+    </com.coravy.hudson.plugins.github.GithubProjectProperty>
+    <com.chikli.hudson.plugin.naginator.NaginatorOptOutProperty plugin="naginator@1.15">
+      <optOut>false</optOut>
+    </com.chikli.hudson.plugin.naginator.NaginatorOptOutProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>DUFFY_SCRIPT</name>
+          <description>Python script that reserves a machine from Duffy.</description>
+          <defaultValue>https://raw.githubusercontent.com/gluster/glusterfs-patch-acceptance-tests/master/centos-ci/clang-analysis/jenkins-job.py</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>TEST_SCRIPT</name>
+          <description>Test script to execute on the reserved machine.</description>
+          <defaultValue>https://raw.githubusercontent.com/gluster/glusterfs-patch-acceptance-tests/master/centos-ci/clang-analysis/run-clang-analysis.sh</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <assignedNode>gluster</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers>
+      <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritTrigger plugin="gerrit-trigger@2.18.3">
+          <spec></spec>
+          <gerritProjects>
+              <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.data.GerritProject>
+                  <compareType>PLAIN</compareType>
+                  <pattern>glusterfs</pattern>
+                  <branches>
+                      <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.data.Branch>
+                          <compareType>ANT</compareType>
+                          <pattern>**</pattern>
+                      </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.data.Branch>
+                  </branches>
+                  <disableStrictForbiddenFileVerification>false</disableStrictForbiddenFileVerification>
+              </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.data.GerritProject>
+          </gerritProjects>
+          <skipVote>
+              <onSuccessful>false</onSuccessful>
+              <onFailed>false</onFailed>
+              <onUnstable>false</onUnstable>
+              <onNotBuilt>false</onNotBuilt>
+          </skipVote>
+          <silentMode>false</silentMode>
+          <notificationLevel></notificationLevel>
+          <silentStartMode>false</silentStartMode>
+          <escapeQuotes>true</escapeQuotes>
+          <nameAndEmailParameterMode>PLAIN</nameAndEmailParameterMode>
+          <dependencyJobsNames></dependencyJobsNames>
+          <commitMessageParameterMode>BASE64</commitMessageParameterMode>
+          <changeSubjectParameterMode>PLAIN</changeSubjectParameterMode>
+          <buildStartMessage></buildStartMessage>
+          <buildFailureMessage></buildFailureMessage>
+          <buildSuccessfulMessage></buildSuccessfulMessage>
+          <buildUnstableMessage></buildUnstableMessage>
+          <buildNotBuiltMessage></buildNotBuiltMessage>
+          <buildUnsuccessfulFilepath></buildUnsuccessfulFilepath>
+          <customUrl></customUrl>
+          <serverName>review.gluster.org</serverName>
+          <triggerOnEvents>
+              <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginPatchsetCreatedEvent>
+                  <excludeDrafts>false</excludeDrafts>
+                  <excludeTrivialRebase>false</excludeTrivialRebase>
+                  <excludeNoCodeChange>false</excludeNoCodeChange>
+              </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginPatchsetCreatedEvent>
+              <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginCommentAddedContainsEvent>
+                  <commentAddedCommentContains>recheck clang</commentAddedCommentContains>
+              </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginCommentAddedContainsEvent>
+          </triggerOnEvents>
+          <dynamicTriggerConfiguration>false</dynamicTriggerConfiguration>
+          <triggerConfigURL></triggerConfigURL>
+          <triggerInformationAction/>
+      </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritTrigger>
+  </triggers>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>curl -o jenkins-job.py ${DUFFY_SCRIPT}
+python jenkins-job.py</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <buildWrappers>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.4.1">
+      <colorMapName>xterm</colorMapName>
+    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+  </buildWrappers>
+</project>
