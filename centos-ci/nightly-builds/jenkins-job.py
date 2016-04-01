@@ -46,7 +46,7 @@ rtn_code=subprocess.call(cmd, shell=True)
 # copy the mock/resultdir logs for archiving as artifacts by the Jenkins job
 if rtn_code != 0:
   resultdir="/srv/gluster/nightly/%s/%s/%s" % (os.getenv("GERRIT_BRANCH"), os.getenv("CENTOS_VERSION"), os.getenv("CENTOS_ARCH"))
-  cmd="scp -t -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s:%s/*.log ." % (b['hosts'][0], resultdir)
+  cmd="scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s:%s/*.log ." % (b['hosts'][0], resultdir)
   subprocess.call(cmd, shell=True)
 
 # return the system(s) to duffy
