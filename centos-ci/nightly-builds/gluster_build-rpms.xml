@@ -37,6 +37,7 @@
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
               <string>master</string>
+              <string>release-3.8</string>
               <string>release-3.7</string>
               <string>release-3.6</string>
             </a>
