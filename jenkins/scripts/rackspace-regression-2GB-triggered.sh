@@ -79,7 +79,6 @@ echo
 echo "Build GlusterFS"
 echo "***************"
 echo
-set -x
 /opt/qa/build.sh
 RET=$?
 if [ $RET != 0 ]; then
@@ -90,7 +89,6 @@ if [ $RET != 0 ]; then
     ssh build@review.gluster.org gerrit review --message "'$BURL : $VERDICT'" --project=glusterfs --label CentOS-regression=$V $GIT_COMMIT
     exit $RET
 fi
-set +x
 echo
 
 # Run the regression test
@@ -99,7 +97,6 @@ echo
 echo "Run the regression test"
 echo "***********************"
 echo
-set -x
 sudo -E bash /opt/qa/regression.sh
 RET=$?
 if [ $RET = 0 ]; then

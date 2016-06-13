@@ -85,14 +85,12 @@ echo
 echo "Build GlusterFS"
 echo "***************"
 echo
-set -x
 /opt/qa/build.sh
 RET=$?
 if [ $RET != 0 ]; then
     # Build failed, so abort early
     exit 1
 fi
-set +x
 echo
 
 # regression tests assumes build is done inside source directory
@@ -106,7 +104,6 @@ echo "Start time $(date)"
 echo "Run the regression test"
 echo "***********************"
 echo
-set -x
 su -l root -c "cd $WORKSPACE && /opt/qa/regression.sh"
 RET=$?
 if [ $RET = 0 ]; then
