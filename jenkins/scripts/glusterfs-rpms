@@ -1,0 +1,16 @@
+./autogen.sh || exit 1
+
+./configure --enable-fusermount || exit 1
+
+cd extras/LinuxRPM
+
+make prep srcrpm || exit 1
+
+CFGS="fedora-22-x86_64"
+for rpmcfg in $CFGS ; do
+    echo "---- mock rpm build $rpmcfg ----"
+    sudo mock -r $rpmcfg --resultdir=${WORKSPACE}/RPMS/"%(dist)s"/"%(target_arch)s"/ --rebuild glusterfs*src.rpm || exit 1
+done
+
+
+
