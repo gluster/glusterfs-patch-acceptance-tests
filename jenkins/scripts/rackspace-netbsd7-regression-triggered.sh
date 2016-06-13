@@ -15,12 +15,12 @@ echo
 # Exit early with success if the change is on release-3.{5,6}
 # NetBSD regression doesn't run successfully on release-3.{5,6}
 if [ $GERRIT_BRANCH = "release-3.5" -o $GERRIT_BRANCH = "release-3.6" ]; then
-	echo "Skipping regression run for ${GERRIT_BRANCH}"
-	RET=0
+    echo "Skipping regression run for ${GERRIT_BRANCH}"
+    RET=0
     VERDICT="Skipped for ${GERRIT_BRANCH}"
     V="+1"
-	ssh nb7build@review.gluster.org gerrit review --message "'$BURL : $VERDICT'" --project=glusterfs --code-review=0 --label NetBSD-regression=$V $GIT_COMMIT
-	exit $RET
+    ssh nb7build@review.gluster.org gerrit review --message "'$BURL : $VERDICT'" --project=glusterfs --code-review=0 --label NetBSD-regression=$V $GIT_COMMIT
+    exit $RET
 fi
 
 # Remove any gluster daemon leftovers from aborted runs
@@ -62,8 +62,8 @@ if [[ "$DOC_ONLY" == true ]]; then
     RET=0
     VERDICT="Skipped tests for doc only change"
     V="+1"
-	ssh nb7build@review.gluster.org gerrit review --message "'$BURL : $VERDICT'" --project=glusterfs --code-review=0 --label NetBSD-regression=$V $GIT_COMMIT
-	exit $RET
+    ssh nb7build@review.gluster.org gerrit review --message "'$BURL : $VERDICT'" --project=glusterfs --code-review=0 --label NetBSD-regression=$V $GIT_COMMIT
+    exit $RET
 fi
 
 
@@ -83,8 +83,8 @@ if [[ "$DISTAF_ONLY" == true ]]; then
     RET=0
     VERDICT="Skipped tests for distaf only change"
     V="+1"
-	ssh nb7build@review.gluster.org gerrit review --message "'$BURL : $VERDICT'" --project=glusterfs --code-review=0 --label NetBSD-regression=$V $GIT_COMMIT
-	exit $RET
+    ssh nb7build@review.gluster.org gerrit review --message "'$BURL : $VERDICT'" --project=glusterfs --code-review=0 --label NetBSD-regression=$V $GIT_COMMIT
+    exit $RET
 fi
 
 
