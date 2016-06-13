@@ -1,18 +1,16 @@
 #!/bin/bash
 
-### This script is still being developed.  Please email    ###
-### manu@netbsd.org if you notice any weirdness from it ###
+MY_ENV=`env | sort`
+BURL=${BUILD_URL}consoleFull
 
 # Display all environment variables in the debugging log
+echo "Start time $(date)"
 echo
 echo "Display all environment variables"
 echo "*********************************"
-echo
-MY_ENV=`env | sort`
 echo "$MY_ENV"
 echo
 
-BURL=${BUILD_URL}consoleFull
 
 # Exit early with success if the change is on release-3.{5,6}
 # NetBSD regression doesn't run successfully on release-3.{5,6}
