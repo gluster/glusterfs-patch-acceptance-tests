@@ -5,8 +5,6 @@
 # Author: Niels de Vos <ndevos@redhat.com>
 #
 
-# export DEBUG before running, or set to non-zero for more verbose output
-#DEBUG=1
 DEBUG=${DEBUG:=0}
 [ "${DEBUG}" == '0' ] || set -x
 
@@ -25,7 +23,7 @@ elif ! grep -q -e '^master$' -e '^release-' <<< "${GERRIT_BRANCH}" ; then
     exit 0
 fi
 
-
+# Query bugzilla with 3 retries
 [ "${DEBUG}" == '0' ] || BZQOPTS='--verbose'
 BUG_PRODUCT=""
 BZQTRY=0
@@ -81,4 +79,3 @@ fi
 
 echo "BUG was filed against a version, and the change is filed for the correct branch."
 exit 0
-
