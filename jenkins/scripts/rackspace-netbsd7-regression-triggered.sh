@@ -36,13 +36,13 @@ cd $WORKSPACE
 git reset --hard HEAD
 
 # Clean up other Gluster dirs
-su -l root -c "rm -rf /var/lib/glusterd/* /build/install /build/scratch" >/dev/null 2>&1
+su -l root -c "rm -rf /var/lib/glusterd/* /build/install /build/scratch"
 
 # Remove the many left over socket files in /var/run
-su -l root -c "rm -f /var/run/glusterd.socket" >/dev/null 2>&1
+su -l root -c "rm -f /var/run/glusterd.socket"
 
 # Remove GlusterFS log files from previous runs
-su -l root -c "rm -rf /var/log/glusterfs/* /var/log/glusterfs/.cmd_log_history" >/dev/null 2>&1
+su -l root -c "rm -rf /var/log/glusterfs/* /var/log/glusterfs/.cmd_log_history"
 
 
 
