@@ -8,6 +8,7 @@ echo "Start time $(date)"
 echo
 echo "Display all environment variables"
 echo "*********************************"
+echo
 echo "$MY_ENV"
 echo
 
