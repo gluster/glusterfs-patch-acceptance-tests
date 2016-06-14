@@ -1,0 +1,1 @@
+jenkins/scripts/compare-bug-version-and-git-branch.sh
