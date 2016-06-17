@@ -14,9 +14,9 @@ cd extras/LinuxRPM
 
 make prep srcrpm || exit 1
 
-echo "---- mock rpm build $rpmcfg ----"
+echo "---- mock rpm build $CFGS ----"
 if [ "$CLEANUP_AFTER" = true ] ; then
-    sudo mock -r $rpmcfg --resultdir=${WORKSPACE}/RPMS/"%(dist)s"/"%(target_arch)s"/ --cleanup-after --rebuild glusterfs*src.rpm || exit 1
+    sudo mock -r $CFGS --resultdir=${WORKSPACE}/RPMS/"%(dist)s"/"%(target_arch)s"/ --cleanup-after --rebuild glusterfs*src.rpm || exit 1
 else
-    sudo mock -r $rpmcfg --resultdir=${WORKSPACE}/RPMS/"%(dist)s"/"%(target_arch)s"/ --rebuild glusterfs*src.rpm || exit 1
+    sudo mock -r $CFGS --resultdir=${WORKSPACE}/RPMS/"%(dist)s"/"%(target_arch)s"/ --rebuild glusterfs*src.rpm || exit 1
 fi
