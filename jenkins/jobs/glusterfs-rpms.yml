@@ -11,9 +11,17 @@
         - $GERRIT_BRANCH
         refspec: $GERRIT_REFSPEC
         url: http://review.gluster.org/glusterfs
-        wipe-workspace: true
 
-    triggers: []
+    triggers:
+      - gerrit:
+          trigger-on:
+            - change-merged-event
+          projects:
+            - project-compare-type: 'PLAIN'
+              project-pattern: 'glusterfs'
+              branches:
+                - branch-compare-type: 'PLAIN'
+                  branch-pattern: 'master'
 
     builders:
     - shell: CFGS="fedora-22-x86_64" /opt/qa/jenkins/scripts/glusterfs-rpms.sh
