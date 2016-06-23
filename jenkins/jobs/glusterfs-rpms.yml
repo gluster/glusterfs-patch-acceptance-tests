@@ -1,9 +1,18 @@
-- job:
-    name: glusterfs-rpms-test
+- project:
+    name: 'rpm'
+    buildversion:
+      - fedora:
+          build_flag: fedora-22-x86_64
+      - el6:
+          build_flag: epel-6-x86_64
+    jobs:
+      - '{name}-{buildversion}'
+
+- job-template:
+    name: '{name}-{buildversion}'
     node: glusterfs-devrpms
     description: Creates RPMs for developers and those who need to verify the patch
     project-type: freestyle
-    concurrent: true
 
     scm:
     - git:
@@ -23,9 +32,6 @@
                 - branch-compare-type: 'PLAIN'
                   branch-pattern: 'master'
 
-    builders:
-    - shell: CFGS="fedora-22-x86_64" /opt/qa/jenkins/scripts/glusterfs-rpms.sh
-
     logrotate:
       artifactDaysToKeep: '10'
       artifactNumToKeep: '10'
@@ -35,11 +41,11 @@
     parameters:
     - string:
         default: refs/heads/master
-        description: ''
+        description: 'The git branch you want to build from. We usually just pick the master refspec'
         name: GERRIT_REFSPEC
     - string:
         default: master
-        description: ''
+        description: 'Name of the branch you want to build from. We usually build from master'
         name: GERRIT_BRANCH
 
     publishers:
@@ -49,3 +55,6 @@
         default-excludes: true
         fingerprint: false
         only-if-success: false
+
+    builders:
+    - shell: CFGS='"{build_flag}" /opt/qa/jenkins/scripts/glusterfs-rpms.sh'
