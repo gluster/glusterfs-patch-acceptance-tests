@@ -1,5 +1,5 @@
 - job:
-    name: glusterfs-rpms
+    name: glusterfs-rpms-test
     node: glusterfs-devrpms
     description: Creates RPMs for developers and those who need to verify the patch
     project-type: freestyle
@@ -37,6 +37,10 @@
         default: refs/heads/master
         description: ''
         name: GERRIT_REFSPEC
+    - string:
+        default: master
+        description: ''
+        name: GERRIT_BRANCH
 
     publishers:
     - archive:
