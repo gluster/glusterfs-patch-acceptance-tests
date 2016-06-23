@@ -57,4 +57,4 @@
         only-if-success: false
 
     builders:
-    - shell: CFGS='"{build_flag}" /opt/qa/jenkins/scripts/glusterfs-rpms.sh'
+    - shell: CFGS="{build_flag}" /opt/qa/jenkins/scripts/glusterfs-rpms.sh
