@@ -31,6 +31,7 @@ yum -y install ansible
 
 # Vagrant needs libvirtd running
 systemctl start libvirtd
+systemctl start docker
 
 # exact steps from https://github.com/heketi/heketi/tree/master/tests/functional#setup
 mkdir go
