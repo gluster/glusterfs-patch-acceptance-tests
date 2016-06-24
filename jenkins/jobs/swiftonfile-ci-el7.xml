@@ -40,7 +40,7 @@
   </scm>
   <assignedNode>gluster-swift-el7-1</assignedNode>
   <canRoam>false</canRoam>
-  <disabled>false</disabled>
+  <disabled>true</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <authToken>3a77a6a87e94b5d57f21a2f52ef1c0e4</authToken>
