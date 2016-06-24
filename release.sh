@@ -114,7 +114,7 @@ function cp_tarball()
 {
     mkdir $BITS/src -p;
     cp $BASEDIR/$VERSION/gluster*-$VERSION.tar.gz $BITS/src/
-    sha256sum $BITS/src/gluster*-$VERSION.tar.gz > $BITS/src/gluster*-$VERSION.tar.gz.sha256sum
+    sha256sum $BITS/src/gluster*-$VERSION.tar.gz > $BITS/src/gluster*-$VERSION.sha256sum
 }
 
 function stage_bits()
