@@ -26,3 +26,17 @@ The job checks every two hours for updates of the [yum
 metadata](http://artifacts.ci.centos.org/gluster/nightly/master/7/x86_64/repodata/repomd.xml)
 for CentOS-7/x86_64 and the nightly Gluster RPMs for the master branch. If the
 metadata has been updated, a new run is attempted.
+
+## heketi-functional
+Run the upstream functional tests as described in the [Heketi
+README](https://github.com/heketi/heketi/blob/master/tests/functional/README.md).
+These tests use [Vagrant from the
+SCLo](https://wiki.centos.org/SpecialInterestGroup/SCLo/Vagrant) that is
+provided in CentOS.
+
+The job checks every two hours for updates of the [yum 
+metadata](http://artifacts.ci.centos.org/gluster/nightly/master/7/x86_64/repodata/repomd.xml)
+for CentOS-7/x86_64 and the nightly Gluster RPMs for the master branch. If the
+metadata has been updated, a new run is attempted. The test run itself [does
+not use the nightly build Gluster repository
+yet](https://github.com/heketi/heketi/issues/396) though.
