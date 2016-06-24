@@ -23,6 +23,7 @@ ver="7"
 arch="x86_64"
 count=1
 script_url=os.getenv("TEST_SCRIPT")
+ghprbPullId=os.getenv("ghprbPullId")
 
 # read the API key for Duffy from the ~/duffy.key file
 fo=open("/home/gluster/duffy.key")
@@ -37,8 +38,8 @@ dat=urllib.urlopen(get_nodes_url).read()
 b=json.loads(dat)
 cmd="""ssh -t -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@%s '
 	yum -y install curl &&
-	curl %s | bash -
-'""" % (b['hosts'][0], script_url)
+	curl %s | ghprbPullId="%s" bash -
+'""" % (b['hosts'][0], script_url, ghprbPullId)
 rtn_code=subprocess.call(cmd, shell=True)
 
 # return the system(s) to duffy
