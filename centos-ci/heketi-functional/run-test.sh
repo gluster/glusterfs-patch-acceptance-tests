@@ -44,6 +44,7 @@ git clone https://github.com/heketi/heketi.git
 # by default we clone the master branch, but maybe this was triggered through a PR?
 if [ -n "${ghprbPullId}" ]
 then
+        cd heketi
 	git fetch origin pull/${ghprbPullId}/head:pr_${ghprbPullId}
 	git checkout pr_${ghprbPullId}
 fi
