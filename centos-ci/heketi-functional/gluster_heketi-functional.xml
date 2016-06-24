@@ -4,11 +4,11 @@
   <description>Run the functional test from upstream Heketi against the latest build of the glusterfs packages. A new run is executed automatically against the nightly builds of the master branch.</description>
   <keepDependencies>false</keepDependencies>
   <properties>
-    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.17.1">
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.19.1">
       <projectUrl>https://github.com/heketi/heketi/</projectUrl>
       <displayName></displayName>
     </com.coravy.hudson.plugins.github.GithubProjectProperty>
-    <com.chikli.hudson.plugin.naginator.NaginatorOptOutProperty plugin="naginator@1.15">
+    <com.chikli.hudson.plugin.naginator.NaginatorOptOutProperty plugin="naginator@1.17">
       <optOut>false</optOut>
     </com.chikli.hudson.plugin.naginator.NaginatorOptOutProperty>
     <hudson.model.ParametersDefinitionProperty>
@@ -26,32 +26,62 @@
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>
-  <scm class="hudson.scm.NullSCM"/>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@2.4.4">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://github.com/heketi/heketi.git</url>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>*/master</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <gitTool>Default</gitTool>
+    <submoduleCfg class="list"/>
+    <extensions/>
+  </scm>
   <assignedNode>gluster</assignedNode>
   <canRoam>false</canRoam>
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers>
-    <org.jenkinsci.plugins.urltrigger.URLTrigger plugin="urltrigger@0.40">
-      <spec># run every two hours
-H */2 * * *</spec>
-      <triggerLabel>gluster</triggerLabel>
-      <entries>
-        <org.jenkinsci.plugins.urltrigger.URLTriggerEntry>
-          <url>http://artifacts.ci.centos.org/gluster/nightly/master/7/x86_64/repodata/repomd.xml</url>
-          <proxyActivated>false</proxyActivated>
-          <checkStatus>false</checkStatus>
-          <statusCode>200</statusCode>
-          <timeout>300</timeout>
-          <checkETag>false</checkETag>
-          <checkLastModificationDate>true</checkLastModificationDate>
-          <inspectingContent>false</inspectingContent>
-          <contentTypes/>
-        </org.jenkinsci.plugins.urltrigger.URLTriggerEntry>
-      </entries>
-      <labelRestriction>true</labelRestriction>
-    </org.jenkinsci.plugins.urltrigger.URLTrigger>
+    <org.jenkinsci.plugins.ghprb.GhprbTrigger plugin="ghprb@1.32.2">
+      <spec>H/5 * * * *</spec>
+      <latestVersion>3</latestVersion>
+      <configVersion>3</configVersion>
+      <adminlist>lpabon</adminlist>
+      <allowMembersOfWhitelistedOrgsAsAdmin>false</allowMembersOfWhitelistedOrgsAsAdmin>
+      <orgslist></orgslist>
+      <cron>H/5 * * * *</cron>
+      <buildDescTemplate></buildDescTemplate>
+      <onlyTriggerPhrase>false</onlyTriggerPhrase>
+      <useGitHubHooks>false</useGitHubHooks>
+      <permitAll>false</permitAll>
+      <whitelist></whitelist>
+      <autoCloseFailedPullRequests>false</autoCloseFailedPullRequests>
+      <displayBuildErrorsOnDownstreamBuilds>false</displayBuildErrorsOnDownstreamBuilds>
+      <whiteListTargetBranches>
+        <org.jenkinsci.plugins.ghprb.GhprbBranch>
+          <branch></branch>
+        </org.jenkinsci.plugins.ghprb.GhprbBranch>
+      </whiteListTargetBranches>
+      <gitHubAuthId>a9df0596-2fe4-4e12-a8a5-6856d007bfbc</gitHubAuthId>
+      <triggerPhrase></triggerPhrase>
+      <skipBuildPhrase>.*\[skip\W+ci\].*</skipBuildPhrase>
+      <extensions>
+        <org.jenkinsci.plugins.ghprb.extensions.status.GhprbSimpleStatus>
+          <commitStatusContext></commitStatusContext>
+          <triggeredStatus></triggeredStatus>
+          <startedStatus></startedStatus>
+          <statusUrl></statusUrl>
+          <addTestResults>false</addTestResults>
+        </org.jenkinsci.plugins.ghprb.extensions.status.GhprbSimpleStatus>
+      </extensions>
+    </org.jenkinsci.plugins.ghprb.GhprbTrigger>
   </triggers>
   <concurrentBuild>false</concurrentBuild>
   <builders>
@@ -62,7 +92,7 @@ python jenkins-job.py</command>
   </builders>
   <publishers/>
   <buildWrappers>
-    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.4.1">
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.4.2">
       <colorMapName>xterm</colorMapName>
     </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
   </buildWrappers>

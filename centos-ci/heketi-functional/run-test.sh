@@ -9,8 +9,8 @@ set -x
 # enable the SCL repository for Vagrant
 yum -y install centos-release-scl
 
-# install Vagrant with QEMU
-yum -y install qemu-kvm sclo-vagrant1-vagrant-libvirt
+# install docker and Vagrant with QEMU
+yum -y install docker qemu-kvm sclo-vagrant1-vagrant-libvirt
 
 # install Go (Heketi depends on version 1.6+)
 if ! yum -y install 'golang >= 1.6'
@@ -40,6 +40,14 @@ export PATH=$PATH:$GOPATH/bin
 mkdir -p src/github.com/heketi
 cd src/github.com/heketi
 git clone https://github.com/heketi/heketi.git
+
+# by default we clone the master branch, but maybe this was triggered through a PR?
+if [ -n "${ghprbPullId}" ]
+then
+	git fetch origin pull/${ghprbPullId}/head:pr_${ghprbPullId}
+	git checkout pr_${ghprbPullId}
+fi
+
 go get github.com/robfig/glock
 glock sync github.com/heketi/heketi
 
