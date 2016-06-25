@@ -40,3 +40,16 @@ for CentOS-7/x86_64 and the nightly Gluster RPMs for the master branch. If the
 metadata has been updated, a new run is attempted. The test run itself [does
 not use the nightly build Gluster repository
 yet](https://github.com/heketi/heketi/issues/396) though.
+
+## nightly-vagrant
+The 3.8 version and the master branch have the `run-tests-in-vagrant.sh`
+scripts. These versions can be used in the CentOS CI to run tests.
+
+At midnight, four tests get scheduled:
+ - GlusterFS master on CentOS-6
+ - GlusterFS master on Fedora
+ - GlusterFS release-3.8 on CentOS-6
+ - GlusterFS release-3.8 on Fedora
+
+The version of Fedora comes from the Gluster upstream script and can not be
+chosen.
