@@ -23,7 +23,7 @@ ver="7"
 arch="x86_64"
 count=1
 script_url=os.getenv("TEST_SCRIPT")
-ghprbPullId=os.getenv("ghprbPullId")
+ghprbPullId=os.getenv("ghprbPullId", "")
 
 # read the API key for Duffy from the ~/duffy.key file
 fo=open("/home/gluster/duffy.key")
