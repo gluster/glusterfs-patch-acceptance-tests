@@ -45,13 +45,21 @@ git clone https://github.com/heketi/heketi.git
 # by default we clone the master branch, but maybe this was triggered through a PR?
 if [ -n "${ghprbPullId}" ]
 then
-        cd heketi
+	cd heketi
 	git fetch origin pull/${ghprbPullId}/head:pr_${ghprbPullId}
 	git checkout pr_${ghprbPullId}
+	cd ..
 fi
 
-go get github.com/robfig/glock
-glock sync github.com/heketi/heketi
+# only if there is a GLOCKFILE use glock, otherwise use godep
+if [ -e GLOCKFILE ]
+then
+	go get github.com/robfig/glock
+	glock sync github.com/heketi/heketi
+else
+	# new way with https://github.com/heketi/heketi/pull/400
+	go get github.com/tools/godep
+fi
 
 # time to run the tests!
 cd $GOPATH/src/github.com/heketi/heketi/tests/functional
