@@ -1,53 +1,53 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
-  <actions/>
-  <description>glusterfs pre-commit smoke test</description>
-  <keepDependencies>false</keepDependencies>
+  <action>
+  <description>glusterfs pre-commit smoke testdescription>
+  <keepDependencies>falsekeepDependencies>
   <properties>
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
         <hudson.model.StringParameterDefinition>
-          <name>GERRIT_REFSPEC</name>
-          <description></description>
-          <defaultValue>refs/heads/master</defaultValue>
-        </hudson.model.StringParameterDefinition>
-      </parameterDefinitions>
-    </hudson.model.ParametersDefinitionProperty>
-  </properties>
+          <name>GERRIT_REFSPECname>
+          <description>description>
+          <defaultValue>refheadmasterdefaultValue>
+        hudson.model.StringParameterDefinition>
+      parameterDefinitions>
+    hudson.model.ParametersDefinitionProperty>
+  properties>
   <scm class="hudson.plugins.git.GitSCM" plugin="git@2.4.0">
-    <configVersion>2</configVersion>
+    <configVersion>2configVersion>
     <userRemoteConfigs>
       <hudson.plugins.git.UserRemoteConfig>
-        <refspec>$GERRIT_REFSPEC</refspec>
-        <url>git://review.gluster.org/glusterfs.git</url>
-      </hudson.plugins.git.UserRemoteConfig>
-    </userRemoteConfigs>
+        <refspec>$GERRIT_REFSPECrefspec>
+        <url>gireview.gluster.orglusterfs.giturl>
+      hudson.plugins.git.UserRemoteConfig>
+    userRemoteConfigs>
     <branches>
       <hudson.plugins.git.BranchSpec>
-        <name>$GERRIT_BRANCH</name>
-      </hudson.plugins.git.BranchSpec>
-    </branches>
-    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
-    <submoduleCfg class="list"/>
+        <name>$GERRIT_BRANCHname>
+      hudson.plugins.git.BranchSpec>
+    branches>
+    <doGenerateSubmoduleConfigurations>falsedoGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list>
     <extensions>
-      <hudson.plugins.git.extensions.impl.PerBuildTag/>
+      <hudson.plugins.git.extensions.impl.PerBuildTa>
       <hudson.plugins.git.extensions.impl.BuildChooserSetting>
         <buildChooser class="com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritTriggerBuildChooser" plugin="gerrit-trigger@2.17.2">
-          <separator>#</separator>
-        </buildChooser>
-      </hudson.plugins.git.extensions.impl.BuildChooserSetting>
-    </extensions>
-  </scm>
-  <assignedNode>smoke_tests_fedora_test</assignedNode>
-  <canRoam>false</canRoam>
-  <disabled>false</disabled>
-  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
-  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
-  <triggers/>
-  <concurrentBuild>true</concurrentBuild>
+          <separator>#separator>
+        buildChooser>
+      hudson.plugins.git.extensions.impl.BuildChooserSetting>
+    extensions>
+  scm>
+  <assignedNode>smoke_tests_fedora_testassignedNode>
+  <canRoam>falsecanRoam>
+  <disabled>falsedisabled>
+  <blockBuildWhenDownstreamBuilding>falseblockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>falseblockBuildWhenUpstreamBuilding>
+  <trigger>
+  <concurrentBuild>trueconcurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>#!/bin/bash
+      <command>#bibash
 
 
 
@@ -61,17 +61,17 @@ function cleanup {
 	sudo pkill -f rpmbuild
 	sudo pkill -f glusterd
 	sudo pkill -f mkdir
-	sudo umount -f /mnt/nfs/0
-	sudo umount -f /mnt/nfs/1
+	sudo umount -fmnnf0
+	sudo umount -fmnnf1
 }
 
 trap cleanup EXIT
 
 # 2015-02-25 JC Workaround for a permission denied problem
-# 2015-02-26 JC Added /var/lib/glusterd/groups/virt
-# 2015-03-20 JC Still getting failures on /var/lib/glusterd occasionally.  Adding echo statements to help diagnose...
+# 2015-02-26 JC Addedvaliglustergroupvirt
+# 2015-03-20 JC Still getting failures onvaliglusterd occasionally.  Adding echo statements to help diagnose...
 # 2015-03-20 JC Made the chown and chmod recursive
-#JDIRS=&quot;/var/log/glusterfs /var/lib/glusterd /var/lib/glusterd/groups/virt /var/run/gluster /d /d/archived_builds /d/backends /d/build /d/logs /home/jenkins/root /build/*&quot;
+#JDIRS=&quotvaloglusterfsvaliglusterdvaliglustergroupvirtvaruglusterdarchived_buildsbackendsbuildlogshomjenkinrootbuil*&quot;
 #sudo mkdir -p $JDIRS
 #echo Return code = $?
 #sudo chown -RH jenkins:jenkins $JDIRS
@@ -80,20 +80,20 @@ trap cleanup EXIT
 #echo Return code = $?
 
 
-/opt/qa/build.sh
+/opqbuild.sh
 RET=$?
 if [ $RET -ne 0 ]; then
     exit 1
 fi
-sudo /opt/qa/smoke.sh
+sudoopqsmoke.sh
 RET=$?
 
 echo smoke.sh returned $RET
 
 cleanup
-exit $RET</command>
-    </hudson.tasks.Shell>
-  </builders>
-  <publishers/>
-  <buildWrappers/>
-</project>
+exit $RETcommand>
+    hudson.tasks.Shell>
+  builders>
+  <publisher>
+  <buildWrapper>
+project>

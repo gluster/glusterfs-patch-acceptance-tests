@@ -17,7 +17,7 @@ refs/changes/45/12345/6 &lt;br&gt;
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>
-  <scm class="hudson.plugins.git.GitSCM" plugin="git@2.4.0">
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@2.4.4">
     <configVersion>2</configVersion>
     <userRemoteConfigs>
       <hudson.plugins.git.UserRemoteConfig>
@@ -35,7 +35,7 @@ refs/changes/45/12345/6 &lt;br&gt;
     <extensions>
       <hudson.plugins.git.extensions.impl.PerBuildTag/>
       <hudson.plugins.git.extensions.impl.BuildChooserSetting>
-        <buildChooser class="com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritTriggerBuildChooser" plugin="gerrit-trigger@2.17.2">
+        <buildChooser class="com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritTriggerBuildChooser" plugin="gerrit-trigger@2.19.0">
           <separator>#</separator>
         </buildChooser>
       </hudson.plugins.git.extensions.impl.BuildChooserSetting>
@@ -47,7 +47,7 @@ refs/changes/45/12345/6 &lt;br&gt;
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers>
-    <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritTrigger plugin="gerrit-trigger@2.17.2">
+    <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritTrigger plugin="gerrit-trigger@2.19.0">
       <spec></spec>
       <gerritProjects>
         <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.data.GerritProject>
@@ -63,18 +63,19 @@ refs/changes/45/12345/6 &lt;br&gt;
         </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.data.GerritProject>
       </gerritProjects>
       <skipVote>
-        <onSuccessful>false</onSuccessful>
-        <onFailed>false</onFailed>
-        <onUnstable>false</onUnstable>
-        <onNotBuilt>false</onNotBuilt>
+        <onSuccessful>true</onSuccessful>
+        <onFailed>true</onFailed>
+        <onUnstable>true</onUnstable>
+        <onNotBuilt>true</onNotBuilt>
       </skipVote>
       <silentMode>false</silentMode>
       <notificationLevel></notificationLevel>
       <silentStartMode>false</silentStartMode>
       <escapeQuotes>true</escapeQuotes>
-      <noNameAndEmailParameters>false</noNameAndEmailParameters>
+      <nameAndEmailParameterMode>PLAIN</nameAndEmailParameterMode>
       <dependencyJobsNames></dependencyJobsNames>
-      <readableMessage>false</readableMessage>
+      <commitMessageParameterMode>BASE64</commitMessageParameterMode>
+      <changeSubjectParameterMode>PLAIN</changeSubjectParameterMode>
       <buildStartMessage></buildStartMessage>
       <buildFailureMessage></buildFailureMessage>
       <buildSuccessfulMessage></buildSuccessfulMessage>
@@ -87,10 +88,6 @@ refs/changes/45/12345/6 &lt;br&gt;
         <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginCommentAddedEvent>
           <verdictCategory>Verified</verdictCategory>
           <commentAddedTriggerApprovalValue>1</commentAddedTriggerApprovalValue>
-        </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginCommentAddedEvent>
-        <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginCommentAddedEvent>
-          <verdictCategory>Code-Review</verdictCategory>
-          <commentAddedTriggerApprovalValue>2</commentAddedTriggerApprovalValue>
         </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginCommentAddedEvent>
         <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginCommentAddedContainsEvent>
           <commentAddedCommentContains>recheck centos</commentAddedCommentContains>
@@ -156,6 +153,51 @@ sudo mkdir -p $JDIRS
 sudo chown jenkins:jenkins $JDIRS
 chmod 755 $JDIRS
 
+
+# rtalur/rastar 2016 June 6
+# Credits: ppai 
+# Skip tests for patches that make doc only changes
+# Do not run tests that only modifies doc; does not consider chained changes or files in repo root
+DOC_ONLY=true
+for file in `git diff-tree --no-commit-id --name-only -r HEAD`; do
+    if [[ $file != doc/* ]]; then
+        DOC_ONLY=false
+        break
+    fi
+done
+if [[ &quot;$DOC_ONLY&quot; == true ]]; then
+    echo &quot;Patch only modifies doc/*. Skipping further tests&quot;
+    RET=0
+    VERDICT=&quot;Skipped tests for doc only change&quot;
+    V=&quot;+1&quot;
+    ssh build@review.gluster.org gerrit review --message &quot;&apos;$BURL : $VERDICT&apos;&quot; --project=glusterfs --label CentOS-regression=$V $GIT_COMMIT	
+	exit $RET
+fi
+
+
+# rtalur/rastar 2016 June 6
+# Credits: ppai 
+# Skip tests for patches that make distaf only changes
+# Do not run tests that only modifies distaf; does not consider chained changes or files in repo root
+DISTAF_ONLY=true
+for file in `git diff-tree --no-commit-id --name-only -r HEAD`; do
+    if [[ $file != tests/distaf/* ]]; then
+        DISTAF_ONLY=false
+        break
+    fi
+done
+if [[ &quot;$DISTAF_ONLY&quot; == true ]]; then
+    echo &quot;Patch only modifies tests/distaf/*. Skipping further tests&quot;
+    RET=0
+    VERDICT=&quot;Skipped tests for distaf only change&quot;
+    V=&quot;+1&quot;
+    ssh build@review.gluster.org gerrit review --message &quot;&apos;$BURL : $VERDICT&apos;&quot; --project=glusterfs --label CentOS-regression=$V $GIT_COMMIT	
+    exit $RET
+fi
+
+
+
+
 # Build Gluster
 echo
 echo &quot;Build GlusterFS&quot;
@@ -167,6 +209,7 @@ RET=$?
 if [ $RET != 0 ]; then
     # Build failed, so abort early
     # should we not pass this as verdict back to gerrit? Rtalur - 10/2/2016
+    ssh build@review.gluster.org gerrit review --message &quot;&apos;$BURL : FAILED&apos;&quot; --project=glusterfs --label CentOS-regression=&quot;-1&quot;  $GIT_COMMIT
     exit 1
 fi
 set +x
@@ -177,7 +220,7 @@ echo &quot;Run the regression test&quot;
 echo &quot;***********************&quot;
 echo
 set -x
-sudo -E bash -x /opt/qa/regression.sh
+sudo -E bash /opt/qa/regression.sh
 RET=$?
 if [ $RET = 0 ]; then
     V=&quot;+1&quot;
@@ -211,7 +254,7 @@ exit $RET</command>
   </builders>
   <publishers/>
   <buildWrappers>
-    <hudson.plugins.build__timeout.BuildTimeoutWrapper plugin="build-timeout@1.15">
+    <hudson.plugins.build__timeout.BuildTimeoutWrapper plugin="build-timeout@1.16">
       <strategy class="hudson.plugins.build_timeout.impl.AbsoluteTimeOutStrategy">
         <timeoutMinutes>500</timeoutMinutes>
       </strategy>
@@ -219,5 +262,6 @@ exit $RET</command>
         <hudson.plugins.build__timeout.operations.FailOperation/>
       </operationList>
     </hudson.plugins.build__timeout.BuildTimeoutWrapper>
+    <hudson.plugins.timestamper.TimestamperBuildWrapper plugin="timestamper@1.7.4"/>
   </buildWrappers>
 </project>
