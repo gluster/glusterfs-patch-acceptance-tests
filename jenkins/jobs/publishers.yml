@@ -1,0 +1,10 @@
+- publisher:
+    name: rpm
+    publishers:
+    - archive:
+        allow-empty: false
+        artifacts: RPMS/**
+        default-excludes: true
+        fingerprint: false
+        only-if-success: false
+

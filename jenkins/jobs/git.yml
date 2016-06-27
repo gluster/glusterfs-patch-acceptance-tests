@@ -1,0 +1,9 @@
+- scm:
+    name: glusterfs
+    scm:
+    - git:
+        branches:
+        - $GERRIT_BRANCH
+        refspec: $GERRIT_REFSPEC
+        url: git://review.gluster.org/glusterfs.git
+

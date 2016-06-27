@@ -15,18 +15,11 @@
     project-type: freestyle
 
     properties:
-    - build-discarder:
-        days-to-keep: 10
-        num-to-keep: 10
-        artifact-days-to-keep: 10
-        artifact-num-to-keep: 10
+    - discard-after-x
+        x: 10
 
     scm:
-    - git:
-        branches:
-        - $GERRIT_BRANCH
-        refspec: $GERRIT_REFSPEC
-        url: git://review.gluster.org/glusterfs.git
+    - glusterfs
 
     triggers:
     - gerrit:
@@ -40,22 +33,10 @@
                 branch-pattern: 'master'
 
     parameters:
-    - string:
-        default: refs/heads/master
-        description: 'For review 12345 and patch set 6, this will be refs/changes/45/12345/6. Default: Tip of master'
-        name: GERRIT_REFSPEC
-    - string:
-        default: master
-        description: 'Name of the branch you want to build from. We usually build from master'
-        name: GERRIT_BRANCH
+    - gerrit-branch-refspec
 
     publishers:
-    - archive:
-        allow-empty: false
-        artifacts: RPMS/**
-        default-excludes: true
-        fingerprint: false
-        only-if-success: false
+    - rpm
 
     builders:
     - shell: CFGS="{build_flag}" /opt/qa/jenkins/scripts/glusterfs-rpms.sh

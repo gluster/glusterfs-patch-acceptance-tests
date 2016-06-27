@@ -17,18 +17,11 @@
     project-type: freestyle
 
     properties:
-    - build-discarder:
-        days-to-keep: 50
-        num-to-keep: 50
-        artifact-days-to-keep: 50
-        artifact-num-to-keep: 50
+    - discard-after-x:
+        x: 50
 
     scm:
-    - git:
-        branches:
-        - $GERRIT_BRANCH
-        refspec: $GERRIT_REFSPEC
-        url: git://review.gluster.org/glusterfs.git
+    - glusterfs
 
     triggers:
     - gerrit:
@@ -59,12 +52,7 @@
         name: GERRIT_BRANCH
 
     publishers:
-    - archive:
-        allow-empty: false
-        artifacts: RPMS/**
-        default-excludes: true
-        fingerprint: false
-        only-if-success: false
+    - rpm
 
     builders:
     - shell: CLEANUP_AFTER=True CFGS="{build_flag}" /opt/qa/jenkins/scripts/glusterfs-rpms.sh
