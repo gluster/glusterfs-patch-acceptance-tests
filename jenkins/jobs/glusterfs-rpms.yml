@@ -14,29 +14,30 @@
     description: Creates RPMs for developers and those who need to verify the patch
     project-type: freestyle
 
+    properties:
+    - build-discarder:
+        days-to-keep: 10
+        num-to-keep: 10
+        artifact-days-to-keep: 10
+        artifact-num-to-keep: 10
+
     scm:
     - git:
         branches:
         - $GERRIT_BRANCH
         refspec: $GERRIT_REFSPEC
-        url: http://review.gluster.org/glusterfs
+        url: git://review.gluster.org/glusterfs.git
 
     triggers:
-      - gerrit:
-          trigger-on:
-            - change-merged-event
-          projects:
-            - project-compare-type: 'PLAIN'
-              project-pattern: 'glusterfs'
-              branches:
-                - branch-compare-type: 'PLAIN'
-                  branch-pattern: 'master'
-
-    logrotate:
-      artifactDaysToKeep: '10'
-      artifactNumToKeep: '10'
-      daysToKeep: '10'
-      numToKeep: '10'
+    - gerrit:
+        trigger-on:
+          - change-merged-event
+        projects:
+          - project-compare-type: 'PLAIN'
+            project-pattern: 'glusterfs'
+            branches:
+              - branch-compare-type: 'PLAIN'
+                branch-pattern: 'master'
 
     parameters:
     - string:
