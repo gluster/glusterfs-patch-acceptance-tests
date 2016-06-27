@@ -15,7 +15,7 @@
     project-type: freestyle
 
     properties:
-    - discard-after-x
+    - discard-after-x:
         x: 10
 
     scm:
@@ -33,7 +33,14 @@
                 branch-pattern: 'master'
 
     parameters:
-    - gerrit-branch-refspec
+    - string:
+        default: refs/heads/master
+        description: 'For review 12345 and patch set 6, this will be refs/changes/45/12345/6. Default: Tip of master'
+        name: GERRIT_REFSPEC
+    - string:
+        default: master
+        description: 'Name of the branch you want to build from. We usually build from master'
+        name: GERRIT_BRANCH
 
     publishers:
     - rpm
