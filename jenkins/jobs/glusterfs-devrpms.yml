@@ -1,6 +1,6 @@
 - project:
     name: 'devrpm'
-    buildversion:
+    version:
       - fedora:
           build_flag: fedora-22-x86_64
       - el6:
@@ -8,17 +8,17 @@
       - el7:
           build_flag: epel-7-x86_64
     jobs:
-      - '{name}-{buildversion}'
+      - '{name}-{version}'
 
 - job-template:
-    name: '{name}-{buildversion}'
+    name: '{name}-{version}'
     node: glusterfs-devrpms
     description: Creates RPMs for developers and those who need to verify the patch
     project-type: freestyle
 
     properties:
     - discard-after-x:
-        x: 50
+        x: 10
 
     scm:
     - glusterfs
