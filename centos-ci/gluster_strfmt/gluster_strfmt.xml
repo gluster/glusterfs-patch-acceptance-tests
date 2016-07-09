@@ -44,7 +44,7 @@ H */2 * * *</spec>
       <triggerLabel>gluster</triggerLabel>
       <entries>
         <org.jenkinsci.plugins.urltrigger.URLTriggerEntry>
-          <url>http://artifacts.ci.centos.org/gluster/nightly/master/6/i368/build.log</url>
+          <url>http://artifacts.ci.centos.org/gluster/nightly/master/6/i386/build.log</url>
           <proxyActivated>false</proxyActivated>
           <checkStatus>false</checkStatus>
           <statusCode>200</statusCode>
