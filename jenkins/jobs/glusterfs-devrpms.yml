@@ -18,7 +18,7 @@
 
     properties:
     - discard-after-x:
-        x: 10
+        x: 50
 
     scm:
     - glusterfs
