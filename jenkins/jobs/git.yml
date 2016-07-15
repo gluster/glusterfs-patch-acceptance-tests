@@ -5,5 +5,6 @@
         branches:
         - $GERRIT_BRANCH
         refspec: $GERRIT_REFSPEC
+        choosing-strategy: gerrit
         url: git://review.gluster.org/glusterfs.git
 
