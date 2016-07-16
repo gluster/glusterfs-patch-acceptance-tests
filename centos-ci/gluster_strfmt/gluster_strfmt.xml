@@ -87,7 +87,17 @@ python jenkins-job.py</command>
       </configuredTriggers>
       <contentType>default</contentType>
       <defaultSubject>$DEFAULT_SUBJECT</defaultSubject>
-      <defaultContent>String formatting warnings have been detected. See the attached warnings.txt for details.</defaultContent>
+      <defaultContent>String formatting warnings have been detected. See the attached warnings.txt
+for details.
+
+The warnings are also in the build log on $BUILD_URL/console .
+
+Please fix this problem at your earliest convenience. Once a patch is available
+for review, reply to this email with the URL to the change.
+
+Thanks,
+the Gluster maintainers
+</defaultContent>
       <attachmentsPattern>warnings.txt</attachmentsPattern>
       <presendScript>$DEFAULT_PRESEND_SCRIPT</presendScript>
       <postsendScript>$DEFAULT_POSTSEND_SCRIPT</postsendScript>
