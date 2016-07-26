@@ -9,6 +9,14 @@ TIMESTAMP=`date +%Y%m%d:%T`
 SERVER=`hostname`
 LIBLIST=${BASE}/cores/liblist.txt
 
+# Create the folders if they don't exist
+mkdir -p ${BASE}
+mkdir -p ${ARCHIVE_BASE}/${ARCHIVED_BUILDS}
+mkdir -p ${ARCHIVE_BASE}/${ARCHIVED_BUILDS}
+
+# Clean up old archives
+find ${ARCHIVE_BASE} mtime +15 -exec rm {} \;
+
 # Get the list of shared libraries that the core file uses
 # first argument is path to the core file
 getliblistfromcore() {
