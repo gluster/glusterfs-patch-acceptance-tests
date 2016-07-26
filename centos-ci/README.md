@@ -27,6 +27,18 @@ metadata](http://artifacts.ci.centos.org/gluster/nightly/master/7/x86_64/repodat
 for CentOS-7/x86_64 and the nightly Gluster RPMs for the master branch. If the
 metadata has been updated, a new run is attempted.
 
+## glusterfs-coreutils
+Run the upstream functional tests from the
+[glusterfs-coreutils](https://github.com/gluster/glusterfs-coreutils) master
+branch. This test currently installs the nightly builds from the GlusterFS
+Community that are made available on the [CentOS CI Artifacts
+server](http://artifacts.ci.centos.org/gluster/nightly/).
+
+The job checks every two hours for updates of the [yum 
+metadata](http://artifacts.ci.centos.org/gluster/nightly/master/7/x86_64/repodata/repomd.xml)
+for CentOS-7/x86_64 and the nightly Gluster RPMs for the master branch. If the
+metadata has been updated, a new run is attempted.
+
 ## heketi-functional
 Run the upstream functional tests as described in the [Heketi
 README](https://github.com/heketi/heketi/blob/master/tests/functional/README.md).
