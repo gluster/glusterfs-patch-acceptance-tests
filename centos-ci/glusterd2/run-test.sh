@@ -21,7 +21,7 @@ fi
 # also needs git, gcc and make
 yum -y install git gcc make
 
-mkdir go
+mkdir -p go/{src,pkg,bin}
 cd go
 export GOPATH=$PWD
 export PATH=$PATH:$GOPATH/bin
