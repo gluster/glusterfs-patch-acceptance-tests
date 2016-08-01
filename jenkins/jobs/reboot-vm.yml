@@ -1,0 +1,45 @@
+- job:
+    name: reboot-vm
+    node: master
+    description: "Reboot a VM in the Rackspace Cloud."
+    project-type: freestyle
+
+    parameters:
+    - choice:
+        choices:
+        - freebsd0.cloud.gluster.org
+        - nbslave71.cloud.gluster.org
+        - nbslave72.cloud.gluster.org
+        - nbslave74.cloud.gluster.org
+        - nbslave75.cloud.gluster.org
+        - nbslave77.cloud.gluster.org
+        - nbslave79.cloud.gluster.org
+        - nbslave7c.cloud.gluster.org
+        - nbslave7g.cloud.gluster.org
+        - nbslave7h.cloud.gluster.org
+        - nbslave7i.cloud.gluster.org
+        - nbslave7j.cloud.gluster.org
+        - netbsd0.cloud.gluster.org
+        - netbsd7.cloud.gluster.org
+        - slave0.cloud.gluster.org
+        - slave1.cloud.gluster.org
+        - slave20.cloud.gluster.org
+        - slave21.cloud.gluster.org
+        - slave22.cloud.gluster.org
+        - slave23.cloud.gluster.org
+        - slave24.cloud.gluster.org
+        - slave25.cloud.gluster.org
+        - slave26.cloud.gluster.org
+        - slave27.cloud.gluster.org
+        - slave28.cloud.gluster.org
+        - slave29.cloud.gluster.org
+        - slave32.cloud.gluster.org
+        - slave33.cloud.gluster.org
+        - slave34.cloud.gluster.org
+        - slave46.cloud.gluster.org
+        - slave47.cloud.gluster.org
+        description: The machine to restart
+        name: VM
+
+    builders:
+    - shell: sudo /usr/local/bin/reboot-vm.py ${VM}
