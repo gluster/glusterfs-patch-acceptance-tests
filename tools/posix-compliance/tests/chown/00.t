@@ -83,7 +83,7 @@ expect 0 chmod ${n0} 06555
 expect 06555 lstat ${n0} mode
 expect 0 chown ${n0} 65532 65531
 case "${os}" in
-Linux)
+Linux|NetBSD)
 	expect 0555 lstat ${n0} mode
         ;;
 *)
@@ -98,7 +98,7 @@ expect 0 chmod ${n0} 06555
 expect 06555 lstat ${n0} mode
 expect 0 chown ${n0} 65534 65533
 case "${os}" in
-Linux)
+Linux|NetBSD)
         expect 0555 lstat ${n0} mode
         ;;
 *)
@@ -114,7 +114,7 @@ expect 0 chmod ${n0} 06555
 expect 06555 lstat ${n0} mode
 expect 0 chown ${n0} 0 0
 case "${os}" in
-Linux)
+Linux|NetBSD)
         expect 0555 lstat ${n0} mode
         ;;
 *)
@@ -135,7 +135,14 @@ expect 0555,65534,65532 lstat ${n0} mode,uid,gid
 expect 0 chmod ${n0} 06555
 expect 06555 lstat ${n0} mode
 expect 0 -u 65534 -g 65533,65532 -- chown ${n0} -1 65533
-expect 0555,65534,65533 lstat ${n0} mode,uid,gid
+case "${os}" in
+NetBSD)
+	expect 04555,65534,65533 lstat ${n0} mode,uid,gid
+	;;
+*)
+	expect 0555,65534,65533 lstat ${n0} mode,uid,gid
+	;;
+esac
 expect 0 chmod ${n0} 06555
 expect 06555 lstat ${n0} mode
 expect 0 -u 65534 -g 65533,65532 -- chown ${n0} -1 -1
@@ -170,6 +177,9 @@ case "${os}:${fs}" in
 Linux:ext3|Linux:ntfs-3g)
 	expect 06555,65534,65533 lstat ${n0} mode,uid,gid
         ;;
+NetBSD:UFS)
+	expect 04555,65534,65533 lstat ${n0} mode,uid,gid
+	;;
 *)
 	expect 0555,65534,65533 lstat ${n0} mode,uid,gid
         ;;

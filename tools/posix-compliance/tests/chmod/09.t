@@ -7,7 +7,7 @@ dir=`dirname $0`
 . ${dir}/../misc.sh
 
 case "${os}:${fs}" in
-FreeBSD:UFS)
+FreeBSD:UFS|NetBSD:UFS)
 	echo "1..10"
 
 	n0=`namegen`

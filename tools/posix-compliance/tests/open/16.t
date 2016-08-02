@@ -19,6 +19,12 @@ FreeBSD)
 	expect EMLINK open ${n1} O_WRONLY,O_NOFOLLOW
 	expect EMLINK open ${n1} O_RDWR,O_NOFOLLOW
         ;;
+NetBSD)
+	expect EFTYPE open ${n1} O_RDONLY,O_CREAT,O_NOFOLLOW 0644
+	expect EFTYPE open ${n1} O_RDONLY,O_NOFOLLOW
+	expect EFTYPE open ${n1} O_WRONLY,O_NOFOLLOW
+	expect EFTYPE open ${n1} O_RDWR,O_NOFOLLOW
+        ;;
 *)
 	expect ELOOP open ${n1} O_RDONLY,O_CREAT,O_NOFOLLOW 0644
 	expect ELOOP open ${n1} O_RDONLY,O_NOFOLLOW

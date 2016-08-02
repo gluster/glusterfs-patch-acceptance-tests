@@ -9,7 +9,7 @@ dir=`dirname $0`
 require chflags
 
 case "${os}:${fs}" in
-FreeBSD:UFS)
+FreeBSD:UFS|NetBSD:UFS)
 	echo "1..14"
 
 	n0=`namegen`

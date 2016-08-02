@@ -1,0 +1,27 @@
+#!/bin/sh
+
+# TODO: make install -j4 breaks in install.sh -d because
+# in extra/geo-rep the same directory is created twice, and cause a failure
+# on second attempt.
+
+set -e
+
+SRC=$(pwd);
+P=/build;
+PYTHONBIN=/usr/pkg/bin/python2.7
+CFLAGS="-g -O0 -Wall -I/usr/pkg/include"
+CPPFLAGS="-I/usr/pkg/include"
+
+export PYTHONBIN
+export CFLAGS
+export CPPFLAGS
+
+rm -rf $P/scratch $P/install
+mkdir -p $P/scratch && 
+cd $SRC && 
+./autogen.sh &&
+cd $P/scratch &&
+$SRC/configure --prefix=$P/install --with-mountutildir=$P/install/sbin --with-initdir=$P/install/etc --localstatedir=/var -enable-debug --silent --disable-fusermount &&
+make -j 4 &&
+make install &&
+cd $SRC

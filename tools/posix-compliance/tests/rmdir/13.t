@@ -6,8 +6,10 @@ desc="rmdir returns EBUSY if the directory to be removed is the mount point for 
 dir=`dirname $0`
 . ${dir}/../misc.sh
 
+rel=`uname -r`
+
 case "${os}" in
-FreeBSD)
+FreeBSD|NetBSD)
 	echo "1..3"
 
 	n0=`namegen`
@@ -16,7 +18,14 @@ FreeBSD)
 	n=`mdconfig -a -n -t malloc -s 1m`
 	newfs /dev/md${n} >/dev/null
 	mount /dev/md${n} ${n0}
-	expect EBUSY rmdir ${n0}
+	case "${os}-${rel}" in
+	NetBSD-[0-6].*)
+		expect EINVAL rmdir ${n0}
+		;;
+	FreeBSD-*|NetBSD-*)
+		expect EBUSY rmdir ${n0}
+		;;
+	esac
 	umount /dev/md${n}
 	mdconfig -d -u ${n}
 	expect 0 rmdir ${n0}

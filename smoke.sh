@@ -1,53 +1,56 @@
-#!/bin/bash
+#!/bin/sh
 
 set -e;
 
-M=/mnt;
-P=/build;
+P=/build
+M=$P/mnt;
 H=$(hostname);
 T=600;
 V=patchy;
-export PATH=$PATH:$P/install/sbin
+PATH=$P/install/sbin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/pkg/bin:/usr/local/bin
+export PATH
+LD_LIBRARY_PATH=$P/install/lib:/lib:/usr/lib:/usr/pkg/lib
+export LD_LIBRARY_PATH
 
-function cleanup()
+cleanup()
 {
-    killall -15 glusterfs glusterfsd glusterd 2>&1 || true;
-    killall -9 glusterfs glusterfsd glusterd 2>&1 || true;
-    umount -l $M 2>&1 || true;
-    rm -rf /var/lib/glusterd /etc/glusterd $P/export;
+    pkill -15 glusterfs glusterfsd glusterd 2>&1 || true;
+    pkill -9 glusterfs glusterfsd glusterd 2>&1 || true;
+    umount -f $M 2>&1 || true;
+    rm -rf $P/install/var/db/glusterd/vols/*
+    rm -rf $P/var/db/glusterd/vols/
+    find $P/install/var/log/glusterfs/ -type f | xargs rm -f
+    rm -rf $P/export $M
 }
 
-function start_fs()
+start_fs()
 {
+    mkdir -p $M
+    mkdir -p $P/install/var/log
     mkdir -p $P/export;
     chmod 0755 $P/export;
 
     glusterd;
-    gluster --mode=script volume create $V replica 2 $H:$P/export/export{1,2,3,4} force;
+    gluster --mode=script volume create $V replica 2 \
+	$H:$P/export/export1 $H:$P/export/export2 \
+	$H:$P/export/export3 $H:$P/export/export4 force
     gluster volume start $V;
     glusterfs -s $H --volfile-id $V $M;
-#    mount -t glusterfs $H:/$V $M;
 }
 
 
-function run_tests()
+run_tests()
 {
     cd $M;
 
-    (sleep 1; dbench -s -t 60 10 > /dev/null) &
-
-    (sleep 1; /opt/qa/tools/posix_compliance.sh) &
-
-    wait %2
-    wait %3
-
-    rm -rf clients;
+    sleep 5
+    prove -r /opt/qa/tools/posix-compliance/tests
 
     cd -;
 }
 
 
-function watchdog ()
+watchdog ()
 {
     # insurance against hangs during the test
 
@@ -58,31 +61,33 @@ function watchdog ()
     cleanup;
 }
 
-function finish ()
+finish ()
 {
     RET=$?
     if [ $RET -ne 0 ]; then
-        filename=/d/logs/smoke/glusterfs-logs-`date +%Y%m%d%T`.tgz
-        tar -czf $filename /build/install/var/log;
-        echo Logs archived in $filename
+	mkdir -p $P/logs/netbsd7-smoke
+        filename=$P/logs/netbsd7-smoke/glusterfs-logs-`date +%Y%m%d%H%M`.tgz
+        tar -czf $filename $P/install/var/log
+        echo "Logs archived in $H:$filename"
     fi
     cleanup;
-    kill %1;
 }
 
-function main ()
+main ()
 {
     cleanup;
-
     watchdog $T &
-
+    watchdog_pid=$!
     trap finish EXIT;
 
     set -x;
-
     start_fs;
-
     run_tests;
+    ret=$?
+    set +x;
+
+    kill $watchdog_pid
+    return $ret
 }
 
-main "$@";
+main "$@"
