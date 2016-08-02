@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh 
 # $FreeBSD: src/tools/regression/fstest/tests/truncate/00.t,v 1.1 2007/01/17 01:42:12 pjd Exp $
 
 desc="truncate descrease/increase file size"
@@ -22,7 +22,14 @@ expect 0 truncate ${n0} 567
 expect 567 lstat ${n0} size
 expect 0 unlink ${n0}
 
-dd if=/dev/random of=${n0} bs=12345 count=1 >/dev/null 2>&1
+case "${os}" in
+NetBSD)
+	dd if=/dev/urandom of=${n0} bs=12345 count=1 >/dev/null 2>&1
+	;;
+*)
+	dd if=/dev/random of=${n0} bs=12345 count=1 >/dev/null 2>&1
+	;;
+esac
 expect 0 truncate ${n0} 23456
 expect 23456 lstat ${n0} size
 expect 0 truncate ${n0} 1

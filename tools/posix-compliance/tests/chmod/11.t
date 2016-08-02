@@ -34,7 +34,7 @@ expect 0 rmdir ${n1}
 expect 0 create ${n1} 0644
 expect 0 chown ${n1} 65534 65534
 case "${os}" in
-FreeBSD)
+FreeBSD|NetBSD)
 	expect EFTYPE -u 65534 -g 65534 chmod ${n1} 01644
 	expect 0644 stat ${n1} mode
 	;;
