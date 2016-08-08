@@ -2,7 +2,7 @@
     name: 'devrpm'
     version:
       - fedora:
-          build_flag: fedora-22-x86_64
+          build_flag: fedora-24-x86_64
       - el6:
           build_flag: epel-6-x86_64
       - el7:
