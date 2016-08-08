@@ -1,33 +1,4 @@
-#!/bin/sh
-
-# Jenkins sometimes schedules two regressions runs on the same host
-# Fail early in that case
-LOCKFILE=/var/run/regression.lock
-shlock -f ${LOCKFILE} -p $$ || {
-	echo "Another regression is already running on this host (Jenkins bug)."
-	echo "Abort regression."
-	exit 1
-}
-
-# Do we have stuck processes from an earlier regression?
-suspects=$( ps -axo pid,wchan |awk '($2 == "tstile"){print $1}' )
-if [ "x${suspects}" != "x" ] ; then
-	sleep 3
-	for p in ${suspects} ; do
-		kill -0 ${p} || continue
-		ps -axo wchan -p ${p}|grep -q "tstile" || continue
-		echo "Stuck processes from previous regression."
-		ps -axwwl
-		echo "Abort regression and reboot"
-		rm -f ${LOCKFILE}
-		/sbin/shutdown -n +1 "Rebooting stale system"
-		sync # will hang
-		exit 1
-	done
-fi
-
-# Make sure to cleanup core from earlier processes
-rm -f /*.core
+#!/bin/bash
 
 # Set the locations we'll be using
 BASE="/build/install"
