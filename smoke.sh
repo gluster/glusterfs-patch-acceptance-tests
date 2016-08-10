@@ -62,7 +62,7 @@ function finish ()
 {
     RET=$?
     if [ $RET -ne 0 ]; then
-        filename=/d/logs/smoke/glusterfs-logs-`date +%Y%m%d%T`.tgz
+        filename="/d/logs/smoke/glusterfs-logs-`date +%Y%m%d%H%M%S`.tgz"
         tar -czf $filename /build/install/var/log;
         echo Logs archived in $filename
     fi
