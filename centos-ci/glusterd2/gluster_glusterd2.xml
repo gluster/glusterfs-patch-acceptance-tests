@@ -1,12 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Verify glusterd2 pull requests</description>
+  <description>Verify GlusterD2 pull-requests</description>
   <keepDependencies>false</keepDependencies>
   <properties>
     <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.19.1">
       <projectUrl>https://github.com/gluster/glusterd2/</projectUrl>
-      <displayName></displayName>
+      <displayName>GlusterD-2.0</displayName>
     </com.coravy.hudson.plugins.github.GithubProjectProperty>
     <com.chikli.hudson.plugin.naginator.NaginatorOptOutProperty plugin="naginator@1.17">
       <optOut>false</optOut>
@@ -55,11 +55,11 @@
       <configVersion>3</configVersion>
       <adminlist>kshlm</adminlist>
       <allowMembersOfWhitelistedOrgsAsAdmin>false</allowMembersOfWhitelistedOrgsAsAdmin>
-      <orgslist></orgslist>
+      <orgslist>gluster</orgslist>
       <cron>H/5 * * * *</cron>
       <buildDescTemplate></buildDescTemplate>
       <onlyTriggerPhrase>false</onlyTriggerPhrase>
-      <useGitHubHooks>false</useGitHubHooks>
+      <useGitHubHooks>true</useGitHubHooks>
       <permitAll>false</permitAll>
       <whitelist></whitelist>
       <autoCloseFailedPullRequests>false</autoCloseFailedPullRequests>
@@ -74,9 +74,9 @@
       <skipBuildPhrase>.*\[skip\W+ci\].*</skipBuildPhrase>
       <extensions>
         <org.jenkinsci.plugins.ghprb.extensions.status.GhprbSimpleStatus>
-          <commitStatusContext></commitStatusContext>
-          <triggeredStatus></triggeredStatus>
-          <startedStatus></startedStatus>
+          <commitStatusContext>centos-ci</commitStatusContext>
+          <triggeredStatus>Build triggered</triggeredStatus>
+          <startedStatus>Build started</startedStatus>
           <statusUrl></statusUrl>
           <addTestResults>false</addTestResults>
         </org.jenkinsci.plugins.ghprb.extensions.status.GhprbSimpleStatus>
@@ -90,16 +90,9 @@
 python jenkins-job.py</command>
     </hudson.tasks.Shell>
   </builders>
-  <publishers>
-    <org.jenkinsci.plugins.github.status.GitHubCommitStatusSetter plugin="github@1.19.1">
-      <commitShaSource class="org.jenkinsci.plugins.github.status.sources.BuildDataRevisionShaSource"/>
-      <reposSource class="org.jenkinsci.plugins.github.status.sources.AnyDefinedRepositorySource"/>
-      <contextSource class="org.jenkinsci.plugins.github.status.sources.DefaultCommitContextSource"/>
-      <statusResultSource class="org.jenkinsci.plugins.github.status.sources.ConditionalStatusResultSource"/>
-      <errorHandlers/>
-    </org.jenkinsci.plugins.github.status.GitHubCommitStatusSetter>
-  </publishers>
+  <publishers/>
   <buildWrappers>
+    <hudson.plugins.timestamper.TimestamperBuildWrapper plugin="timestamper@1.8.2"/>
     <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.4.2">
       <colorMapName>xterm</colorMapName>
     </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
