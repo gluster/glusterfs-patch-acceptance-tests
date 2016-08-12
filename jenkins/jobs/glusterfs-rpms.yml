@@ -13,10 +13,12 @@
     node: glusterfs-devrpms
     description: Creates RPMs for developers and those who need to verify the patch
     project-type: freestyle
+    concurrent: true
 
     properties:
     - discard-after-x:
         x: 10
+    - one-build-per-node
 
     scm:
     - glusterfs
@@ -47,3 +49,6 @@
 
     builders:
     - shell: CFGS="{build_flag}" /opt/qa/jenkins/scripts/glusterfs-rpms.sh
+
+    wrappers:
+    - timestamps
