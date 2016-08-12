@@ -7,3 +7,10 @@
         artifact-days-to-keep: '{x}'
         artifact-num-to-keep: '{x}'
 
+- property:
+    name: one-build-per-node
+    properties:
+    - throttle:
+        max-per-node: 1
+        enabled: true
+        option: project
