@@ -15,7 +15,7 @@ mkdir -p ${ARCHIVE_BASE}/${ARCHIVED_BUILDS}
 mkdir -p ${ARCHIVE_BASE}/${ARCHIVED_BUILDS}
 
 # Clean up old archives
-find ${ARCHIVE_BASE} mtime +15 -exec rm {} \;
+find ${ARCHIVE_BASE} -name '*.tgz' -mtime +15 -delete
 
 # Get the list of shared libraries that the core file uses
 # first argument is path to the core file
