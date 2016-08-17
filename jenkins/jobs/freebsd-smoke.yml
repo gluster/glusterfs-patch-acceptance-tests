@@ -38,3 +38,5 @@
     builders:
     - shell: !include-raw: ../scripts/freebsd-smoke.sh
 
+    wrappers:
+    - timestamps

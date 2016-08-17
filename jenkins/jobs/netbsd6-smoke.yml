@@ -37,3 +37,6 @@
 
     builders:
     - shell: /opt/qa/build.sh
+
+    wrappers:
+    - timestamps
