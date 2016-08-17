@@ -1,0 +1,40 @@
+- job:
+    name: centos6-regression
+    node: rackspace_regression_2gb
+    description: Our production regression test.  Triggerered for each Gerrit CR revision.
+    project-type: freestyle
+    concurrent: true
+
+    scm:
+    - glusterfs
+
+    properties:
+    - one-build-per-node
+
+    triggers:
+    - gerrit:
+        trigger-on:
+          - comment-added-contains-event:
+              comment-contains-value: "recheck smoke"
+        projects:
+          - project-compare-type: 'PLAIN'
+            project-pattern: 'glusterfs'
+            branches:
+              - branch-compare-type: 'ANT'
+                branch-pattern: '**'
+
+    parameters:
+    - string:
+        default: refs/heads/master
+        description: 'For review 12345 and patch set 6, this will be refs/changes/45/12345/6. Default: Tip of master'
+        name: GERRIT_REFSPEC
+    - string:
+        default: master
+        description: 'Name of the branch you want to build from. We usually build from master'
+        name: GERRIT_BRANCH
+
+    builders:
+    - shell: !include-raw: ../scripts/centos-regression.sh
+
+    wrappers:
+    - timestamps
