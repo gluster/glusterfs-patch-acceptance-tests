@@ -5,8 +5,15 @@
     project-type: freestyle
     concurrent: true
 
+
     scm:
-    - glusterfs
+    - git:
+        branches:
+        - $GERRIT_BRANCH
+        refspec: $GERRIT_REFSPEC
+        choosing-strategy: gerrit
+        url: git://review.gluster.org/glusterfs.git
+        wipe-workspace: false
 
     properties:
     - one-build-per-node
