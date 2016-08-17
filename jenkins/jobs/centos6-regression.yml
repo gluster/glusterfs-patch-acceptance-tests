@@ -13,9 +13,10 @@
 
     triggers:
     - gerrit:
+        server-name: review.gluster.org
         trigger-on:
           - comment-added-contains-event:
-              comment-contains-value: "recheck smoke"
+              comment-contains-value: "recheck centos"
         projects:
           - project-compare-type: 'PLAIN'
             project-pattern: 'glusterfs'
