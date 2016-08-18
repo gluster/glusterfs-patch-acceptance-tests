@@ -1,0 +1,32 @@
+- job:
+    name: release
+    node: master
+    description: glusterfs release script
+    project-type: freestyle
+
+    scm:
+    - glusterfs
+
+    parameters:
+    - string:
+        default: v3.7.0
+        description: Refspec to "git checkout" as the release code snapshot. Typically
+          a git annotated tag like "v3.7.0". Specifying a branch name will use the
+          current HEAD of that branch.
+        name: GERRIT_REFSPEC
+    - string:
+        default: 3.7.0
+        description: Version name to be assigned to the release.
+        name: RELEASE_VERSION
+    - bool:
+        default: false
+        description: Build and upload RPMs? Normally not needed, package
+          maintainers will build 'correct' RPMs.
+        name: BUILD_RPMS
+    - string:
+        default: packaging@gluster.org,maintainers@gluster.org
+        description: Mail addresses to send the announcement of the tarball too.
+        name: ANNOUNCE_EMAIL
+
+    builders:
+    - shell: /opt/qa/release.sh
