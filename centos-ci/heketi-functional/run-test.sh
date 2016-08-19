@@ -48,6 +48,13 @@ then
 	cd heketi
 	git fetch origin pull/${ghprbPullId}/head:pr_${ghprbPullId}
 	git checkout pr_${ghprbPullId}
+	
+	# Now rebase on top of master
+	git rebase master
+	if [ $? -ne 0 ] ; then
+	    echo "Unable to automatically merge master. Please rebase your patch"
+	    exit 1
+	fi
 	cd ..
 fi
 
