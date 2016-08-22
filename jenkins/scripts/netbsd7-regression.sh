@@ -25,6 +25,7 @@ if [ $GERRIT_BRANCH = "release-3.5" -o $GERRIT_BRANCH = "release-3.6" ]; then
 fi
 
 # Remove any gluster daemon leftovers from aborted runs
+pkill gluster
 su -l root -c /opt/qa/cleanup.sh >/dev/null 2>&1
 
 # Fix installation permissions
