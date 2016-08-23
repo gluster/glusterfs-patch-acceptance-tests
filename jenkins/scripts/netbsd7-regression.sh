@@ -26,7 +26,7 @@ fi
 
 # Remove any gluster daemon leftovers from aborted runs
 ps -axl | grep gluster
-su -l root -c pkill gluster
+su -l root -c "pkill gluster"
 su -l root -c /opt/qa/cleanup.sh >/dev/null 2>&1
 
 # Fix installation permissions
