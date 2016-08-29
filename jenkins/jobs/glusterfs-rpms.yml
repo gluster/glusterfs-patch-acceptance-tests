@@ -48,7 +48,7 @@
     - rpm
 
     builders:
-    - shell: CFGS="{build_flag}" /opt/qa/jenkins/scripts/glusterfs-rpms.sh
+        - shell: !include-raw: ../scripts/glusterfs-rpms.sh
 
     wrappers:
     - timestamps

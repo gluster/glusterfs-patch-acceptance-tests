@@ -57,7 +57,7 @@
     - rpm
 
     builders:
-    - shell: CLEANUP_AFTER=True CFGS="{build_flag}" /opt/qa/jenkins/scripts/glusterfs-rpms.sh
+    - shell: !include-raw: ../scripts/glusterfs-devrpms.sh
 
     wrappers:
     - timestamps
