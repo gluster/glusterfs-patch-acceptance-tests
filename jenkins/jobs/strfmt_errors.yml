@@ -1,7 +1,7 @@
 - job:
     name: 'strfmt_errors'
     node: glusterfs-devrpms
-    description: Creates RPMs for developers and those who need to verify the patch
+    description: Check for strfmt errors in a 32-bit build run inside mock
     project-type: freestyle
     concurrent: true
 
