@@ -27,8 +27,8 @@
           - project-compare-type: 'PLAIN'
             project-pattern: 'glusterfs'
             branches:
-              - branch-compare-type: 'PLAIN'
-                branch-pattern: 'master'
+              - branch-compare-type: 'ANT'
+                branch-pattern: '**'
 
     parameters:
     - string:
