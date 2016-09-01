@@ -8,3 +8,12 @@
         fingerprint: false
         only-if-success: false
 
+- publisher:
+    name: build-log
+    publishers:
+    - archive:
+        allow-empty: false
+        artifacts: RPMS/el6/i686/build.log
+        default-excludes: true
+        fingerprint: false
+        only-if-success: false
