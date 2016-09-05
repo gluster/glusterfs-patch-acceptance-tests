@@ -47,16 +47,17 @@ su -l root -c "rm -f /var/run/glusterd.socket"
 # Remove GlusterFS log files from previous runs
 su -l root -c "rm -rf /var/log/glusterfs/* /var/log/glusterfs/.cmd_log_history"
 
-# Do not run tests that only modifies doc; does not consider chained changes or files in repo root
+# Do not run tests that only modifies doc or build-aux; does not consider
+# chained changes or files in repo root
 DOC_ONLY=true
 for file in `git diff-tree --no-commit-id --name-only -r HEAD`; do
-    if [[ $file != doc/* ]]; then
+    if [[ $file != doc/* ]] && [[ $file != build-aux/* ]]; then
         DOC_ONLY=false
         break
     fi
 done
 if [[ "$DOC_ONLY" == true ]]; then
-    echo "Patch only modifies doc/*. Skipping further tests"
+    echo "Patch only modifies doc/* or build-aux/*. Skipping further tests"
     RET=0
     VERDICT="Skipped tests for doc only change"
     V="+1"
