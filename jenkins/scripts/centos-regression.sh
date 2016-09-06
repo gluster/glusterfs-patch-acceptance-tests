@@ -36,39 +36,18 @@ sudo mkdir -p $JDIRS
 sudo chown jenkins:jenkins $JDIRS
 chmod 755 $JDIRS
 
-
-# Do not run tests that only modifies doc or build-aux; does not consider
-# chained changes or files in repo root
-DOC_ONLY=true
+# Skip tests for certain folders
+SKIP=true
 for file in `git diff-tree --no-commit-id --name-only -r HEAD`; do
-    if [[ $file != doc/* ]] && [[ $file != build-aux/* ]]; then
-        DOC_ONLY=false
+    if [[ $file != doc/* ]] && [[ $file != build-aux/* ]] && [[ $file != tests/distaf/* ]]; then
+        SKIP=false
         break
     fi
 done
-if [[ "$DOC_ONLY" == true ]]; then
-    echo "Patch only modifies doc/* or build-aux/*. Skipping further tests"
+if [[ "$SKIP" == true ]]; then
+    echo "Patch only modifies doc/*, build-aux/* or tests/distaf/*. Skipping further tests"
     RET=0
     VERDICT="Skipped tests for doc only change"
-    V="+1"
-    ssh build@review.gluster.org gerrit review --message "'$BURL : $VERDICT'" --project=glusterfs --label CentOS-regression=$V $GIT_COMMIT
-    exit $RET
-fi
-
-
-# Skip tests for patches that make distaf only changes
-# Do not run tests that only modifies distaf; does not consider chained changes or files in repo root
-DISTAF_ONLY=true
-for file in `git diff-tree --no-commit-id --name-only -r HEAD`; do
-    if [[ $file != tests/distaf/* ]]; then
-        DISTAF_ONLY=false
-        break
-    fi
-done
-if [[ "$DISTAF_ONLY" == true ]]; then
-    echo "Patch only modifies tests/distaf/*. Skipping further tests"
-    RET=0
-    VERDICT="Skipped tests for distaf only change"
     V="+1"
     ssh build@review.gluster.org gerrit review --message "'$BURL : $VERDICT'" --project=glusterfs --label CentOS-regression=$V $GIT_COMMIT
     exit $RET
