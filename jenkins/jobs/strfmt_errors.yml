@@ -15,6 +15,7 @@
 
     triggers:
     - gerrit:
+        server-name: review.gluster.org
         trigger-on:
           - patchset-created-event:
               exclude-drafts: false
