@@ -15,7 +15,7 @@
 
     triggers:
     - gerrit:
-        server-name: review.gluster.org
+        server-name: review.gluster.org_for-smoke-jobs
         trigger-on:
           - patchset-created-event:
               exclude-drafts: false
@@ -23,7 +23,9 @@
               exclude-no-code-change: false
           - draft-published-event
           - comment-added-contains-event:
-              comment-contains-value: "recheck strfmt"
+              comment-contains-value: "recheck smoke"
+        skip-vote:
+          failed: true
         projects:
           - project-compare-type: 'PLAIN'
             project-pattern: 'glusterfs'
