@@ -1,5 +1,4 @@
 #!/bin/bash
-
 MY_ENV=`env | sort`
 BURL=${BUILD_URL}consoleFull
 
@@ -47,35 +46,18 @@ su -l root -c "rm -f /var/run/glusterd.socket"
 # Remove GlusterFS log files from previous runs
 su -l root -c "rm -rf /var/log/glusterfs/* /var/log/glusterfs/.cmd_log_history"
 
-# Do not run tests that only modifies doc; does not consider chained changes or files in repo root
-DOC_ONLY=true
+# Skip tests for certain folders
+SKIP=true
 for file in `git diff-tree --no-commit-id --name-only -r HEAD`; do
-    if [[ $file != doc/* ]]; then
-        DOC_ONLY=false
+    if [[ $file != doc/* ]] && [[ $file != build-aux/* ]] && [[ $file != tests/distaf/* ]]; then
+        SKIP=false
         break
     fi
 done
-if [[ "$DOC_ONLY" == true ]]; then
-    echo "Patch only modifies doc/*. Skipping further tests"
+if [[ "$SKIP" == true ]]; then
+    echo "Patch only modifies doc/*, build-aux/* or tests/distaf/*. Skipping further tests"
     RET=0
-    VERDICT="Skipped tests for doc only change"
-    V="+1"
-    ssh nb7build@review.gluster.org gerrit review --message "'$BURL : $VERDICT'" --project=glusterfs --code-review=0 --label NetBSD-regression=$V $GIT_COMMIT
-    exit $RET
-fi
-
-# Do not run tests that only modifies distaf; does not consider chained changes or files in repo root
-DISTAF_ONLY=true
-for file in `git diff-tree --no-commit-id --name-only -r HEAD`; do
-    if [[ $file != tests/distaf/* ]]; then
-        DISTAF_ONLY=false
-        break
-    fi
-done
-if [[ "$DISTAF_ONLY" == true ]]; then
-    echo "Patch only modifies tests/distaf/*. Skipping further tests"
-    RET=0
-    VERDICT="Skipped tests for distaf only change"
+    VERDICT="Skipped tests for doc/*, build-aux/* or tests/distaf/* only change"
     V="+1"
     ssh nb7build@review.gluster.org gerrit review --message "'$BURL : $VERDICT'" --project=glusterfs --code-review=0 --label NetBSD-regression=$V $GIT_COMMIT
     exit $RET
