@@ -47,7 +47,7 @@ done
 if [[ "$SKIP" == true ]]; then
     echo "Patch only modifies doc/*, build-aux/* or tests/distaf/*. Skipping further tests"
     RET=0
-    VERDICT="Skipped tests for doc only change"
+    VERDICT="Skipped tests for doc/*, build-aux/* or tests/distaf/* only change"
     V="+1"
     ssh build@review.gluster.org gerrit review --message "'$BURL : $VERDICT'" --project=glusterfs --label CentOS-regression=$V $GIT_COMMIT
     exit $RET
