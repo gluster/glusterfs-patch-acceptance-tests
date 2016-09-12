@@ -14,6 +14,7 @@ function cleanup()
     killall -15 glusterfs glusterfsd glusterd 2>&1 || true;
     killall -9 glusterfs glusterfsd glusterd 2>&1 || true;
     umount -l $M 2>&1 || true;
+    rm /build/dbench-logs
     rm -rf /var/lib/glusterd /etc/glusterd $P/export;
 }
 
@@ -34,7 +35,7 @@ function run_tests()
 {
     cd $M;
 
-    (sleep 1; dbench -s -t 60 10 > /dev/null) &
+    (sleep 1; dbench -s -t 60 10 > /build/dbench-logs) &
 
     (sleep 1; /opt/qa/tools/posix_compliance.sh) &
 
@@ -62,10 +63,7 @@ function finish ()
 {
     RET=$?
     if [ $RET -ne 0 ]; then
-        mkdir -p /d/logs/smoke
-        filename="/d/logs/smoke/glusterfs-logs-`date +%Y%m%d%H%M%S`.tgz"
-        tar -czf $filename /build/install/var/log;
-        echo Logs archived in $filename
+        cat /build/dbench-logs
     fi
     cleanup;
     kill %1;
