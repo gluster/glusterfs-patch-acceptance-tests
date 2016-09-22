@@ -1,0 +1,36 @@
+- job:
+    name: gluster_libgfapi-python
+    node: gluster
+    description: Run the functional test from libgfapi-python against the latest build
+      of the glusterfs packages. A new run is executed automatically against the nightly
+      builds of the master branch.
+    project-type: freestyle
+    concurrent: true
+
+    scm:
+    - git:
+        url: https://github.com/gluster/glusterfs-patch-acceptance-tests.git
+        branches:
+        - origin/master
+
+    properties:
+    - github:
+        url: https://github.com/gluster/libgfapi-python/
+
+    triggers:
+    - pollurl:
+        cron: H */2 * * *
+        polling-node: gluster
+        urls:
+        - url: http://artifacts.ci.centos.org/gluster/nightly/master/7/x86_64/repodata/repomd.xml
+          check-date: true
+
+    builders:
+    - shell: !include-raw: ../scripts/get-node.sh
+    - shell: centos-ci/scripts/bootstrap.sh libgfapi-python.sh
+    - shell: !include-raw: ../scripts/return-node.sh
+
+    wrappers:
+    - ansicolor:
+        colormap: xterm
+    - timestamps
