@@ -19,7 +19,7 @@ do
     address=$(echo "${node}" |cut -f2 -d " ")
     ssid=$(echo "${node}" |cut -f3 -d " ")
 
-    line="${host}"
+    line="${address}"
     echo "${line}" >> ${ANSIBLE_HOSTS}
 
     # Write unique SSIDs to the SSID file
