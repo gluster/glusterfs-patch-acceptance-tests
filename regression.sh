@@ -5,7 +5,7 @@ BASE="/build/install"
 ARCHIVE_BASE="/archives"
 ARCHIVED_BUILDS="archived_builds"
 ARCHIVED_LOGS="logs"
-TIMESTAMP=`date +%Y%m%d%H%M%S`
+UNIQUE_ID="${JOB_NAME}-${BUILD_ID}"
 SERVER=`hostname`
 LIBLIST=${BASE}/cores/liblist.txt
 
@@ -129,7 +129,7 @@ if [ ${cur_count} != ${core_count} ]; then
     # Archive the build and any cores
     mkdir -p ${BASE}/cores
     mv /*.core ${BASE}/cores
-    filename=${ARCHIVED_BUILDS}/build-install-${TIMESTAMP}.tar
+    filename=${ARCHIVED_BUILDS}/build-install-${UNIQUE_ID}.tar
 
     # Remove temporary files generated to stash libraries from cores
     rm -f ${LIBLIST}
@@ -168,7 +168,7 @@ fi
 
 # If the regression run fails, then archive the GlusterFS logs for later analysis
 if [ ${RET} -ne 0 ]; then
-    filename=${ARCHIVED_LOGS}/glusterfs-logs-${TIMESTAMP}.tgz
+    filename=${ARCHIVED_LOGS}/glusterfs-logs-${UNIQUE_ID}.tgz
     tar -czf ${ARCHIVE_BASE}/$filename /var/log/glusterfs /var/log/messages*;
     echo Logs archived in http://${SERVER}/${filename}
 fi
