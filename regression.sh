@@ -5,7 +5,7 @@ BASE="/build/install"
 ARCHIVE_BASE="/archives"
 ARCHIVED_BUILDS="archived_builds"
 ARCHIVED_LOGS="logs"
-TIMESTAMP=`date +%Y%m%d:%T`
+TIMESTAMP=`date +%Y%m%d%H%M%S`
 SERVER=`hostname`
 LIBLIST=${BASE}/cores/liblist.txt
 
