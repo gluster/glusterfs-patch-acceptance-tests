@@ -18,8 +18,8 @@ then
 	export PATH=$PATH:/usr/local/go/bin
 fi
 
-# also needs git, gcc and make
-yum -y install git gcc make
+# also needs git, hg, bzr, svn gcc and make
+yum -y install git mercurial bzr subversion gcc make
 
 mkdir -p go/{src,pkg,bin}
 cd go
