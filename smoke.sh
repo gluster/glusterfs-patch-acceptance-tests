@@ -59,6 +59,10 @@ function watchdog ()
 
     echo "Kicking in watchdog after $1 secs";
 
+    local mount_pid=$(ps auxww | grep glusterfs | grep -E "volfile-id[ =]/?$V " | awk '{print $2}' | head -1)
+    if [ ! -z $mount_pid ]; then kill -USR1 $mount_pid; fi
+    gluster volume statedump $V
+    sleep 5; #Give some time for the statedumps to be generated
     cleanup;
 }
 
@@ -68,6 +72,8 @@ function finish ()
     if [ $RET -ne 0 ]; then
         cat /build/dbench-logs || true
     fi
+    #Move statedumps to be archived
+    mv /var/run/gluster/*dump* /var/log/glusterfs/
     filename=${ARCHIVED_LOGS}/glusterfs-logs-${UNIQUE_ID}.tgz
     tar -czf ${ARCHIVE_BASE}/$filename /var/log/glusterfs /var/log/messages*;
     echo Logs archived in http://$H/${filename}
