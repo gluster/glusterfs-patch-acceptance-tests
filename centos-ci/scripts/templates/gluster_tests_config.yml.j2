@@ -1,0 +1,23 @@
+servers:
+{% for host in groups['gluster_nodes'][1:] %}
+    - {{ hostvars[host]['ansible_eth0']['ipv4']['address'] }}
+{%  endfor %}
+
+clients:
+{% for host in groups['gluster_nodes'][1:] %}
+    - {{ hostvars[host]['ansible_eth0']['ipv4']['address'] }}
+{%  endfor %}
+
+servers_info:
+{% for host in groups['gluster_nodes'][1:] %}
+    {{ hostvars[host]['ansible_eth0']['ipv4']['address'] }}: &server{{ loop.index }}
+        host: {{ hostvars[host]['ansible_eth0']['ipv4']['address'] }}
+        devices: ["/dev/mapper/loop0p1"]
+        brick_root: "/mnt"
+{%  endfor %}
+
+clients_info:
+{% for host in groups['gluster_nodes'][1:] %}
+    {{ hostvars[host]['ansible_eth0']['ipv4']['address'] }}: &client{{ loop.index }}
+        host: {{ hostvars[host]['ansible_eth0']['ipv4']['address'] }}
+{%  endfor %}
