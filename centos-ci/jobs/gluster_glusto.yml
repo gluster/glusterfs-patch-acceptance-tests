@@ -27,7 +27,7 @@
 
     builders:
     - shell: !include-raw: ../scripts/get-node-to-ansible.sh
-    - shell: centos-ci/scripts/glusto.sh
+    - shell: !include-raw: ../scripts/glusto.sh
 
     publishers:
     - post-tasks:
