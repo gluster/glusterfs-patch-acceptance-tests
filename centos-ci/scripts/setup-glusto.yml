@@ -15,7 +15,7 @@
 - hosts: gluster_nodes[1:]
   tasks:
   - name: Add entries to authorized_keys
-    authorized_key: user=root key="{{ lookup('env', 'WORKSPACE') + '/' + lookup('file','glusto.pub')}}"
+    authorized_key: user=root key="{{ lookup('file','../../glusto.pub')}}"
 
 - hosts: gluster_nodes
   tasks:
