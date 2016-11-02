@@ -1,0 +1,43 @@
+- job:
+    name: gluster_glusto
+    node: gluster
+    description: Run the functional tests from glusto-tests
+    project-type: freestyle
+    concurrent: true
+
+    parameters:
+    - string:
+        default: '5'
+        description: 'Number of nodes for this test'
+        name: NODE_COUNT
+
+    scm:
+    - git:
+        url: https://github.com/gluster/glusterfs-patch-acceptance-tests.git
+        branches:
+        - origin/master
+
+    triggers:
+    - pollurl:
+        cron: H */2 * * *
+        polling-node: gluster
+        urls:
+        - url: http://artifacts.ci.centos.org/gluster/nightly/master/7/x86_64/repodata/repomd.xml
+          check-date: true
+
+    builders:
+    - shell: !include-raw: ../scripts/get-node-to-ansible.sh
+    - shell: centos-ci/scripts/glusto.sh
+
+    publishers:
+    - post-tasks:
+        - matches:
+            # "Building remotely" should always be in the build console output
+            - log-text: Building remotely
+          script:
+            !include-raw: ../scripts/return-node.sh
+
+    wrappers:
+    - ansicolor:
+        colormap: xterm
+    - timestamps

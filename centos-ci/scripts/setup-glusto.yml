@@ -1,0 +1,95 @@
+# vim:ft=ansible:
+---
+- hosts: localhost
+  tasks:
+  - name: Create an ssh keypair
+    shell: ssh-keygen -b 2048 -t rsa -f $WORKSPACE/glusto -q -N ""
+    args:
+      creates: "{{ lookup('env', 'WORKSPACE')}}/glusto"
+
+- hosts: gluster_nodes[0]
+  tasks:
+  - name: Copy ssh key
+    copy: src="{{ lookup('env', 'WORKSPACE') }}/glusto" dest=/root/.ssh/id_rsa mode=600
+
+- hosts: gluster_nodes[1:]
+  tasks:
+  - name: Add entries to authorized_keys
+    authorized_key: user=root key="{{ lookup('file','glusto.pub')}}"
+
+- hosts: gluster_nodes
+  tasks:
+  - name: Setup nightly repo
+    yum_repository:
+      name: gluster_nightly
+      description: The nightly repo for Gluster
+      baseurl: http://artifacts.ci.centos.org/gluster/nightly/master/$releasever/$basearch
+      repo_gpgcheck: no
+
+  - name: Setup EPEL
+    yum: name=epel-release state=installed disable_gpg_check=yes
+    #TODO: Enable GPG check
+
+  - name: Install gluster
+    yum: name={{ item }} state=installed disable_gpg_check=yes
+    with_items:
+    - glusterfs-server
+    - glusterfs-cli
+    - qemu-img
+
+  - name: Create the qemu-image
+    shell: qemu-img create -f raw /var/data 100G
+    #TODO: Don't recreate if file exists
+
+  - name: Run parted
+    shell: parted /var/data mklabel gpt
+
+  - name: Assign full space to one partition
+    shell: parted -a optimal /var/data mkpart p ext2 1024 100%
+
+  - name: Get the partition up
+    shell: kpartx -avs /var/data
+    #TODO: Don't recreate if loop partition exists
+
+  - name: Run mkfs
+    shell: mkfs.xfs /dev/mapper/loop0p1
+
+  - name: Mount the volume
+    mount: name=/mnt src=/dev/mapper/loop0p1 state=mounted fstype=xfs
+
+  - name: Start Gluster Daemon
+    service: name=glusterd state=started
+
+  - name: Stop Firewall
+    service: name=firewalld state=stopped
+
+- hosts: gluster_nodes[0]
+  tasks:
+  - name: Peer probe all nodes
+    command: "gluster peer probe {{hostvars[item]['ansible_eth0']['ipv4']['address']}}"
+    with_items: "{{groups['gluster_nodes'][1:]}}"
+
+  - name: Copy ssh key
+    copy: src="{{ lookup('env', 'WORKSPACE') }}/glusto" dest=/root/.ssh/id_rsa mode=600
+
+  - name: Install git and pip
+    yum: name="{{item}}" state=present disable_gpg_check=yes
+    with_items:
+    - git
+    - python-pip
+
+  - name: Install Glusto
+    pip: name=' git+git://github.com/loadtheaccumulator/glusto.git' editable=false
+
+  - name: Clone the gluster-tests repo
+    git: repo=https://github.com/gluster/glusto-tests.git dest=/root/glusto-tests
+
+  - name: Install glustolibs-gluster
+    command: python setup.py install chdir=/root/glusto-tests/glustolibs-gluster
+
+  - name: Install glustolibs-io
+    command: python setup.py install chdir=/root/glusto-tests/glustolibs-io
+
+  - name: Create the config file
+    template: src=templates/gluster_tests_config.yml.j2 dest=/root/gluster_tests_config.yml
+    tags: testing
