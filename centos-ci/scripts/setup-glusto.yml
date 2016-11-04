@@ -35,7 +35,17 @@
     with_items:
     - glusterfs-server
     - glusterfs-cli
+
+  - name: Install dependency packages
+    yum: name={{ item }} state=installed disable_gpg_check=yes
+    with_items:
+    - nfs-utils
     - qemu-img
+    - fuse
+    - fuse-libs
+    - openib
+    - libibverbs
+    - ctdb
 
   - name: Create the qemu-image
     shell: qemu-img create -f raw /var/data 100G
@@ -62,6 +72,9 @@
 
   - name: Stop Firewall
     service: name=firewalld state=stopped
+
+  - name: Status NFS
+    service: name=nfs-server state=started
 
 - hosts: gluster_nodes[0]
   tasks:
@@ -92,4 +105,3 @@
 
   - name: Create the config file
     template: src=templates/gluster_tests_config.yml.j2 dest=/root/gluster_tests_config.yml
-    tags: testing
