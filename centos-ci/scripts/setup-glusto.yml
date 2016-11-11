@@ -19,16 +19,18 @@
 
 - hosts: gluster_nodes
   tasks:
+  - name: Setup EPEL
+    yum: name=epel-release state=installed disable_gpg_check=yes
+    #TODO: Enable GPG check
+
+- hosts: gluster_nodes[1:]
+  tasks:
   - name: Setup nightly repo
     yum_repository:
       name: gluster_nightly
       description: The nightly repo for Gluster
       baseurl: http://artifacts.ci.centos.org/gluster/nightly/master/$releasever/$basearch
       repo_gpgcheck: no
-
-  - name: Setup EPEL
-    yum: name=epel-release state=installed disable_gpg_check=yes
-    #TODO: Enable GPG check
 
   - name: Install gluster
     yum: name={{ item }} state=installed disable_gpg_check=yes
@@ -43,29 +45,69 @@
     - qemu-img
     - fuse
     - fuse-libs
-    - openib
     - libibverbs
     - ctdb
+    - samba
+    - samba-client
+    - python-pip
+    - libxml2-devel
+    - libxslt-devel
+    - gcc
+    - python-devel
+
+  - name: Install python-docx
+    pip: name=python-docx state=present
 
   - name: Create the qemu-image
-    shell: qemu-img create -f raw /var/data 100G
-    #TODO: Don't recreate if file exists
+    command: "qemu-img create -f raw /var/{{item}} 50G"
+    args:
+      creates: "/var/{{item}}"
+    with_items:
+    - data1
+    - data2
+    - data3
+    - data4
+    tags: test
 
   - name: Run parted
-    shell: parted /var/data mklabel gpt
+    command: "parted /var/{{item}} mklabel gpt"
+    with_items:
+    - data1
+    - data2
+    - data3
+    - data4
 
   - name: Assign full space to one partition
-    shell: parted -a optimal /var/data mkpart p ext2 1024 100%
+    command: "parted -a optimal /var/{{item}} mkpart p ext2 1024 100%"
+    with_items:
+    - data1
+    - data2
+    - data3
+    - data4
 
   - name: Get the partition up
-    shell: kpartx -avs /var/data
-    #TODO: Don't recreate if loop partition exists
+    command: "kpartx -avs /var/{{item}}"
+    args:
+      creates: "/dev/mapper/{{item}}"
+    with_items:
+    - data1
+    - data2
+    - data3
+    - data4
 
   - name: Run mkfs
-    shell: mkfs.xfs /dev/mapper/loop0p1
+    shell: "mkfs.xfs /dev/mapper/{{item}}"
+    with_items:
+    - loop0p1
+    - loop1p1
+    - loop2p1
+    - loop3p1
 
-  - name: Mount the volume
-    mount: name=/mnt src=/dev/mapper/loop0p1 state=mounted fstype=xfs
+  - name: Mount the bricks
+    mount: name="/mnt/{{item.0}}" src="/dev/mapper/{{item.1}}" state=mounted fstype=xfs
+    with_together:
+    - ['vol0', 'vol1', 'vol2', 'vol3']
+    - ['loop0p1', 'loop1p1', 'loop2p1', 'loop3p1']
 
   - name: Start Gluster Daemon
     service: name=glusterd state=started
@@ -73,15 +115,20 @@
   - name: Stop Firewall
     service: name=firewalld state=stopped
 
-  - name: Status NFS
-    service: name=nfs-server state=started
+  - name: Status rpcbind
+    service: name=rpcbind state=started
 
-- hosts: gluster_nodes[0]
+  - name: Status smb
+    service: name=smb state=started
+
+- hosts: gluster_nodes[1]
   tasks:
   - name: Peer probe all nodes
     command: "gluster peer probe {{hostvars[item]['ansible_eth0']['ipv4']['address']}}"
-    with_items: "{{groups['gluster_nodes'][1:]}}"
+    with_items: "{{groups['gluster_nodes'][2:]}}"
 
+- hosts: gluster_nodes[0]
+  tasks:
   - name: Copy ssh key
     copy: src="{{ lookup('env', 'WORKSPACE') }}/glusto" dest=/root/.ssh/id_rsa mode=600
 
@@ -98,10 +145,10 @@
     git: repo=https://github.com/gluster/glusto-tests.git dest=/root/glusto-tests
 
   - name: Install glustolibs-gluster
-    command: python setup.py install chdir=/root/glusto-tests/glustolibs-gluster
+    command: python setup.py develop chdir=/root/glusto-tests/glustolibs-gluster
 
   - name: Install glustolibs-io
-    command: python setup.py install chdir=/root/glusto-tests/glustolibs-io
+    command: python setup.py develop chdir=/root/glusto-tests/glustolibs-io
 
   - name: Create the config file
     template: src=templates/gluster_tests_config.yml.j2 dest=/root/gluster_tests_config.yml
