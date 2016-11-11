@@ -73,7 +73,7 @@ function finish ()
         cat /build/dbench-logs || true
     fi
     #Move statedumps to be archived
-    mv /var/run/gluster/*dump* /var/log/glusterfs/
+    mv /var/run/gluster/*dump* /var/log/glusterfs/ || true
     filename=${ARCHIVED_LOGS}/glusterfs-logs-${UNIQUE_ID}.tgz
     tar -czf ${ARCHIVE_BASE}/$filename /var/log/glusterfs /var/log/messages*;
     echo Logs archived in http://$H/${filename}
