@@ -63,7 +63,6 @@ function watchdog ()
     if [ ! -z $mount_pid ]; then kill -USR1 $mount_pid; fi
     gluster volume statedump $V
     sleep 5; #Give some time for the statedumps to be generated
-    cleanup;
 }
 
 function finish ()
