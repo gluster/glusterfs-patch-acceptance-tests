@@ -54,15 +54,17 @@ function run_tests()
 function watchdog ()
 {
     # insurance against hangs during the test
-
     sleep $1;
-
     echo "Kicking in watchdog after $1 secs";
-
+    # Get statedumps
     local mount_pid=$(ps auxww | grep glusterfs | grep -E "volfile-id[ =]/?$V " | awk '{print $2}' | head -1)
     if [ ! -z $mount_pid ]; then kill -USR1 $mount_pid; fi
     gluster volume statedump $V
     sleep 5; #Give some time for the statedumps to be generated
+    # Kill the gluster processes so FINISH is triggered
+    killall -15 glusterfs glusterfsd glusterd 2>&1 || true;
+    killall -9 glusterfs glusterfsd glusterd 2>&1 || true;
+    umount -l $M 2>&1 || true;
 }
 
 function finish ()
