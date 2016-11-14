@@ -17,7 +17,7 @@ function cleanup()
     killall -15 glusterfs glusterfsd glusterd 2>&1 || true;
     killall -9 glusterfs glusterfsd glusterd 2>&1 || true;
     umount -l $M 2>&1 || true;
-    rm -rf /build/dbench-logs
+    #rm -rf /build/dbench-logs
     rm -rf /var/lib/glusterd /var/log/glusterfs/* /etc/glusterd $P/export;
 }
 
@@ -38,7 +38,7 @@ function run_tests()
 {
     cd $M;
 
-    (sleep 1; dbench -s -t 60 10 > /build/dbench-logs) &
+    #(sleep 1; dbench -s -t 60 10 > /build/dbench-logs) &
 
     (sleep 1; /opt/qa/tools/posix_compliance.sh) &
 
@@ -69,9 +69,9 @@ function watchdog ()
 function finish ()
 {
     RET=$?
-    if [ $RET -ne 0 ]; then
-        cat /build/dbench-logs || true
-    fi
+    #if [ $RET -ne 0 ]; then
+        #cat /build/dbench-logs || true
+    #fi
     #Move statedumps to be archived
     mv /var/run/gluster/*dump* /var/log/glusterfs/ || true
     filename=${ARCHIVED_LOGS}/glusterfs-logs-${UNIQUE_ID}.tgz
