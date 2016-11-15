@@ -14,7 +14,7 @@ DEBUG=${DEBUG:=0}
 # If the second line is not empty, raise an error
 # It may be so that the title itself is long, but then it has to be on a single line
 # and should not be broken into mutliple lines with new-lines in between
-if ! git show --name-only --format=email | head -n 2 | tail -n 1 | egrep '^$' >/dev/null 2>&1 ; then
+if ! git show --pretty=format:%B | head -n 2 | tail -n 1 | egrep '^$' >/dev/null 2>&1 ; then
     echo "Bad commit message format! Please add an empty line after the subject line. Do not break subject line with new-lines."
     exit 1
 fi
