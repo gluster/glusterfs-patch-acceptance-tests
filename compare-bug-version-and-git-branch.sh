@@ -11,6 +11,14 @@ DEBUG=${DEBUG:=0}
 # Not all versions set GERRIT_TOPIC, set it to 'rfc' if no BUG was given
 [ -z "${BUG}" -a -z "${GERRIT_TOPIC}" ] && GERRIT_TOPIC='rfc'
 
+# If the second line is not empty, raise an error
+# It may be so that the title itself is long, but then it has to be on a single line
+# and should not be broken into mutliple lines with new-lines in between
+if ! git show --name-only --format=email | head -n 2 | tail -n 1 | egrep '^$' >/dev/null 2>&1 ; then
+    echo "Bad commit message format! Please add an empty line after the subject line. Do not break subject line with new-lines."
+    exit 1
+fi
+
 BUG=$(git show --name-only --format=email | awk '{IGNORECASE=1} /^BUG:/{print $2}' | tail -1)
 if [ -z "${BUG}" -a "${GERRIT_TOPIC}" = "rfc" ]; then
     echo "No BUG id for rfc needed."
