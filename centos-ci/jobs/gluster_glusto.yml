@@ -7,7 +7,7 @@
 
     parameters:
     - string:
-        default: '5'
+        default: '7'
         description: 'Number of nodes for this test'
         name: NODE_COUNT
 

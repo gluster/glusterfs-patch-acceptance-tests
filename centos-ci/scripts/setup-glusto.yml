@@ -118,8 +118,11 @@
   - name: Status rpcbind
     service: name=rpcbind state=started
 
-  - name: Status smb
+  - name: Start smb
     service: name=smb state=started
+
+  - name: Setup Samba credentials
+    shell: (echo "foobar"; echo "foobar") | smbpasswd -a root
 
 - hosts: gluster_nodes[1]
   tasks:
