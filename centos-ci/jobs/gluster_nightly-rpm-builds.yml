@@ -1,0 +1,95 @@
+- job:
+    name: gluster_nightly-rpm-builds
+    node: gluster
+    description: Build RPMs.
+    project-type: freestyle
+    concurrent: true
+
+    triggers:
+    - timed: '@midnight'
+
+    builders:
+    - trigger-builds:
+        - project: gluster_build-rpms
+          block: false
+          predefined-parameters:
+            GERRIT_BRANCH=master
+            CENTOS_VERSION=7
+            CENTOS_ARCH=x64_64
+    - trigger-builds:
+        - project: gluster_build-rpms
+          block: false
+          predefined-parameters:
+            GERRIT_BRANCH=master
+            CENTOS_VERSION=6
+            CENTOS_ARCH=x64_64
+    - trigger-builds:
+        - project: gluster_build-rpms
+          block: false
+          predefined-parameters:
+            GERRIT_BRANCH=master
+            CENTOS_VERSION=6
+            CENTOS_ARCH=i386
+    - trigger-builds:
+        - project: gluster_build-rpms
+          block: false
+          predefined-parameters:
+            GERRIT_BRANCH=release-3.9
+            CENTOS_VERSION=7
+            CENTOS_ARCH=x64_64
+    - trigger-builds:
+        - project: gluster_build-rpms
+          block: false
+          predefined-parameters:
+            GERRIT_BRANCH=release-3.9
+            CENTOS_VERSION=6
+            CENTOS_ARCH=x64_64
+    - trigger-builds:
+        - project: gluster_build-rpms
+          block: false
+          predefined-parameters:
+            GERRIT_BRANCH=release-3.9
+            CENTOS_VERSION=6
+            CENTOS_ARCH=i386
+    - trigger-builds:
+        - project: gluster_build-rpms
+          block: false
+          predefined-parameters:
+            GERRIT_BRANCH=release-3.8
+            CENTOS_VERSION=7
+            CENTOS_ARCH=x64_64
+    - trigger-builds:
+        - project: gluster_build-rpms
+          block: false
+          predefined-parameters:
+            GERRIT_BRANCH=release-3.8
+            CENTOS_VERSION=6
+            CENTOS_ARCH=x64_64
+    - trigger-builds:
+        - project: gluster_build-rpms
+          block: false
+          predefined-parameters:
+            GERRIT_BRANCH=release-3.8
+            CENTOS_VERSION=6
+            CENTOS_ARCH=i386
+    - trigger-builds:
+        - project: gluster_build-rpms
+          block: false
+          predefined-parameters:
+            GERRIT_BRANCH=release-3.7
+            CENTOS_VERSION=7
+            CENTOS_ARCH=x64_64
+    - trigger-builds:
+        - project: gluster_build-rpms
+          block: false
+          predefined-parameters:
+            GERRIT_BRANCH=release-3.7
+            CENTOS_VERSION=6
+            CENTOS_ARCH=x64_64
+    - trigger-builds:
+        - project: gluster_build-rpms
+          block: false
+          predefined-parameters:
+            GERRIT_BRANCH=release-3.7
+            CENTOS_VERSION=6
+            CENTOS_ARCH=i386
