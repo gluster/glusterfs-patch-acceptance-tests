@@ -1,0 +1,54 @@
+- job:
+    name: gluster_build-rpms
+    node: gluster
+    description: Build RPMs.
+    project-type: freestyle
+    concurrent: true
+
+    scm:
+    - git:
+        url: https://github.com/gluster/glusterfs-patch-acceptance-tests.git
+        branches:
+        - origin/master
+
+    builders:
+    - shell: !include-raw: ../scripts/get-node.sh
+    - shell: centos-ci/scripts/bootstrap.sh nightly-builds.sh
+
+    parameters:
+    - choice:
+        choices:
+        - master
+        - release-3.9
+        - release-3.8
+        - release-3.7
+        - release-3.6
+        description: Gluster branch to build RPMs
+        name: GERRIT_BRANCH
+    - choice:
+        choices:
+        - '7'
+        - '6'
+        description: CentOS version to build the RPMs
+        name: CENTOS_VERSION
+    - choice:
+        choices:
+        - x86_64
+        - i386
+        description: CentOS architecture to build the RPMs
+        name: CENTOS_ARCH
+
+    properties:
+    - build-discarder:
+        days-to-keep: 7
+
+    publishers:
+    - email-ext:
+        attach-build-log: false
+        attachment: null
+        body: $DEFAULT_CONTENT
+        content-type: text
+        presend-script: $DEFAULT_PRESEND_SCRIPT
+        recipients: $DEFAULT_RECIPIENTS
+        reply-to: $DEFAULT_REPLYTO
+        subject: $DEFAULT_SUBJECT ($GERRIT_BRANCH on CentOS-$CENTOS_VERSION/$CENTOS_ARCH)
