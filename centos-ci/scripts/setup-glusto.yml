@@ -47,8 +47,10 @@
     - fuse-libs
     - libibverbs
     - ctdb
+    - cifs-utils
     - samba
     - samba-client
+    - samba-vfs-glusterfs
     - python-pip
     - libxml2-devel
     - libxslt-devel
