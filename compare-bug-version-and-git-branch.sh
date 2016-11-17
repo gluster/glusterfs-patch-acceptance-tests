@@ -11,6 +11,13 @@ DEBUG=${DEBUG:=0}
 # Not all versions set GERRIT_TOPIC, set it to 'rfc' if no BUG was given
 [ -z "${BUG}" -a -z "${GERRIT_TOPIC}" ] && GERRIT_TOPIC='rfc'
 
+# who knows, some may have the first line of the commit message empty!
+# and that should not be the case
+if git show --pretty=format:%B | head -n 1 | egrep '^$' >/dev/null 2>&1 ; then
+    echo "Bad commit message format! First line cannot be empty and should contain the commit subject."
+    exit 1
+fi
+
 # If the second line is not empty, raise an error
 # It may be so that the title itself is long, but then it has to be on a single line
 # and should not be broken into mutliple lines with new-lines in between
