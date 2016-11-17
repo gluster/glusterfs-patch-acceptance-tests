@@ -29,6 +29,7 @@ function start_fs()
     glusterd;
     gluster --mode=script volume create $V replica 2 $H:$P/export/export{1,2,3,4} force;
     gluster volume start $V;
+    gluster volume set $V performance.write-behind off;
     glusterfs -s $H --volfile-id $V $M;
 #    mount -t glusterfs $H:/$V $M;
 }
