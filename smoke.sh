@@ -59,7 +59,7 @@ function watchdog ()
     echo "Kicking in watchdog after $1 secs";
     # Get core
     set -x
-    local client_pid=$(ps ax | grep glusterfs | grep -v glusterfsd | grep patchy | awk '{print $2}')
+    local client_pid=$(ps aux | grep glusterfs | grep -v glusterfsd | grep patchy | awk '{print $2}')
     if [ ! -z $client_pid ]; then gcore -o /var/log/gluster/gluster-gdb.core $mount_pid; fi
     # Get statedumps
     local mount_pid=$(ps auxww | grep glusterfs | grep -E "volfile-id[ =]/?$V " | awk '{print $2}' | head -1)
