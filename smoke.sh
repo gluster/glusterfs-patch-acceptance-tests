@@ -58,6 +58,7 @@ function watchdog ()
     sleep $1;
     echo "Kicking in watchdog after $1 secs";
     # Get core
+    set -x
     local client_pid=$(ps ax | grep glusterfs | grep -v glusterfsd | grep patchy | awk '{print $2}')
     if [ ! -z $client_pid ]; then gcore -o /var/log/gluster/gluster-gdb.core $mount_pid; fi
     # Get statedumps
@@ -69,6 +70,7 @@ function watchdog ()
     killall -15 glusterfs glusterfsd glusterd 2>&1 || true;
     killall -9 glusterfs glusterfsd glusterd 2>&1 || true;
     umount -l $M 2>&1 || true;
+    set +x
 }
 
 function finish ()
