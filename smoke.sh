@@ -57,6 +57,9 @@ function watchdog ()
     # insurance against hangs during the test
     sleep $1;
     echo "Kicking in watchdog after $1 secs";
+    # Get core
+    local client_pid=$(ps ax | grep glusterfs | grep -v glusterfsd | grep patchy | awk '{print $2}')
+    if [ ! -z $client_pid ]; then gcore -o /var/log/gluster/gluster-gdb.core $mount_pid; fi
     # Get statedumps
     local mount_pid=$(ps auxww | grep glusterfs | grep -E "volfile-id[ =]/?$V " | awk '{print $2}' | head -1)
     if [ ! -z $mount_pid ]; then kill -USR1 $mount_pid; fi
