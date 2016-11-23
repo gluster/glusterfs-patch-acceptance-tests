@@ -1,5 +1,6 @@
 #!/bin/bash
 
+source env
 # if anything fails, we'll abort
 set -e
 
