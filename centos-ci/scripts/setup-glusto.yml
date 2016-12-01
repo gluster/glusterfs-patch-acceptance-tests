@@ -111,11 +111,39 @@
     - ['vol0', 'vol1', 'vol2', 'vol3']
     - ['loop0p1', 'loop1p1', 'loop2p1', 'loop3p1']
 
+  - name: Disable ipv6 in eth0 config
+    lineinfile:
+      dest: /etc/sysconfig/network-scripts/ifcfg-eth0
+      regexp: ^IPV6INIT=
+      line: IPV6INIT=no
+
+  - name: Disable ipv6 in network config
+    lineinfile:
+      dest: /etc/sysconfig/network
+      regexp: ^NETWORKING_IPV6=
+      line: NETWORKING_IPV6=no
+
+  - name: Disable ipv6 in sysctl
+    sysctl:
+      name: "{{ item }}"
+      value: 1
+      state: present
+      reload: yes
+    with_items:
+    - net.ipv6.conf.all.disable_ipv6
+    - net.ipv6.conf.default.disable_ipv6
+
   - name: Start Gluster Daemon
     service: name=glusterd state=started
 
   - name: Stop Firewall
     service: name=firewalld state=stopped
+
+  - name: Flush iptables
+    command: "iptables -F"
+
+  - name: Flush iptables
+    command: "iptables -X"
 
   - name: Status rpcbind
     service: name=rpcbind state=started
