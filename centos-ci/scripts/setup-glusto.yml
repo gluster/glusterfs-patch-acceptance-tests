@@ -151,6 +151,9 @@
   - name: Start smb
     service: name=smb state=started
 
+  - name: Setup SELinux for Samba
+    seboolean: name=samba_load_libgfapi state=yes persistent=yes
+
   - name: Setup Samba credentials
     shell: (echo "foobar"; echo "foobar") | smbpasswd -a root
 
