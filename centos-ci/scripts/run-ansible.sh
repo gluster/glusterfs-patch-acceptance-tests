@@ -5,7 +5,7 @@ ANSIBLE_HOST_KEY_CHECKING=False $HOME/env/bin/ansible-playbook -i hosts centos-c
 
 # Get master IP
 host=$(cat hosts | grep ansible_host | head -n 1 | awk '{split($2, a, "="); print a[2]}')
-cmd="cd glusto-tests/tests && glusto -c ../../gluster_tests_config.yml --pytest='-v -x bvt'"
 
 # run the test command from master
-ssh -t -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@$host $cmd
+scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no centos-ci/scripts/run-glusto.sh root@$host:run-glusto.sh
+ssh -t -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@$host run-glusto.sh
