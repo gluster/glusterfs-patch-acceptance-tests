@@ -37,6 +37,7 @@
     with_items:
     - glusterfs-server
     - glusterfs-cli
+    - glusterfs-debuginfo
 
   - name: Install dependency packages
     yum: name={{ item }} state=installed disable_gpg_check=yes
@@ -162,6 +163,20 @@
   - name: Peer probe all nodes
     command: "gluster peer probe {{hostvars[item]['ansible_eth0']['ipv4']['address']}}"
     with_items: "{{groups['gluster_nodes'][2:]}}"
+
+  - name: Setup Samba configuration
+    blockinfile:
+      dest: /etc/samba/smb.conf
+      insertafter: '\[global\]'
+      content: |
+          kernel share modes = no
+          kernel oplocks = no
+          map archive = no
+          map hidden = no
+          map read only = no
+          map system = no
+          store dos attributes = yes
+    tags: smb
 
 - hosts: gluster_nodes[0]
   tasks:
