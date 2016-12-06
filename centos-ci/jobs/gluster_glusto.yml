@@ -28,7 +28,6 @@
     builders:
     - shell: !include-raw: ../scripts/get-node-to-ansible.sh
     - shell: !include-raw: ../scripts/run-glusto-main.sh
-    - shell: !include-raw: ../scripts/get-glusto-logs.sh
 
     publishers:
     - post-tasks:
