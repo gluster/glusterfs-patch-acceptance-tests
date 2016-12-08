@@ -30,6 +30,9 @@
     - shell: !include-raw: ../scripts/run-glusto-main.sh
 
     publishers:
+    - archive:
+        artifacts: 'glustomain.log'
+        allow-empty: true
     - post-tasks:
         - matches:
             # "Building remotely" should always be in the build console output
