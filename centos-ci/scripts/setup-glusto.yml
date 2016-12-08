@@ -98,7 +98,7 @@
     - data4
 
   - name: Run mkfs
-    shell: "mkfs.xfs /dev/mapper/{{item}}"
+    shell: "mkfs.xfs -f /dev/mapper/{{item}}"
     with_items:
     - loop0p1
     - loop1p1

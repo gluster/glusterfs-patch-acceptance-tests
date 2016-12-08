@@ -1,10 +1,15 @@
 #!/bin/bash
 # Run ansible script to setup everything
-ANSIBLE_HOST_KEY_CHECKING=False $HOME/env/bin/ansible-playbook -i hosts centos-ci/scripts/setup-glusto.yml
-# Retry ansible scripts in case something fails.
-ANSIBLE_HOST_KEY_CHECKING=False $HOME/env/bin/ansible-playbook -i hosts --limit @centos-ci/scripts/setup-glusto.retry centos-ci/scripts/setup-glusto.yml
-# Retry ansible scripts in case something fails.
-ANSIBLE_HOST_KEY_CHECKING=False $HOME/env/bin/ansible-playbook -i hosts --limit @centos-ci/scripts/setup-glusto.retry centos-ci/scripts/setup-glusto.yml
+
+# Retry Ansible runs thrice
+MAX=3
+
+RETRY=0
+RETURN_VALUE=1
+while [ $RETRY -lt $MAX ] && [ $RETURN_VALUE -eq 0 ];
+do
+    RETURN_VALUE=ANSIBLE_HOST_KEY_CHECKING=False $HOME/env/bin/ansible-playbook -i hosts centos-ci/scripts/setup-glusto.yml
+done
 
 # Get master IP
 host=$(cat hosts | grep ansible_host | head -n 1 | awk '{split($2, a, "="); print a[2]}')
