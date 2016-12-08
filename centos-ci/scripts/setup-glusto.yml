@@ -72,7 +72,7 @@
     tags: test
 
   - name: Run parted
-    command: "parted /var/{{item}} mklabel gpt"
+    command: "parted /var/{{item}} mklabel gpt --script"
     with_items:
     - data1
     - data2
@@ -80,7 +80,7 @@
     - data4
 
   - name: Assign full space to one partition
-    command: "parted -a optimal /var/{{item}} mkpart p ext2 1024 100%"
+    command: "parted -a optimal /var/{{item}} mkpart p ext2 1024 100% --script"
     with_items:
     - data1
     - data2
