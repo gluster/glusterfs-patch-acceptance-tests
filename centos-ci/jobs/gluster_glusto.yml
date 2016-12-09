@@ -33,6 +33,8 @@
     - archive:
         artifacts: 'glustomain.log'
         allow-empty: true
+    - junit:
+        results: junit.xml
     - post-tasks:
         - matches:
             # "Building remotely" should always be in the build console output
