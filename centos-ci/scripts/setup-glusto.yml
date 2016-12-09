@@ -69,7 +69,6 @@
     - data2
     - data3
     - data4
-    tags: test
 
   - name: Run parted
     command: "parted /var/{{item}} mklabel gpt --script"
@@ -99,6 +98,7 @@
 
   - name: Run mkfs
     shell: "mkfs.xfs -f /dev/mapper/{{item}}"
+    ignore_errors: yes
     with_items:
     - loop0p1
     - loop1p1
