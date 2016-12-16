@@ -1,17 +1,17 @@
 log_level: DEBUG
 
 servers:
-{% for host in groups['gluster_nodes'][1:] %}
+{% for host in groups['gluster_nodes'][1:7] %}
     - {{ hostvars[host]['ansible_eth0']['ipv4']['address'] }}
 {%  endfor %}
 
 clients:
-{% for host in groups['gluster_nodes'][1:] %}
+{% for host in groups['gluster_nodes'][7:9] %}
     - {{ hostvars[host]['ansible_eth0']['ipv4']['address'] }}
 {%  endfor %}
 
 servers_info:
-{% for host in groups['gluster_nodes'][1:] %}
+{% for host in groups['gluster_nodes'][1:7] %}
     {{ hostvars[host]['ansible_eth0']['ipv4']['address'] }}: &server{{ loop.index }}
         host: {{ hostvars[host]['ansible_eth0']['ipv4']['address'] }}
         devices: ["/dev/mapper/loop0p1", "/dev/mapper/loop1p1", "/dev/mapper/loop2p1", "/dev/mapper/loop3p1"]
@@ -19,7 +19,7 @@ servers_info:
 {%  endfor %}
 
 clients_info:
-{% for host in groups['gluster_nodes'][1:] %}
+{% for host in groups['gluster_nodes'][7:9] %}
     {{ hostvars[host]['ansible_eth0']['ipv4']['address'] }}: &client{{ loop.index }}
         host: {{ hostvars[host]['ansible_eth0']['ipv4']['address'] }}
 {%  endfor %}

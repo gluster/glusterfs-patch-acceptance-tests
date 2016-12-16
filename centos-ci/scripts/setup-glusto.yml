@@ -22,29 +22,48 @@
   - name: Setup EPEL
     yum: name=epel-release state=installed
 
-- hosts: gluster_nodes[1:]
+# Server and client tasks
+- hosts: gluster_nodes[1:8]
+  tasks:
+  - name: Disable ipv6 in eth0 config
+    lineinfile:
+      dest: /etc/sysconfig/network-scripts/ifcfg-eth0
+      regexp: ^IPV6INIT=
+      line: IPV6INIT=no
+
+  - name: Disable ipv6 in network config
+    lineinfile:
+      dest: /etc/sysconfig/network
+      regexp: ^NETWORKING_IPV6=
+      line: NETWORKING_IPV6=no
+
+  - name: Disable ipv6 in sysctl
+    sysctl:
+      name: "{{ item }}"
+      value: 1
+      state: present
+      reload: yes
+    with_items:
+    - net.ipv6.conf.all.disable_ipv6
+    - net.ipv6.conf.default.disable_ipv6
+
+  - name: Stop Firewall
+    service: name=firewalld state=stopped
+
+  - name: Flush iptables
+    command: "iptables -F"
+
+  - name: Flush iptables
+    command: "iptables -X"
+
+# Set up servers
+- hosts: gluster_nodes[1:6]
   tasks:
   - name: Install dependency packages
     yum: name={{ item }} state=installed
     with_items:
-    - nfs-utils
     - qemu-img
-    - fuse
-    - fuse-libs
     - libibverbs
-    - ctdb
-    - cifs-utils
-    - samba
-    - samba-client
-    - samba-vfs-glusterfs
-    - python-pip
-    - libxml2-devel
-    - libxslt-devel
-    - gcc
-    - python-devel
-
-  - name: Install python-docx
-    pip: name=python-docx state=present
 
   - name: Setup nightly repo
     yum_repository:
@@ -111,42 +130,56 @@
     - ['vol0', 'vol1', 'vol2', 'vol3']
     - ['loop0p1', 'loop1p1', 'loop2p1', 'loop3p1']
 
-  - name: Disable ipv6 in eth0 config
-    lineinfile:
-      dest: /etc/sysconfig/network-scripts/ifcfg-eth0
-      regexp: ^IPV6INIT=
-      line: IPV6INIT=no
-
-  - name: Disable ipv6 in network config
-    lineinfile:
-      dest: /etc/sysconfig/network
-      regexp: ^NETWORKING_IPV6=
-      line: NETWORKING_IPV6=no
-
-  - name: Disable ipv6 in sysctl
-    sysctl:
-      name: "{{ item }}"
-      value: 1
-      state: present
-      reload: yes
-    with_items:
-    - net.ipv6.conf.all.disable_ipv6
-    - net.ipv6.conf.default.disable_ipv6
-
   - name: Start Gluster Daemon
     service: name=glusterd state=started
 
-  - name: Stop Firewall
-    service: name=firewalld state=stopped
-
-  - name: Flush iptables
-    command: "iptables -F"
-
-  - name: Flush iptables
-    command: "iptables -X"
-
   - name: Status rpcbind
     service: name=rpcbind state=started
+
+# Setup client
+- hosts: gluster_nodes[7:8]
+  tasks:
+  - name: Install dependency packages
+    yum: name={{ item }} state=installed
+    with_items:
+    - nfs-utils
+    - cifs-utils
+    - python-pip
+    - libxml2-devel
+    - libxslt-devel
+    - gcc
+    - python-devel
+    - fuse
+    - fuse-libs
+
+  - name: Setup nightly repo
+    yum_repository:
+      name: gluster_nightly
+      description: The nightly repo for Gluster
+      baseurl: http://artifacts.ci.centos.org/gluster/nightly/release-3.8/$releasever/$basearch
+      repo_gpgcheck: no
+
+  - name: Install gluster
+    yum: name={{ item }} state=installed disable_gpg_check=yes
+    with_items:
+    - glusterfs-fuse
+
+  - name: Install python-docx
+    pip: name=python-docx state=present
+
+- hosts: gluster_nodes[1]
+  tasks:
+  - name: Peer probe all nodes
+    command: "gluster peer probe {{hostvars[item]['ansible_eth0']['ipv4']['address']}}"
+    with_items: "{{groups['gluster_nodes'][2:7]}}"
+
+  - name: Install dependency packages
+    yum: name={{ item }} state=installed
+    with_items:
+    - ctdb
+    - samba
+    - samba-vfs-glusterfs
+    - samba-client
 
   - name: Start smb
     service: name=smb state=started
@@ -156,13 +189,6 @@
 
   - name: Setup Samba credentials
     shell: (echo "foobar"; echo "foobar") | smbpasswd -a root
-
-- hosts: gluster_nodes[1]
-  tasks:
-  - name: Peer probe all nodes
-    command: "gluster peer probe {{hostvars[item]['ansible_eth0']['ipv4']['address']}}"
-    with_items: "{{groups['gluster_nodes'][2:]}}"
-
   - name: Setup Samba configuration
     blockinfile:
       dest: /etc/samba/smb.conf
