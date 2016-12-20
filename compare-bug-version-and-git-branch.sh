@@ -42,15 +42,21 @@ while [ -z "${BUG_PRODUCT}" -a ${BZQTRY} -le 3 ]; do
         echo 1
     fi
 
-    BZQOUT=$(bugzilla ${BZQOPTS} query -b ${BUG} --outputformat='%{product}:%{version}:%{groups}:%{status}')
+    BZQOUT=$(bugzilla ${BZQOPTS} query -b ${BUG} --outputformat='%{product}:%{version}:%{groups}:%{status}:%{assigned_to}')
     BUG_PRODUCT=$(cut -d: -f1 <<< "${BZQOUT}")
     BUG_VERSION=$(cut -d: -f2 <<< "${BZQOUT}")
     BUG_GROUPS=$(cut -d: -f3 <<< "${BZQOUT}")
     BUG_STATUS=$(cut -d: -f4 <<< "${BZQOUT}")
+    BUG_OWNER=$(cut -d: -f5 <<< "${BZQOUT}")
 done
 
 if [ "${BUG_STATUS}" != "NEW" -a "${BUG_STATUS}" != "POST" -a "${BUG_STATUS}" != "ASSIGNED" ]; then
     echo "BUG id ${BUG} has an invalid status as ${BUG_STATUS}. Acceptable status values are NEW, ASSIGNED or POST."
+    exit 1
+fi
+
+if [ "${BUG_OWNER}" = "bugs@gluster.org" ]; then
+    echo "BUG id ${BUG} has an invalid owner"
     exit 1
 fi
 
