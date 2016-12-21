@@ -1,0 +1,35 @@
+- job:
+    name: gluster_centos_regression
+    node: gluster
+    description: Run CentOS regressions for Gluster on a regular basis
+    project-type: freestyle
+    concurrent: true
+
+    scm:
+    - git:
+        url: https://github.com/gluster/glusterfs-patch-acceptance-tests.git
+        branches:
+        - origin/master
+
+    builders:
+    - shell: !include-raw: ../scripts/get-node.sh
+    - shell: centos-ci/scripts/bootstrap.sh centos-regression.sh "GERRIT_BRANCH=$GERRIT_BRANCH"
+
+    parameters:
+    - choice:
+        choices:
+        - master
+        - release-3.8-fb
+        description: Gluster branch to build RPMs
+        name: GERRIT_BRANCH
+    properties:
+    - build-discarder:
+        days-to-keep: 7
+
+    publishers:
+    - post-tasks:
+        - matches:
+            # "Building remotely" should always be in the build console output
+            - log-text: Building remotely
+          script:
+            !include-raw: ../scripts/return-node.sh
