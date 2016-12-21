@@ -13,6 +13,10 @@ cd glusterfs/
 # Setup /opt/qa
 git clone https://github.com/gluster/glusterfs-patch-acceptance-tests.git /opt/qa
 
+# Setup directories
+JDIRS="/var/log/glusterfs /var/lib/glusterd /var/run/gluster /d /d/archived_builds /d/backends /d/build /d/logs /home/jenkins/root"
+sudo mkdir -p $JDIRS
+
 # Run regressions
 echo "Start time $(date)"
 echo
