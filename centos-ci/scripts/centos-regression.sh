@@ -4,7 +4,8 @@ set -e
 # install basic dependencies for building the tarball and srpm
 yum -y install centos-release-gluster epel-release
 yum -y install git autoconf automake gcc libtool bison flex make
-yum -y install python-devel libaio-devel librdmacm-devel libattr-devel libxml2-devel readline-devel openssl-devel libibverbs-devel fuse-devel glib2-devel userspace-rcu-devel libacl-devel sqlite-devel lvm2-devel attr nfs-utils dbench yajl psmisc
+yum -y install python-devel libaio-devel librdmacm-devel libattr-devel libxml2-devel readline-devel openssl-devel libibverbs-devel fuse-devel glib2-devel userspace-rcu-devel libacl-devel sqlite-devel lvm2-devel
+yum -y install attr nfs-utils dbench yajl psmisc bind-utils
 
 # clone the repository
 git clone -b ${GERRIT_BRANCH} https://github.com/gluster/glusterfs
