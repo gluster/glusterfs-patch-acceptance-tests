@@ -2,7 +2,6 @@
 
 set -e
 set -x
-scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no env root@$(cat $WORKSPACE/hosts):env
 scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no centos-ci/scripts/$1 root@$(cat $WORKSPACE/hosts):$1
 if [[ -z $2 ]];
 then
