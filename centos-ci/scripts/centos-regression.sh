@@ -18,6 +18,8 @@ git clone https://github.com/gluster/glusterfs-patch-acceptance-tests.git /opt/q
 JDIRS="/var/log/glusterfs /var/lib/glusterd /var/run/gluster /d /d/archived_builds /d/backends /d/build /d/logs /home/jenkins/root"
 sudo mkdir -p $JDIRS
 
+systemctl stop firewalld
+
 # Run regressions
 echo "Start time $(date)"
 echo
