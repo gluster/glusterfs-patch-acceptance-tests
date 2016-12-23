@@ -12,16 +12,19 @@
         - origin/master
 
     builders:
-    - shell: !include-raw: ../scripts/get-node.sh
-    - shell: centos-ci/scripts/bootstrap.sh centos-regression.sh "GERRIT_BRANCH=$GERRIT_BRANCH"
+    - shell: !include-raw: ../scripts/get-node-to-ansible.sh
+    - shell: !include-raw: ../scripts/centos-regression-main.sh
 
     parameters:
-    - choice:
-        choices:
-        - master
-        - release-3.8-fb
-        description: Gluster branch to build RPMs
+    - string:
         name: GERRIT_BRANCH
+        default: master
+        description: Gluster branch/version to build RPMs
+    - string:
+        default: '1'
+        description: 'Number of nodes for this test'
+        name: NODE_COUNT
+
     properties:
     - build-discarder:
         days-to-keep: 7
