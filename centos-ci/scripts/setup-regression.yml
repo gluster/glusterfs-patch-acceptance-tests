@@ -123,6 +123,7 @@
     - /d/backends
     - /d/build
     - /d/logs
+    - /archives/logs
 
   - name: Uninstall qemu-img
     yum: name=qemu-img state=removed
