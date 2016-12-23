@@ -11,6 +11,11 @@
         description: 'Number of nodes for this test'
         name: NODE_COUNT
 
+    properties:
+    - build-discarder:
+        days-to-keep: 7
+        artifact-days-to-keep: 7
+
     scm:
     - git:
         url: https://github.com/gluster/glusterfs-patch-acceptance-tests.git
