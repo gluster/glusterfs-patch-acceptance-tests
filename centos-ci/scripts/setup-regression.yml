@@ -38,8 +38,11 @@
   - name: Install dependency packages
     yum: name={{ item }} state=installed
     with_items:
-    - centos-release-gluster
     - epel-release
+
+  - name: Install dependency packages
+    yum: name={{ item }} state=installed
+    with_items:
     - git
     - autoconf
     - automake
@@ -48,7 +51,7 @@
     - bison
     - flex
     - make
-    - rpmbuild
+    - rpm-build
     - mock
     - python-devel
     - libaio-devel
@@ -105,7 +108,7 @@
       repo: https://github.com/gluster/glusterfs.git
       dest: /root/glusterfs
       accept_hostkey: yes
-      version: gerrit_branch
+      version: '{{ gerrit_branch }}'
 
   - name: Create the required directories
     file:
