@@ -21,6 +21,10 @@
         default: master
         description: Gluster branch/version to build RPMs
     - string:
+        name: RELEASE
+        default: '7'
+        description: CentOS Release for the test
+    - string:
         default: '1'
         description: 'Number of nodes for this test'
         name: NODE_COUNT

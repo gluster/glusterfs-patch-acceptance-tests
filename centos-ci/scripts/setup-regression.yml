@@ -28,6 +28,7 @@
 
   - name: Stop Firewall
     service: name=firewalld state=stopped
+    ignore_errors: yes
 
   - name: Flush iptables
     command: "iptables -F"
