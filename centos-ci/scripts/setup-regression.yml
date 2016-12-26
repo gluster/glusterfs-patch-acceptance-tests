@@ -74,6 +74,7 @@
     - yajl
     - psmisc
     - bind-utils
+    - xfsprogs
     - qemu-img
 
   - name: Create the qemu-image
