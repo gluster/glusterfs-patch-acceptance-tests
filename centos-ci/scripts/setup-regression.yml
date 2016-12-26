@@ -74,8 +74,9 @@
     - yajl
     - psmisc
     - bind-utils
-    - qemu-img
+    - perl-Test-Harness
     - xfsprogs
+    - qemu-img
 
   - name: Create the qemu-image
     command: "qemu-img create -f raw /var/data1 50G"
