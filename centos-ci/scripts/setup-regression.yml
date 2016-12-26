@@ -75,6 +75,7 @@
     - psmisc
     - bind-utils
     - xfsprogs
+    - perl-Test-Harness
     - qemu-img
 
   - name: Create the qemu-image
