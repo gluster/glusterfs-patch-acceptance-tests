@@ -74,9 +74,8 @@
     - yajl
     - psmisc
     - bind-utils
-    - xfsprogs
-    - perl-Test-Harness
     - qemu-img
+    - xfsprogs
 
   - name: Create the qemu-image
     command: "qemu-img create -f raw /var/data1 50G"
@@ -105,6 +104,9 @@
 
   - name: Setup /opt/qa
     git: repo=https://github.com/gluster/glusterfs-patch-acceptance-tests.git dest=/opt/qa/
+
+  - name: Start rpc
+    service: name=rpcbind state=started
 
   - name: Setup glusterfs repo
     git:
