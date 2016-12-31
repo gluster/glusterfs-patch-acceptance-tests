@@ -131,8 +131,10 @@
     - /d/logs
     - /archives/logs
 
-  - name: Add mock user; required for rpm.t
-    user: name=mock group=mock
+  - name: Delete rpm.t
+    file:
+      path: /root/glusterfs/tests/basic/rpm.t
+      state: absent
 
   - name: Uninstall qemu-img
     yum: name=qemu-img state=removed
