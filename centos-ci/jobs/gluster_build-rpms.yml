@@ -13,7 +13,7 @@
 
     builders:
     - shell: !include-raw: ../scripts/get-node.sh
-    - shell: centos-ci/scripts/bootstrap.sh nightly-builds.sh
+    - shell: centos-ci/scripts/bootstrap.sh nightly-builds.sh "GERRIT_BRANCH=$GERRIT_BRANCH CENTOS_VERSION=$CENTOS_VERSION CENTOS_ARCH=$CENTOS_ARCH"
 
     parameters:
     - choice:
