@@ -30,7 +30,7 @@ yum -y install /usr/bin/easy_install
 easy_install pip
 pip install --upgrade pip tox
 
-git clone https://review.gluster.org/libgfapi-python
+git clone git://review.gluster.org/libgfapi-python
 cd libgfapi-python/
 
 # run tests
