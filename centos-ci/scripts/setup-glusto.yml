@@ -187,6 +187,9 @@
   - name: Setup SELinux for Samba
     seboolean: name=samba_load_libgfapi state=yes persistent=yes
 
+  - name: Setup SELinux in permissive mode
+    selinux: policy=targeted state=permissive
+
   - name: Setup Samba credentials
     shell: (echo "foobar"; echo "foobar") | smbpasswd -a root
   - name: Setup Samba configuration
