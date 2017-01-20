@@ -38,7 +38,8 @@ BZQTRY=0
 while [ -z "${BUG_PRODUCT}" -a ${BZQTRY} -le 3 ]; do
     BZQTRY=$((${BZQTRY} + 1))
     if [ "x${BZQTRY}" = "x3" ]; then
-        echo "Failed to get details for BUG id ${BUG}, please contact an admin or email gluster-infra@gluster.org."
+        echo "Failed to get details for BUG id ${BUG}, please verify the bug is not private"
+        echo "If the bug is public and readable, please email gluster-infra@gluster.org."
         echo 1
     fi
 
