@@ -94,7 +94,7 @@
         - project: gluster_build-rpms
           block: false
           predefined-parameters:
-            GERRIT_BRANCH=release-3.7
+            GERRIT_BRANCH=release-3.10
 
             CENTOS_VERSION=7
 
@@ -103,7 +103,7 @@
         - project: gluster_build-rpms
           block: false
           predefined-parameters:
-            GERRIT_BRANCH=release-3.7
+            GERRIT_BRANCH=release-3.10
 
             CENTOS_VERSION=6
 
@@ -112,7 +112,7 @@
         - project: gluster_build-rpms
           block: false
           predefined-parameters:
-            GERRIT_BRANCH=release-3.7
+            GERRIT_BRANCH=release-3.10
 
             CENTOS_VERSION=6
 
