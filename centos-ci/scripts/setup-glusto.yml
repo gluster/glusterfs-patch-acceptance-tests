@@ -63,6 +63,10 @@
 # Set up servers
 - hosts: gluster_nodes[1:6]
   tasks:
+  - name: Set gluster branch
+    set_fact:
+      g_branch: "{{ lookup('env', 'BRANCH') }}"
+
   - name: Install dependency packages
     yum: name={{ item }} state=installed
     with_items:
@@ -73,7 +77,7 @@
     yum_repository:
       name: gluster_nightly
       description: The nightly repo for Gluster
-      baseurl: http://artifacts.ci.centos.org/gluster/nightly/master/$releasever/$basearch
+      baseurl: {{ "http://artifacts.ci.centos.org/gluster/nightly/" + g_branch "/$releasever/$basearch"
       gpgcheck: no
       repo_gpgcheck: no
 
@@ -144,6 +148,10 @@
 # Setup client
 - hosts: gluster_nodes[7:8]
   tasks:
+  - name: Set gluster branch
+    set_fact:
+      g_branch: "{{ lookup('env', 'BRANCH') }}"
+
   - name: Install dependency packages
     yum: name={{ item }} state=installed
     with_items:
@@ -161,7 +169,7 @@
     yum_repository:
       name: gluster_nightly
       description: The nightly repo for Gluster
-      baseurl: http://artifacts.ci.centos.org/gluster/nightly/release-3.8/$releasever/$basearch
+      baseurl: {{ "http://artifacts.ci.centos.org/gluster/nightly/" + g_branch "/$releasever/$basearch"
       gpgcheck: no
       repo_gpgcheck: no
 
