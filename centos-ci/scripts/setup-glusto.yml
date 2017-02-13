@@ -73,11 +73,11 @@
     - qemu-img
     - libibverbs
 
-  - name: Setup nightly repo
+  - name: Setup {{ g_branch }} repo
     yum_repository:
       name: gluster_nightly
       description: The nightly repo for Gluster
-      baseurl: {{ "http://artifacts.ci.centos.org/gluster/nightly/" + g_branch "/$releasever/$basearch"
+      baseurl: "{{ 'http://artifacts.ci.centos.org/gluster/nightly/' + g_branch + '/$releasever/$basearch' }}"
       gpgcheck: no
       repo_gpgcheck: no
 
@@ -165,11 +165,11 @@
     - fuse
     - fuse-libs
 
-  - name: Setup nightly repo
+  - name: Setup {{ g_branch }} repo
     yum_repository:
       name: gluster_nightly
       description: The nightly repo for Gluster
-      baseurl: {{ "http://artifacts.ci.centos.org/gluster/nightly/" + g_branch "/$releasever/$basearch"
+      baseurl: "{{ 'http://artifacts.ci.centos.org/gluster/nightly/' + g_branch + '/$releasever/$basearch' }}"
       gpgcheck: no
       repo_gpgcheck: no
 
