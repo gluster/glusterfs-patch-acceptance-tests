@@ -74,10 +74,11 @@
       name: gluster_nightly
       description: The nightly repo for Gluster
       baseurl: http://artifacts.ci.centos.org/gluster/nightly/master/$releasever/$basearch
+      gpgcheck: no
       repo_gpgcheck: no
 
   - name: Install gluster
-    yum: name={{ item }} state=installed disable_gpg_check=yes
+    yum: name={{ item }} state=installed
     with_items:
     - glusterfs-server
     - glusterfs-cli
@@ -161,10 +162,11 @@
       name: gluster_nightly
       description: The nightly repo for Gluster
       baseurl: http://artifacts.ci.centos.org/gluster/nightly/release-3.8/$releasever/$basearch
+      gpgcheck: no
       repo_gpgcheck: no
 
   - name: Install gluster
-    yum: name={{ item }} state=installed disable_gpg_check=yes
+    yum: name={{ item }} state=installed
     with_items:
     - glusterfs-fuse
 
@@ -216,7 +218,7 @@
     copy: src="{{ lookup('env', 'WORKSPACE') }}/glusto" dest=/root/.ssh/id_rsa mode=600
 
   - name: Install git and pip
-    yum: name="{{item}}" state=present disable_gpg_check=yes
+    yum: name="{{item}}" state=present
     with_items:
     - git
     - python-pip
