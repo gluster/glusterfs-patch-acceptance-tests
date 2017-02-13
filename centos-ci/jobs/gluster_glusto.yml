@@ -8,8 +8,12 @@
     parameters:
     - string:
         default: '9'
-        description: 'Number of nodes for this test'
+        description: Number of nodes for this test
         name: NODE_COUNT
+    - string:
+        default: 'master'
+        description: Gluster branch to build RPMs
+        name: BRANCH
 
     properties:
     - build-discarder:
