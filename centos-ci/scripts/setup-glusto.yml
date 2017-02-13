@@ -14,8 +14,12 @@
 
 - hosts: gluster_nodes[1:]
   tasks:
+  - name: Set workspace
+    set_fact:
+      workspace: "{{ lookup('env', 'WORKSPACE') }}"
+
   - name: Add entries to authorized_keys
-    authorized_key: user=root key="{{ lookup('file','../../glusto.pub')}}"
+    authorized_key: user=root key="{{ lookup('file', workspace + '/glusto.pub')}}"
 
 - hosts: gluster_nodes
   tasks:
