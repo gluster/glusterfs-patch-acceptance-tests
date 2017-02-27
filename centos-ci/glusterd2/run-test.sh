@@ -5,21 +5,7 @@
 # if anything fails, we'll abort
 set -e
 
-# TODO: disable debugging
 set -x
-
-# install Go
-if ! yum -y install 'golang >= 1.6'
-then
-	# not the right version, install manually
-	# download URL comes from https://golang.org/dl/
-	curl -O https://storage.googleapis.com/golang/go1.6.2.linux-amd64.tar.gz
-	tar xzf go1.6.2.linux-amd64.tar.gz -C /usr/local
-	export PATH=$PATH:/usr/local/go/bin
-fi
-
-# also needs git, hg, bzr, svn gcc and make
-yum -y install git mercurial bzr subversion gcc make
 
 mkdir -p go/{src,pkg,bin}
 cd go
@@ -39,17 +25,5 @@ then
 	git checkout pr_${ghprbPullId}
 fi
 
-# install the build and test requirements
-./scripts/install-reqs.sh
-
-# update vendored dependencies
-make vendor-update
-
-# run linters
-make verify
-
-# verify build
-make glusterd2
-
-# run unit-tests
-make test
+# run the centos-ci.sh script, which installs all requirements and does the actual test
+./extras/centos-ci.sh
