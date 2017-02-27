@@ -7,6 +7,8 @@ set -e
 
 set -x
 
+yum install -y git
+
 mkdir -p go/{src,pkg,bin}
 cd go
 export GOPATH=$PWD
