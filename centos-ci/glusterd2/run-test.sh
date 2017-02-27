@@ -5,8 +5,6 @@
 # if anything fails, we'll abort
 set -e
 
-set -x
-
 yum install -y git
 
 mkdir -p go/{src,pkg,bin}
