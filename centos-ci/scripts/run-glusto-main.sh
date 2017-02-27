@@ -7,7 +7,7 @@ MAX=3
 RETRY=0
 while [ $RETRY -lt $MAX ];
 do
-    ANSIBLE_HOST_KEY_CHECKING=False $HOME/env/bin/ansible-playbook -i hosts centos-ci/scripts/setup-glusto.yml
+    BRANCH=$BRANCH ANSIBLE_HOST_KEY_CHECKING=False $HOME/env/bin/ansible-playbook -i hosts centos-ci/scripts/setup-glusto.yml
     RETURN_CODE=$?
     if [ $RETURN_CODE -eq 0 ]; then
         break
