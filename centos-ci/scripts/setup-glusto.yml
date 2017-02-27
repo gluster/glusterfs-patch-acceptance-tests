@@ -237,11 +237,12 @@
   - name: Clone the gluster-tests repo
     git: repo=https://github.com/gluster/glusto-tests.git dest=/root/glusto-tests
 
-  - name: Install glustolibs-gluster
-    command: python setup.py develop chdir=/root/glusto-tests/glustolibs-gluster
-
-  - name: Install glustolibs-io
-    command: python setup.py develop chdir=/root/glusto-tests/glustolibs-io
+  - name: Install glustolibs
+    command: "python setup.py develop chdir=/root/glusto-tests/{{items}}"
+    with_items:
+    - glustolibs-gluster
+    - glustolibs-io
+    - glustolibs-misc
 
   - name: Create the config file
     template: src=templates/gluster_tests_config.yml.j2 dest=/root/gluster_tests_config.yml
