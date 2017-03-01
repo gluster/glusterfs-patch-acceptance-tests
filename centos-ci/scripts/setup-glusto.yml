@@ -238,6 +238,7 @@
     git:
         repo: git://review.gluster.org/glusto-tests.git
         dest: /root/glusto-tests
+        refspec: "{{ lookup('env', 'GERRIT_REF') }}"
         version: "{{ lookup('env', 'GERRIT_REF') }}"
 
   - name: Install glustolibs
