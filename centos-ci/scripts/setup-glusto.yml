@@ -242,7 +242,7 @@
     git:
         repo: git://review.gluster.org/glusto-tests.git
         dest: /root/glusto-tests
-        refspec: "+refs/changes/{{GERRIT_REF}}/*:refs/remotes/origin/changes/{{GERRIT_REF}}/*"
+        refspec: "+refs/changes/{{GERRIT_REF}}:refs/remotes/origin/changes/{{GERRIT_REF}}"
         version: FETCH_HEAD
     when: GERRIT_REF != 'master'
 
