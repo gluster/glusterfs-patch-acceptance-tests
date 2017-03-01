@@ -241,7 +241,7 @@
   - name: Clone the gluster-tests repo - {{ GERRIT_REF}}
     git:
         repo: git://review.gluster.org/glusto-tests.git
-        dest: /home/nigelb/code/test-glusto-clone
+        dest: /root/glusto-tests
         refspec: "+refs/changes/{{GERRIT_REF}}/*:refs/remotes/origin/changes/{{GERRIT_REF}}/*"
         version: FETCH_HEAD
     when: GERRIT_REF != 'master'
@@ -249,7 +249,7 @@
   - name: Clone the gluster-tests repo
     git:
         repo: git://review.gluster.org/glusto-tests.git
-        dest: /home/nigelb/code/test-glusto-clone
+        dest: /root/glusto-tests
         version: "{{GERRIT_REF}}"
     when: GERRIT_REF == 'master'
 
