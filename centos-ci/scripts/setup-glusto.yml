@@ -235,7 +235,10 @@
     pip: name=' git+git://github.com/loadtheaccumulator/glusto.git' editable=false
 
   - name: Clone the gluster-tests repo
-    git: repo=https://github.com/gluster/glusto-tests.git dest=/root/glusto-tests
+    git:
+        repo: git://review.gluster.org/glusto-tests.git
+        dest: /root/glusto-tests
+        version: "{{ lookup('env', 'GERRIT_REF') }}"
 
   - name: Install glustolibs
     command: "python setup.py develop chdir=/root/glusto-tests/{{item}}"
