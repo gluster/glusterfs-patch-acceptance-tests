@@ -231,6 +231,10 @@
     - git
     - python-pip
 
+  - name: Set glusto version
+    set_fact:
+      GERRIT_REF: "{{ lookup('env', 'GERRIT_REF') }}"
+
   - name: Install Glusto
     pip: name=' git+git://github.com/loadtheaccumulator/glusto.git' editable=false
 
