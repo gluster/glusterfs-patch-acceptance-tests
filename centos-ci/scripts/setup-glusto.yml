@@ -202,7 +202,7 @@
     seboolean: name=samba_load_libgfapi state=yes persistent=yes
 
   - name: Setup SELinux in permissive mode
-    selinux: policy=targeted state=permissive
+    selinux: policy=targeted state=enforcing
 
   - name: Setup Samba credentials
     shell: (echo "foobar"; echo "foobar") | smbpasswd -a root
