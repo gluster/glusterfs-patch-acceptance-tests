@@ -89,78 +89,11 @@ function make_tarball()
     cp *.tar.gz ..
 }
 
-function make_rpm()
-{
-    if [ "x$BUILD_RPMS" != "xtrue" ]; then
-        echo "Skipping RPMBUILD. BUILD_RPMS='$BUILD_RPMS'";
-        return;
-    fi
-
-    rm -rvf $HOME/rpmbuild;
-    if [ -d extras/LinuxRPM ]; then
-        make -C extras/LinuxRPM glusterrpms;
-        if [ ! -d $RPMBUILD/x86_64 ]; then
-            mkdir -p $RPMBUILD/x86_64 $RPMBUILD/noarch $RPMBUILD/SRPMS
-        fi
-        cp extras/LinuxRPM/*.x86_64.rpm $RPMBUILD/x86_64/
-        cp extras/LinuxRPM/*.noarch.rpm $RPMBUILD/noarch/
-        cp extras/LinuxRPM/*.src.rpm $RPMBUILD/SRPMS/
-    else
-        rpmbuild -ta $BASEDIR/$VERSION/glusterfs-$VERSION.tar.gz;
-    fi
-}
-
 function cp_tarball()
 {
     mkdir $BITS/src -p;
     cp $BASEDIR/$VERSION/gluster*-$VERSION.tar.gz $BITS/src/
     sha256sum $BITS/src/gluster*-$VERSION.tar.gz > $BITS/src/gluster*-$VERSION.sha256sum
-}
-
-function stage_bits()
-{
-    rm -rf $BITS/stage;
-
-    rm -rf $BITS/$VERSION;
-    mkdir $BITS/$VERSION;
-    mkdir $BITS/$VERSION/repodata;
-
-    ln -s $VERSION $BITS/stage;
-
-    cp -r $RPMBUILD/* $BITS/stage;
-
-    cat > $BITS/stage/repodata/comps.xml <<EOF
-<comps>
-  <group>
-    <id>glusterfs-all</id>
-    <name>GlusterFS Packages</name>
-    <default>true</default>
-    <description>All packages of GlusterFS</description>
-    <uservisible>true</uservisible>
-    <packagelist>
-      <packagereq type="default">glusterfs</packagereq>
-      <packagereq type="default">glusterfs-devel</packagereq>
-      <packagereq type="default">glusterfs-fuse</packagereq>
-      <packagereq type="default">glusterfs-geo-replication</packagereq>
-      <packagereq type="optional">glusterfs-rdma</packagereq>
-      <packagereq type="optional">glusterfs-server</packagereq>
-      <packagereq type="optional">glusterfs-debuginfo</packagereq>
-      <packagereq type="optional">glusterfs-resource-agents</packagereq>
-      <packagereq type="optional">glusterfs-swift</packagereq>
-      <packagereq type="optional">glusterfs-swift-account</packagereq>
-      <packagereq type="optional">glusterfs-swift-container</packagereq>
-      <packagereq type="optional">glusterfs-swift-object</packagereq>
-      <packagereq type="optional">glusterfs-swift-proxy</packagereq>
-      <packagereq type="optional">glusterfs-ufo</packagereq>
-    </packagelist>
-  </group>
-</comps>
-EOF
-
-    createrepo -g $BITS/stage/repodata/comps.xml $BITS/stage;
-
-    mkdir $BITS/src -p;
-    cp $BASEDIR/$VERSION/gluster*-$VERSION.tar.gz $BITS/src/
 }
 
 function upload_rpms()
@@ -185,17 +118,9 @@ EOF
 function main()
 {
     init_vars;
-
     prepare_dirs;
     get_src;
     make_tarball;
-    #make_rpm;
-    #stage_bits;
-     #verify_tarball;
-     #start_glusterfs;
-     #run_tests;
-     #cleanup_glusterfs;
-     #upload_tarball;
     cp_tarball;
     announce_mail;
 }
