@@ -51,16 +51,19 @@ def comment_on_issues(issues, commit, link, dry_run):
         comment_issue(issue, comment, dry_run)
 
 
-def comment_issue(issue, comment, dry_run):
+def comment_issue(num, comment, dry_run):
     if dry_run:
         print comment
     else:
         gh_user = os.environ.get('GITHUB_USER')
         gh_pw = os.environ.get('GITHUB_PASS')
         gh = login(gh_user, gh_pw)
-        issue = gh.issue('gluster', 'test', issue)
-        issue.create_comment(comment)
-        print "Updated issue {}".format(issue)
+        issue = gh.issue('gluster', 'test', num)
+        if issue:
+            issue.create_comment(comment)
+            print "Updated issue #{}".format(num)
+        else:
+            print "Issue #{} does not exist".format(num)
 
 
 def main(dry_run, force):
