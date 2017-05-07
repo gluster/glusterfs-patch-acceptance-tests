@@ -40,7 +40,8 @@ def parse_commit_message(msg):
     for line in msg.split('\n'):
         if (line.lower().startswith('fixes') or
                 line.lower().startswith('updates')):
-            bugs.append(regex.match(line).group(5))
+            if regex.search(line):
+                bugs.append(regex.match(line).group(5))
     return bugs
 
 
