@@ -60,6 +60,12 @@
   - name: Flush iptables
     command: "iptables -X"
 
+  - name: Install dependency packages
+    yum: name={{ item }} state=installed
+    with_items:
+    - nfs-utils
+    - cifs-utils
+
 # Set up servers
 - hosts: gluster_nodes[1:6]
   tasks:
@@ -155,8 +161,6 @@
   - name: Install dependency packages
     yum: name={{ item }} state=installed
     with_items:
-    - nfs-utils
-    - cifs-utils
     - python-pip
     - libxml2-devel
     - libxslt-devel
