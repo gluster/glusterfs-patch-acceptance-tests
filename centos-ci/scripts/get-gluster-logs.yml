@@ -1,4 +1,4 @@
-- host: localhost
+- hosts: localhost
   tasks:
   - name: Create log directories
     file: path="{{ lookup('env', 'WORKSPACE') }}/gluster-logs" state=directory
