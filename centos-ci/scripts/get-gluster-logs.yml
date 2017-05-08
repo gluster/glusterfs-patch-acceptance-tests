@@ -14,7 +14,7 @@
   tasks:
   - name: Archive the directory
     archive:
-      path: "{{ lookup('env', 'WORKSPACE') }}/gluster-logs"
+      path: "{{ lookup('env', 'WORKSPACE') }}/gluster-logs/*"
       remove: True
       format: gz
       dest: "{{ lookup('env', 'WORKSPACE') }}/gluster-logs.gz"
