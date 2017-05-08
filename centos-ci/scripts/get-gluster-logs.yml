@@ -10,9 +10,10 @@
       src: /var/log/glusterfs
       dest: "{{ lookup('env', 'WORKSPACE') }}/gluster-logs"
 
+- hosts: localhost
+  tasks:
   - name: Archive the directory
     archive:
       path: "{{ lookup('env', 'WORKSPACE') }}/gluster-logs"
       remove: True
       format: gz
-

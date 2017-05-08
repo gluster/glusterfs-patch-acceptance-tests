@@ -46,6 +46,9 @@
     - archive:
         artifacts: 'glustomain.log'
         allow-empty: true
+    - archive:
+        artifacts: 'gluster-logs.gz'
+        allow-empty: true
     - junit:
         results: junit.xml
     - post-tasks:
