@@ -1,0 +1,18 @@
+- host: localhost
+  tasks:
+  - name: Create log directories
+    file: path="{{ lookup('env', 'WORKSPACE') }}/gluster-logs" state=directory
+
+- hosts: gluster_nodes[1:]
+  tasks:
+  - name: Copy logs into directories
+    fetch:
+      src: /var/log/glusterfs
+      dest: "{{ lookup('env', 'WORKSPACE') }}/gluster-logs"
+
+  - name: Archive the directory
+    archive:
+      path: "{{ lookup('env', 'WORKSPACE') }}/gluster-logs"
+      remove: True
+      format: gz
+
