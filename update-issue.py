@@ -32,16 +32,11 @@ def get_commit_message():
 
 
 def parse_commit_message(msg):
-    regex = re.compile(
-            r'((fixes)|(updates)):\s*(gluster/glusterfs)?#(\d*)',
-            re.I
-    )
+    regex = re.compile(r'(([fF][iI][xX][eE][sS])|([uU][pP][dD][aA][tT][eE][sS])):?\s+(gluster/glusterfs)?#(\d*)')
     bugs = []
     for line in msg.split('\n'):
-        if (line.lower().startswith('fixes') or
-                line.lower().startswith('updates')):
-            if regex.search(line):
-                bugs.append(regex.match(line).group(5))
+        for match in regex.finditer(line):
+            bugs.append(match.group(5))
     return bugs
 
 
