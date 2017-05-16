@@ -41,8 +41,8 @@ def parse_commit_message(msg):
 
 
 def comment_on_issues(issues, commit, link, dry_run):
-    comment = ("This patch will update or fix this issue: {}\n"
-               "Commit Message: {}".format(link, commit.split('\n')[0]))
+    comment = ("A patch {} has been posted that references this issue.\n"
+               "  Commit message: {}".format(link, commit.split('\n')[0]))
     for issue in issues:
         comment_issue(issue, comment, dry_run)
 
