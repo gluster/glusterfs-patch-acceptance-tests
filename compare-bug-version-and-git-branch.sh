@@ -82,8 +82,12 @@ BUG_VER=$(cut -d. -f1,2  <<< "${BUG_VERSION}")
 GERRIT_VER=$(sed 's/.*-//' <<< "${GERRIT_BRANCH}")
 
 if [ "${BUG_VER}" != "${GERRIT_VER}" ]; then
-    echo "BUG id ${BUG} was filed against version '${BUG_VER}', but the change is sent for '${GERRIT_BRANCH}'"
-    exit 1
+    if [ "${BUG_VER}" == "3.8" -a "${GERRIT_BRANCH}" == "release-3.8-fb" ]; then
+        echo "BUG id ${BUG} was filed against version '${BUG_VER}', but the change is sent for '${GERRIT_BRANCH}'. Exception for FB branch."
+    else
+        echo "BUG id ${BUG} was filed against version '${BUG_VER}', but the change is sent for '${GERRIT_BRANCH}'"
+        exit 1
+    fi
 fi
 
 echo "BUG was filed against a version, and the change is filed for the correct branch."
