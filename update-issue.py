@@ -54,7 +54,7 @@ def comment_issue(num, comment, dry_run):
         gh_user = os.environ.get('GITHUB_USER')
         gh_pw = os.environ.get('GITHUB_PASS')
         gh = login(gh_user, gh_pw)
-        issue = gh.issue('gluster', 'test', num)
+        issue = gh.issue('gluster', 'glusterfs', num)
         if issue:
             issue.create_comment(comment)
             print "Updated issue #{}".format(num)
