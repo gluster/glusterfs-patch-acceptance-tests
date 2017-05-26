@@ -94,7 +94,7 @@
     - qemu-img
     - libibverbs
 
-  - name: Setup {{ g_branch }} repo
+  - name: Setup the repo
     yum_repository:
       name: gluster_nightly
       description: The nightly repo for Gluster
@@ -180,7 +180,7 @@
     - fuse
     - fuse-libs
 
-  - name: Setup {{ g_branch }} repo
+  - name: Setup the repo
     yum_repository:
       name: gluster_nightly
       description: The nightly repo for Gluster
