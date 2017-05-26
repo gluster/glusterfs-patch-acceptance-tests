@@ -28,7 +28,7 @@
       state: directory
 
   - name: Copy packages to /var/www
-    command: cp -r /root/glusterfs/RPMS/* /var/www/
+    command: cp -r /root/glusterfs/RPMS/ /var/www/
 
 - hosts: gluster_nodes[1:]
   tasks:
