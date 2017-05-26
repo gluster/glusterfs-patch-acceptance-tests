@@ -158,7 +158,9 @@
     mount: name="/mnt/{{item.0}}" src="/dev/mapper/{{item.1}}" state=mounted fstype=xfs
     with_together:
     - ['vol0', 'vol1', 'vol2', 'vol3']
-    - ['loop0p1', 'loop1p1', 'loop2p1', 'loop3p1'] - name: Start Gluster Daemon
+    - ['loop0p1', 'loop1p1', 'loop2p1', 'loop3p1']
+
+  - name: Start Gluster Daemon
     service: name=glusterd state=started
 
   - name: Status rpcbind
