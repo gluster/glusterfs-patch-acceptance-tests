@@ -10,3 +10,4 @@ make prep srcrpm || exit 1
 sudo mock -r epel-7-x86_64 --resultdir=$HOME/glusterfs/RPMS/ --rebuild glusterfs*src.rpm || exit 1
 cd ../../RPMS
 createrepo_c .
+ls -l /root/glusterfs/RPMS/
