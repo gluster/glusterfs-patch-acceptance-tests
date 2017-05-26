@@ -98,7 +98,7 @@
     yum_repository:
       name: gluster_nightly
       description: The nightly repo for Gluster
-      baseurl: "{{ http://hostvars[item]['ansible_eth0']['ipv4']['address'] }}"
+      baseurl: "{{ 'http://' + hostvars[item]['ansible_eth0']['ipv4']['address']/RPMS/ }}"
       gpgcheck: no
       repo_gpgcheck: no
 
@@ -184,7 +184,7 @@
     yum_repository:
       name: gluster_nightly
       description: The nightly repo for Gluster
-      baseurl: "{{ http://hostvars[item]['ansible_eth0']['ipv4']['address'] }}"
+      baseurl: "{{ 'http://' + hostvars[item]['ansible_eth0']['ipv4']['address']/RPMS/ }}"
       gpgcheck: no
       repo_gpgcheck: no
 
