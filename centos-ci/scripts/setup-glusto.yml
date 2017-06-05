@@ -20,7 +20,7 @@
   - name: Install the nginx config file
     copy:
       src: nginx.conf
-      dest: /etc/nginx/conf.d/default.conf
+      dest: /etc/nginx/default.d/rpm.conf
 
   - name: Create /var/www
     file:
@@ -28,6 +28,11 @@
       state: directory
 
   - name: Copy packages to /var/www
+    command: cp -r /root/glusterfs/RPMS/ /var/www/
+
+  - name: Setup SELinux context
+    command: restorecon -R /var/www/RPMS/
+
     command: cp -r /root/glusterfs/RPMS/ /var/www/
 
   - name: Open port 80 on the firewall
