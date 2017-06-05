@@ -36,6 +36,11 @@
   - name: Reload firewall config
     command: firewall-cmd --reload
 
+  - name: Start nginx
+    service:
+      name: nginx
+      state: restarted
+
 - hosts: gluster_nodes[1:]
   tasks:
   - name: Set workspace
