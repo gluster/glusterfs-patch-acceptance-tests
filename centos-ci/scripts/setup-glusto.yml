@@ -94,6 +94,8 @@
     - qemu-img
     - libibverbs
 
+  - debug: var=hostvars
+
   - name: Setup the repo
     yum_repository:
       name: gluster_nightly
