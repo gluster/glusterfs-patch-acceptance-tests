@@ -94,13 +94,13 @@
     - qemu-img
     - libibverbs
 
-  - debug: var=hostvars
+  - debug: var=groups['gluster_nodes'][0]
 
   - name: Setup the repo
     yum_repository:
       name: gluster_nightly
       description: The nightly repo for Gluster
-      baseurl: "{{ 'http://' + hostvars[ansible_host]['ansible_eth0']['ipv4']['address'] + '/RPMS/' }}"
+      baseurl: "{{ 'http://' + hostvars[groups['gluster_nodes'][0]]['ansible_eth0']['ipv4']['address'] + '/RPMS/' }}"
       gpgcheck: no
       repo_gpgcheck: no
 
@@ -186,7 +186,7 @@
     yum_repository:
       name: gluster_nightly
       description: The nightly repo for Gluster
-      baseurl: "{{ 'http://' + hostvars[ansible_host]['ansible_eth0']['ipv4']['address'] + '/RPMS/' }}"
+      baseurl: "{{ 'http://' + hostvars[groups['gluster_nodes'][0]]['ansible_eth0']['ipv4']['address'] + '/RPMS/' }}"
       gpgcheck: no
       repo_gpgcheck: no
 
