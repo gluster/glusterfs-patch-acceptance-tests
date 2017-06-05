@@ -30,6 +30,12 @@
   - name: Copy packages to /var/www
     command: cp -r /root/glusterfs/RPMS/ /var/www/
 
+  - name: Open port 80 on the firewall
+    command: firewall-cmd --permanent --zone=public --add-port=80/tcp
+
+  - name: Reload firewall config
+    command: firewall-cmd --reload
+
 - hosts: gluster_nodes[1:]
   tasks:
   - name: Set workspace
@@ -93,8 +99,6 @@
     with_items:
     - qemu-img
     - libibverbs
-
-  - debug: var=groups['gluster_nodes'][0]
 
   - name: Setup the repo
     yum_repository:
