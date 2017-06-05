@@ -31,9 +31,7 @@
     command: cp -r /root/glusterfs/RPMS/ /var/www/
 
   - name: Setup SELinux context
-    command: restorecon -R /var/www/RPMS/
-
-    command: cp -r /root/glusterfs/RPMS/ /var/www/
+    command: restorecon -R /var/www/
 
   - name: Open port 80 on the firewall
     command: firewall-cmd --permanent --zone=public --add-port=80/tcp
