@@ -273,14 +273,14 @@
         dest: /root/glusto-tests
         refspec: "+refs/changes/{{GERRIT_REF}}:refs/remotes/origin/changes/{{GERRIT_REF}}"
         version: FETCH_HEAD
-    when: GERRIT_REF != 'master'
+    when: GERRIT_REF != 'master' and GERRIT_REF != 'stable'
 
   - name: Clone the gluster-tests repo
     git:
         repo: git://review.gluster.org/glusto-tests.git
         dest: /root/glusto-tests
         version: "{{GERRIT_REF}}"
-    when: GERRIT_REF == 'master'
+    when: GERRIT_REF == 'master' or GERRIT_REF == 'stable'
 
   - name: Install glustolibs
     command: "python setup.py develop chdir=/root/glusto-tests/{{item}}"
