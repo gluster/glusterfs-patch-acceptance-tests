@@ -1,18 +1,15 @@
-- hosts: gluster_notes[0]
+- hosts: gluster_nodes[0]
   tasks:
   - name: Create a folder for each server
-    command: "mkdir -p /root/gluster-logs/{{ hostvars[item]['ansible_eth0']['ipv4']['address'] }}"
-    with_items:
-      groups['gluster_nodes'][1:]
+    command: "mkdir -p /root/gluster-logs/{{ item }}-{{ hostvars[item]['ansible_host'] }}"
+    with_items: "{{ groups['gluster_nodes'][1:] }}"
 
   - name: Copy logs into directories
-    command: "scp -r root@{{ hostvars[item]['ansible_eth0']['ipv4']['address'] }}:/var/log/glusterfs /root/gluster-logs/{{ hostvars[item]['ansible_eth0']['ipv4']['address'] }}"
-    with_items:
-      groups['gluster_nodes'][1:]
+    command: "scp -r root@{{ hostvars[item]['ansible_host'] }}:/var/log/glusterfs /root/gluster-logs/{{ item }}-{{ hostvars[item]['ansible_host'] }}"
+    with_items: "{{ groups['gluster_nodes'][1:] }}"
 
   - name: Archive the directory
     archive:
       path: "/root/gluster-logs"
-      remove: True
       format: gz
-      dest: "root/gluster-logs.gz"
+      dest: "/root/gluster-logs.gz"
