@@ -1,5 +1,6 @@
 # Inspired by cico-node-get-to-ansible.sh
 # A script that provisions nodes and writes them to a file
+set -x
 NODE_COUNT=${NODE_COUNT:-1}
 ANSIBLE_HOSTS=${ANSIBLE_HOSTS:-$WORKSPACE/hosts}
 SSID_FILE=${SSID_FILE:-$WORKSPACE/cico-ssid}
