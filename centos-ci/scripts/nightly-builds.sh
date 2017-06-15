@@ -53,7 +53,7 @@ fi
 
 # generate the tar.gz archive
 ./autogen.sh
-./configure
+./configure --enable-fusermount --enable-bd-xlator=yes --enable-debug --enable-gnfs
 rm -f *.tar.gz
 make dist
 
