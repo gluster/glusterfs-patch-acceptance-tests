@@ -122,6 +122,7 @@
     - glusterfs-server
     - glusterfs-cli
     - glusterfs-debuginfo
+    - glusterfs-gnfs
 
   - name: Create the qemu-image
     command: "qemu-img create -f raw /var/{{item}} 50G"
