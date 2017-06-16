@@ -4,7 +4,7 @@ git clone git://review.gluster.org/glusterfs.git
 cd glusterfs
 git checkout $BRANCH
 ./autogen.sh || exit 1
-./configure --enable-fusermount --enable-bd-xlator=yes --enable-debug --enable-gnfs || exit 1
+./configure --enable-fusermount --enable-debug --enable-gnfs || exit 1
 cd extras/LinuxRPM
 make prep srcrpm || exit 1
 sudo mock -r epel-7-x86_64 --resultdir=$HOME/glusterfs/RPMS/ --rebuild glusterfs*src.rpm || exit 1

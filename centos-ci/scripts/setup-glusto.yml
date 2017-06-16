@@ -122,7 +122,10 @@
     - glusterfs-server
     - glusterfs-cli
     - glusterfs-debuginfo
-    - glusterfs-gnfs
+
+  - name: Install gluster
+    yum: name=glusterfs-gnfs state=installed
+    ignore_errors: True
 
   - name: Create the qemu-image
     command: "qemu-img create -f raw /var/{{item}} 50G"

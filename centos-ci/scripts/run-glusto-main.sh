@@ -6,14 +6,14 @@ host=$(cat hosts | grep ansible_host | head -n 1 | awk '{split($2, a, "="); prin
 
 # Build gluster packages
 scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no centos-ci/scripts/build-rpms.sh root@${host}:build-rpms.sh
-ssh -t -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@$host ./build-rpms.sh
+ssh -t -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@$host BRANCH=$BRANCH./build-rpms.sh
 
 # Retry Ansible runs thrice
 MAX=3
 RETRY=0
 while [ $RETRY -lt $MAX ];
 do
-    BRANCH=$BRANCH ANSIBLE_HOST_KEY_CHECKING=False $HOME/env/bin/ansible-playbook -i hosts centos-ci/scripts/setup-glusto.yml
+    ANSIBLE_HOST_KEY_CHECKING=False $HOME/env/bin/ansible-playbook -i hosts centos-ci/scripts/setup-glusto.yml
     RETURN_CODE=$?
     if [ $RETURN_CODE -eq 0 ]; then
         break
