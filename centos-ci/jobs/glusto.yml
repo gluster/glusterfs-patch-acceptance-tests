@@ -15,8 +15,8 @@
         description: Gluster branch to build RPMs
         name: BRANCH
     - string:
-        default: 'master'
-        description: Gerrit ref for Glusto. For 12345/6 use 45/12345/6.
+        default: 'stable'
+        description: Gerrit ref for Glusto. For 12345/6 use 45/12345/6. Two fixed names you can use - stable and master.
         name: GERRIT_REF
 
     properties:
