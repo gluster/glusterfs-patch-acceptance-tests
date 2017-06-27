@@ -43,7 +43,7 @@
         artifacts: 'gluster-logs.gz'
         allow-empty: true
     - junit:
-        results: junit.xml
+        results: '*junit.xml'
     - post-tasks:
         - matches:
             # "Building remotely" should always be in the build console output
