@@ -22,7 +22,7 @@
     - string:
         default: 'manual'
         description: Used by build.gluster.org to track a triggered job
-        name: CAUSE
+        name: BUILD_CAUSE
 
     properties:
     - build-discarder:
