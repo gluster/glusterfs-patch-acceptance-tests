@@ -19,6 +19,10 @@
         default: 'stable'
         description: Gerrit ref for Glusto. For 12345/6 use 45/12345/6. Two fixed names you can use - stable and master.
         name: GERRIT_REF
+    - string:
+        default: 'manual'
+        description: Used by build.gluster.org to track a triggered job
+        name: CAUSE
 
     properties:
     - build-discarder:
