@@ -21,6 +21,9 @@ Options:
   -h, --help                        Show this screen and exit.
 """
 
+# MIT Licensed
+# Original code: https://github.com/hellofresh/jenkins-trigger-console
+
 import requests
 from docopt import docopt
 from time import sleep
