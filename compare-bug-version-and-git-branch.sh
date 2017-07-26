@@ -23,6 +23,9 @@ BUG=$(git show --name-only --format=email | awk '{IGNORECASE=1} /^BUG:/{print $2
 if [ -z "${BUG}" -a "${GERRIT_TOPIC}" = "rfc" ]; then
     echo "No BUG id for rfc needed."
     exit 0
+elif [ -a "${GERRIT_TOPIC#*rfc*}" != "${GERRIT_TOPIC}" -a "${GERRIT_BRANCH}" != "master" ]; then
+    echo "No BUG id for rfc needed in 'non-master' branch"
+    exit 0
 elif [ -z "${BUG}" ]; then
     echo "No BUG id, but topic '${GERRIT_TOPIC}' does not match 'rfc'."
     exit 1
