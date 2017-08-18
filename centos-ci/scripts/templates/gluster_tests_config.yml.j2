@@ -1,5 +1,10 @@
 log_level: DEBUG
 
+gluster:
+    smb_share_options:
+        group: "metadata-cache"
+        cache-samba-metadata: "on"
+
 servers:
 {% for host in groups['gluster_nodes'][1:7] %}
     - {{ hostvars[host]['ansible_eth0']['ipv4']['address'] }}
@@ -14,7 +19,7 @@ servers_info:
 {% for host in groups['gluster_nodes'][1:7] %}
     {{ hostvars[host]['ansible_eth0']['ipv4']['address'] }}: &server{{ loop.index }}
         host: {{ hostvars[host]['ansible_eth0']['ipv4']['address'] }}
-        devices: ["/dev/mapper/loop0p1", "/dev/mapper/loop1p1", "/dev/mapper/loop2p1", "/dev/mapper/loop3p1"]
+        devices: ["/dev/mapper/group0-vol0", "/dev/mapper/group1-vol1", "/dev/mapper/group2-vol2", "/dev/mapper/group3-vol3"]
         brick_root: "/mnt"
 {%  endfor %}
 

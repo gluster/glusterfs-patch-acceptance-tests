@@ -105,7 +105,6 @@
   - name: Install dependency packages
     yum: name={{ item }} state=installed
     with_items:
-    - qemu-img
     - libibverbs
 
   - name: Setup the repo
@@ -127,56 +126,77 @@
     yum: name=glusterfs-gnfs state=installed
     ignore_errors: True
 
-  - name: Create the qemu-image
-    command: "qemu-img create -f raw /var/{{item}} 50G"
+  - name: Allocate space to a file
+    command: "fallocate -l 50G /var/{{item}}"
     args:
       creates: "/var/{{item}}"
     with_items:
+    - data0
     - data1
     - data2
     - data3
-    - data4
 
-  - name: Run parted
-    command: "parted /var/{{item}} mklabel gpt --script"
-    with_items:
-    - data1
-    - data2
-    - data3
-    - data4
-
-  - name: Assign full space to one partition
-    command: "parted -a optimal /var/{{item}} mkpart p ext2 1024 100% --script"
-    with_items:
-    - data1
-    - data2
-    - data3
-    - data4
-
-  - name: Get the partition up
-    command: "kpartx -avs /var/{{item}}"
+  - name: Associate loopback device to file
+    command: "losetup -f /var/{{item.1}}"
     args:
-      creates: "/dev/mapper/{{item}}"
-    with_items:
-    - data1
-    - data2
-    - data3
-    - data4
+      creates: "/dev/{{item.0}}"
+    with_together:
+    - ['loop0', 'loop1', 'loop2', 'loop3']
+    - ['data0', 'data1', 'data2', 'data3']
+    loop_control:
+      pause: 2
 
-  - name: Run mkfs
-    shell: "mkfs.xfs -f /dev/mapper/{{item}}"
+  - name: Create physical volume
+    command: "pvcreate /dev/{{item}}"
+    with_items:
+    - loop0
+    - loop1
+    - loop2
+    - loop3
+    loop_control:
+      pause: 2
+
+  - name: Create volume groups
+    lvg:
+      vg: "{{item.0}}"
+      pvs: "/dev/{{item.1}}"
+    ignore_errors: yes
+    with_together:
+    - ['group0', 'group1', 'group2', 'group3']
+    - ['loop0', 'loop1', 'loop2', 'loop3']
+
+  - name: Create thin pool
+    command: "lvcreate -L 45G -T {{item}}/pool"
+    args:
+      creates: "/dev/{{item}}"
     ignore_errors: yes
     with_items:
-    - loop0p1
-    - loop1p1
-    - loop2p1
-    - loop3p1
+    - group0
+    - group1
+    - group2
+    - group3
+
+  - name: Create thin volume
+    command: "lvcreate -V 45G -T {{item.0}}/pool -n {{item.1}}"
+    args:
+      creates: "/dev/{{item.0}}/{{item.1}}"
+    ignore_errors: yes
+    with_together:
+    - ['group0', 'group1', 'group2', 'group3']
+    - ['vol0', 'vol1', 'vol2', 'vol3']
+
+  - name: Format the volumes
+    command: "mkfs.xfs /dev/{{item.0}}/{{item.1}}"
+    ignore_errors: yes
+    with_together:
+    - ['group0', 'group1', 'group2', 'group3']
+    - ['vol0', 'vol1', 'vol2', 'vol3']
 
   - name: Mount the bricks
-    mount: name="/mnt/{{item.0}}" src="/dev/mapper/{{item.1}}" state=mounted fstype=xfs
+    mount: name="/mnt/{{item.0}}" src="/dev/{{item.1}}" state=mounted fstype=xfs
     with_together:
     - ['vol0', 'vol1', 'vol2', 'vol3']
-    - ['loop0p1', 'loop1p1', 'loop2p1', 'loop3p1']
+    - ['group0/vol0', 'group1/vol1', 'group2/vol2', 'group3/vol3']
 
   - name: Start Gluster Daemon
     service: name=glusterd state=started
