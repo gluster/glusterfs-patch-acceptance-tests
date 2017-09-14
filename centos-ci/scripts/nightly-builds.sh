@@ -76,7 +76,23 @@ pushd ${RESULTDIR}
 createrepo_c .
 popd
 
+# create a new .repo file (for new branches, and it prevents cleanup)
+if [ -z "${GIT_VERSION}" ]; then
+    REPO_VERSION='master'
+    REPO_NAME='master'
+else
+    REPO_VERSION=$(sed 's/\.//' <<< ${GIT_VERSION})
+    REPO_NAME=${GERRIT_BRANCH}
+fi
+
+cat > /srv/gluster/nightly/${REPO_NAME}.repo <<< "[gluster-nightly-${REPO_VERSION}]
+name=Gluster Nightly builds (${GERRIT_BRANCH} branch)
+baseurl=http://artifacts.ci.centos.org/gluster/nightly/${GERRIT_BRANCH}/\$releasever/\$basearch
+enabled=1
+gpgcheck=0"
+
 pushd /srv/gluster/nightly
+artifact ${REPO_NAME}.repo
 artifact ${GERRIT_BRANCH}
 popd
 
