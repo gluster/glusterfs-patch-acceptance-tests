@@ -58,13 +58,23 @@ then
 	cd ..
 fi
 
-# only if there is a GLOCKFILE use glock, otherwise use godep
-if [ -e GLOCKFILE ]
+# The latest way of doing dependencies is to use glide
+# (https://github.com/heketi/heketi/pull/769).
+# Before that we used godeps
+# (https://github.com/heketi/heketi/pull/400).
+# Originally, it was glock.
+# Detect here which one to use:
+if [ -e glide.yaml ]
+then
+	if ! yum -y install glide
+	then
+		curl https://glide.sh/get | sh
+	fi
+elif [ -e GLOCKFILE ]
 then
 	go get github.com/robfig/glock
 	glock sync github.com/heketi/heketi
 else
-	# new way with https://github.com/heketi/heketi/pull/400
 	go get github.com/tools/godep
 fi
 
