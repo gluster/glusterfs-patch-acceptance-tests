@@ -10,7 +10,7 @@ set -x
 yum -y install centos-release-scl
 
 # install docker and Vagrant with QEMU
-yum -y install docker qemu-kvm sclo-vagrant1-vagrant-libvirt
+yum -y install docker qemu-kvm sclo-vagrant1-vagrant-libvirt qemu-kvm-tools qemu-kvm
 
 # install Go (Heketi depends on version 1.6+)
 if ! yum -y install 'golang >= 1.6'
