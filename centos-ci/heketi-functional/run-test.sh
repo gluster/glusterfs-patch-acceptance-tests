@@ -64,6 +64,7 @@ fi
 # (https://github.com/heketi/heketi/pull/400).
 # Originally, it was glock.
 # Detect here which one to use:
+cd heketi
 if [ -e glide.yaml ]
 then
 	if ! yum -y install glide
