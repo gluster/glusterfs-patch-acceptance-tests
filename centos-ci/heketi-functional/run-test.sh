@@ -33,6 +33,10 @@ yum -y install ansible
 systemctl start libvirtd
 systemctl start docker
 
+# Log the virsh capabilites so that we know the
+# environment in case something goes wrong.
+virsh capabilities
+
 # exact steps from https://github.com/heketi/heketi/tree/master/tests/functional#setup
 mkdir go
 cd go
