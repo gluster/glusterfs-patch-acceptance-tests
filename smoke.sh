@@ -4,10 +4,9 @@ set -e;
 
 M=/mnt;
 P=/build;
-H=$(hostname);
+H=http.int.rht.gluster.org
 T=600;
 V=patchy;
-ARCHIVE_BASE="/archives"
 ARCHIVED_LOGS="logs"
 UNIQUE_ID="${JOB_NAME}-${BUILD_ID}"
 export PATH=$PATH:$P/install/sbin
@@ -82,8 +81,8 @@ function finish ()
     #Move statedumps to be archived
     mv /var/run/gluster/*dump* /var/log/glusterfs/ || true
     filename=${ARCHIVED_LOGS}/glusterfs-logs-${UNIQUE_ID}.tgz
-    tar -czf ${ARCHIVE_BASE}/$filename /var/log/glusterfs /var/log/messages* || true
-    echo Logs archived in http://$H/${filename}
+    tar -czf ${WORKSPACE}/$filename /var/log/glusterfs /var/log/messages* || true
+    echo Logs archived in http://$H/glusterfs-logs/
     cleanup;
     kill %1;
 }
