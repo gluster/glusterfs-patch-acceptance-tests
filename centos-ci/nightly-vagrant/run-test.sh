@@ -21,6 +21,8 @@ yum -y install centos-release-scl
 
 # install docker and Vagrant with QEMU
 yum -y install qemu-kvm sclo-vagrant1-vagrant-libvirt
+# Vagrant dependencies are missing, and cause starting a VM to fail
+yum -y install qemu-kvm-tools qemu-img
 
 # Vagrant needs libvirtd running
 systemctl start libvirtd
