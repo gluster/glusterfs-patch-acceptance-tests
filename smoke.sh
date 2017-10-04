@@ -7,7 +7,6 @@ P=/build;
 H=http.int.rht.gluster.org
 T=600;
 V=patchy;
-ARCHIVED_LOGS="logs"
 UNIQUE_ID="${JOB_NAME}-${BUILD_ID}"
 export PATH=$PATH:$P/install/sbin
 
@@ -80,9 +79,11 @@ function finish ()
     fi
     #Move statedumps to be archived
     mv /var/run/gluster/*dump* /var/log/glusterfs/ || true
-    filename=${ARCHIVED_LOGS}/glusterfs-logs-${UNIQUE_ID}.tgz
+    filename=glusterfs-logs-${UNIQUE_ID}.tgz
     tar -czf ${WORKSPACE}/$filename /var/log/glusterfs /var/log/messages* || true
-    echo Logs archived in http://$H/glusterfs-logs/
+    # $http_int_priv is the credential binding variable defined in a job
+    scp -i $http_int_priv ${WORKSPACE}/$filename _logs-collector@$H:/var/www/glusterfs-logs
+    echo Logs archived at http://$H/$filename
     cleanup;
     kill %1;
 }
