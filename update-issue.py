@@ -31,6 +31,23 @@ def get_commit_message():
     return commit
 
 
+def get_commit_message_from_gerrit(project, branch, change_id, revision_id):
+    k = requests.get('https://review.gluster.org/changes/{}~{}~{}'
+                     '/revisions/{}/commit'.
+                     format(
+                            project,
+                            branch,
+                            change_id,
+                            revision_id
+                            )
+                     )
+    output = k.text
+    cleaned_output = '\n'.join(output.split('\n')[1:])
+    parsed_output = json.loads(cleaned_output)
+    # TODO: check if we got valid data before returning the same?
+    return parsed_output.get("message")
+
+
 def parse_commit_message(msg):
     regex = re.compile(r'(([fF][iI][xX][eE][sS])|([uU][pP][dD][aA][tT][eE][sS])):?\s+(gluster/glusterfs)?#(\d*)')
     bugs = []
@@ -38,6 +55,19 @@ def parse_commit_message(msg):
         for match in regex.finditer(line):
             bugs.append(match.group(5))
     return bugs
+
+
+def remove_duplicates (project, branch, change_id, revision_id, issues):
+    if (int(revision_id) == 1):
+        return issues
+
+    # assumes revision ID is the "legacy numeric patch number"
+    # as in: https://gerrit-review.googlesource.com/Documentation/rest-api-changes.html#revision-id
+    oldmessage = get_commit_message_from_gerrit(project, branch, change_id,
+                                                str(int(revision_id) - 1))
+    oldissues = parse_commit_message(oldmessage)
+    newissues = list(set(issues) - (set(issues) & set(oldissues)))
+    return newissues
 
 
 def comment_on_issues(issues, commit, link, dry_run):
@@ -80,8 +110,12 @@ def main(dry_run, force):
     # check if updates/fixes: xxx appears in the commit
     issues = parse_commit_message(commit)
 
+    # remove duplicates from previous commit message (if any)
+    newissues = remove_duplicates(project, branch, change_id, revision_id,
+                                  issues)
+
     # comment on bug: xxx about the review
-    comment_on_issues(issues, commit, link, dry_run)
+    comment_on_issues(newissues, commit, link, dry_run)
 
 
 parser = argparse.ArgumentParser(description='Comment on Github issue')
