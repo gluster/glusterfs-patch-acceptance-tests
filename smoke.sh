@@ -21,13 +21,26 @@ function cleanup()
     rm -rf /var/lib/glusterd /var/log/glusterfs/* /etc/glusterd $P/export;
 }
 
-function start_fs()
+function start_fs_with_arbiter()
 {
     mkdir -p $P/export;
     chmod 0755 $P/export;
 
     glusterd;
-    gluster --mode=script volume create $V replica 2 $H:$P/export/export{1,2,3,4} force;
+    gluster --mode=script volume create $V replica 3 arbiter 1 $H:$P/export/export{1,2,3,4,5,6} force;
+    gluster volume start $V;
+    gluster volume set $V performance.write-behind off;
+    glusterfs -s $H --volfile-id $V $M;
+#    mount -t glusterfs $H:/$V $M;
+}
+
+function start_fs_with_disperse()
+{
+    mkdir -p $P/export;
+    chmod 0755 $P/export;
+
+    glusterd;
+    gluster --mode=script volume create $V disperse 6 redundancy 2 $H:$P/export/export{1,2,3,4,5,6,7,8,9,10,11,12} force;
     gluster volume start $V;
     gluster volume set $V performance.write-behind off;
     glusterfs -s $H --volfile-id $V $M;
@@ -98,7 +111,13 @@ function main ()
 
     set -x;
 
-    start_fs;
+    start_fs_with_arbiter;
+
+    run_tests;
+
+    cleanup;
+
+    start_fs_with_disperse;
 
     run_tests;
 }
