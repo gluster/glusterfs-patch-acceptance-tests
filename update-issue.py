@@ -9,36 +9,19 @@ import re
 from github3 import login
 
 
-def commit_message_edited(project, branch, change_id, revision_id):
-    r = requests.get('https://review.gluster.org/changes/{}~{}~{}'
-                     '/revisions/{}/files/'.format(
-                         project,
-                         branch,
-                         change_id,
-                         revision_id,
-                    )
-    )
-    output = r.text
-    cleaned_output = '\n'.join(output.split('\n')[1:])
-    parsed_output = json.loads(cleaned_output)
-    if '/COMMIT_MSG' in parsed_output:
-        return True
-    return False
-
-
 def get_commit_message():
     commit = subprocess.check_output(['git', 'log', '--format=%B', '-n', '1'])
     return commit
 
 
-def get_commit_message_from_gerrit(project, branch, change_id, revision_id):
+def get_commit_message_from_gerrit(project, branch, change_id, revision_number):
     k = requests.get('https://review.gluster.org/changes/{}~{}~{}'
                      '/revisions/{}/commit'.
                      format(
                             project,
                             branch,
                             change_id,
-                            revision_id
+                            revision_number
                             )
                      )
     output = k.text
@@ -50,22 +33,25 @@ def get_commit_message_from_gerrit(project, branch, change_id, revision_id):
 
 def parse_commit_message(msg):
     regex = re.compile(r'(([fF][iI][xX][eE][sS])|([uU][pP][dD][aA][tT][eE][sS])):?\s+(gluster/glusterfs)?#(\d*)')
-    bugs = []
+    issues = []
     for line in msg.split('\n'):
         for match in regex.finditer(line):
-            bugs.append(match.group(5))
-    return bugs
+            issues.append(unicode(match.group(5)))
+    if len(issues):
+        print("Issues found in the commit message: {}".format(issues))
+        return issues
+    print("No issues found in the commit message")
+    return issues
 
 
-def remove_duplicates (project, branch, change_id, revision_id, issues):
-    if (int(revision_id) == 1):
+def remove_duplicates (project, branch, change_id, revision_number, issues):
+    if (int(revision_number) == 1):
         return issues
 
-    # assumes revision ID is the "legacy numeric patch number"
-    # as in: https://gerrit-review.googlesource.com/Documentation/rest-api-changes.html#revision-id
     oldmessage = get_commit_message_from_gerrit(project, branch, change_id,
-                                                str(int(revision_id) - 1))
+                                                str(int(revision_number) - 1))
     oldissues = parse_commit_message(oldmessage)
+    print("Old issues: {}".format(oldissues))
     newissues = list(set(issues) - (set(issues) & set(oldissues)))
     return newissues
 
@@ -77,7 +63,7 @@ def comment_on_issues(issues, commit, link, dry_run):
         comment_issue(issue, comment, dry_run)
 
 
-def comment_issue(num, comment, dry_run):
+def comment_issue(issue, comment, dry_run):
     if dry_run:
         print comment
     else:
@@ -92,17 +78,12 @@ def comment_issue(num, comment, dry_run):
             print "Issue #{} does not exist".format(num)
 
 
-def main(dry_run, force):
+def main(dry_run):
     project = os.environ.get('GERRIT_PROJECT')
     branch = os.environ.get('GERRIT_BRANCH')
     change_id = os.environ.get('GERRIT_CHANGE_ID')
-    revision_id = os.environ.get('GERRIT_PATCHSET_REVISION')
+    revision_number = os.environ.get('GERRIT_PATCHSET_NUMBER')
     link = os.environ.get('GERRIT_CHANGE_URL')
-
-    if not force:
-        check = commit_message_edited(project, branch, change_id, revision_id)
-        if not check:
-            return
 
     # get commit message
     commit = get_commit_message()
@@ -110,12 +91,12 @@ def main(dry_run, force):
     # check if updates/fixes: xxx appears in the commit
     issues = parse_commit_message(commit)
 
-    # remove duplicates from previous commit message (if any)
-    newissues = remove_duplicates(project, branch, change_id, revision_id,
-                                  issues)
-
-    # comment on bug: xxx about the review
-    comment_on_issues(newissues, commit, link, dry_run)
+    if issues:
+        # remove duplicates from previous commit message (if any)
+        newissues = remove_duplicates(project, branch, change_id, revision_number,
+                                      issues)
+        # comment on issue: xxx about the review
+        comment_on_issues(newissues, commit, link, dry_run)
 
 
 parser = argparse.ArgumentParser(description='Comment on Github issue')
@@ -124,10 +105,5 @@ parser.add_argument(
         action='store_true',
         help="Do not comment on Github. Print to stdout instead",
 )
-parser.add_argument(
-        '--force', '-f',
-        action='store_true',
-        help="Comment on the issue without checking if the commit is modified",
-)
 args = parser.parse_args()
-main(args.dry_run, args.force)
+main(args.dry_run)
