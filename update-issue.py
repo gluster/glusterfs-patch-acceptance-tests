@@ -63,7 +63,7 @@ def comment_on_issues(issues, commit, link, dry_run):
         comment_issue(issue, comment, dry_run)
 
 
-def comment_issue(issue, comment, dry_run):
+def comment_issue(num, comment, dry_run):
     if dry_run:
         print comment
     else:
