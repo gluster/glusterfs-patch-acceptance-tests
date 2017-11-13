@@ -14,7 +14,7 @@ case $(uname -s) in
         bd="yes"
         werror="-Werror"
         ;;
-    'NetBSD')
+    'NetBSD'|'FreeBSD')
         nproc=$(getconf NPROCESSORS_ONLN)
         bd="no"
         werror=""
