@@ -4,14 +4,12 @@
 BASE="/build/install"
 ARCHIVE_BASE="/archives"
 ARCHIVED_BUILDS="archived_builds"
-ARCHIVED_LOGS="logs"
 UNIQUE_ID="${JOB_NAME}-${BUILD_ID}"
 SERVER=`hostname`
 LIBLIST=${BASE}/cores/liblist.txt
 
 # Create the folders if they don't exist
 mkdir -p ${BASE}
-mkdir -p ${ARCHIVE_BASE}/${ARCHIVED_BUILDS}
 mkdir -p ${ARCHIVE_BASE}/${ARCHIVED_BUILDS}
 
 # Clean up old archives
@@ -158,19 +156,17 @@ if [ ${cur_count} != ${core_count} ]; then
     rm -f ${LIBLIST}
     rm -f ${LIBLIST}.tmp
 
-    echo Cores and build archived in http://${SERVER}/${filename}.bz2
-    echo Open core using the following command to get a proper stack...
-    echo Example: From root of extracted tarball
-    echo         "gdb -ex 'set sysroot ./' -ex 'core-file ./build/install/cores/xxx.core' <target, say ./build/install/sbin/glusterd>"
+    echo "Cores and build archived in http://${SERVER}/${filename}.bz2"
+    echo "Open core using the following command to get a proper stack"
+    echo "Example: From root of extracted tarball"
+    echo "\t\tgdb -ex 'set sysroot ./' -ex 'core-file ./build/install/cores/xxx.core' <target, say ./build/install/sbin/glusterd>"
     # Forcefully fail the regression run if it has not already failed.
     RET=1
 fi
 
 # If the regression run fails, then archive the GlusterFS logs for later analysis
 if [ ${RET} -ne 0 ]; then
-    filename=${ARCHIVED_LOGS}/glusterfs-logs-${UNIQUE_ID}.tgz
-    tar -czf ${ARCHIVE_BASE}/$filename /var/log/glusterfs /var/log/messages*;
-    echo Logs archived in http://${SERVER}/${filename}
+    tar -czf $WORKSPACE/glusterfs-logs.tgz /var/log/glusterfs /var/log/messages*;
 fi
 
 # reset core_patterns
