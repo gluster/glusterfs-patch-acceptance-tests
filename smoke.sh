@@ -112,9 +112,9 @@ function main ()
 
     cleanup;
 
-    start_fs_with_disperse;
+    #start_fs_with_disperse;
 
-    run_tests;
+    #run_tests;
 }
 
 main "$@";
