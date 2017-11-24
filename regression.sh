@@ -21,8 +21,8 @@ getliblistfromcore() {
     # Cleanup the tmp file for gdb output
     rm -f ${BASE}/cores/gdbout.txt
 
-    # execure the gdb command to get the share library raw output to file
-    gdb -c $1 -q -ex "info sharedlibrary" -ex q 2>/dev/null > ${BASE}/cores/gdbout.txt
+    # execute the gdb command to get the share library raw output to file
+    gdb -c $1 -q -ex "set pagination off" -ex "info sharedlibrary" -ex q 2>/dev/null > ${BASE}/cores/gdbout.txt
 
     # For each line start extracting the sharelibrary paths once we see
     # the text line "Shared Object Path" in the raw gdb output. Append this
@@ -104,9 +104,9 @@ if [ ${cur_count} != ${core_count} ]; then
     if [ ${core_count} -gt 0 ]; then
         for corefile in "${corefiles[@]}"
         do
-            executable_name=$(echo ${corefile} | awk -F'-' '{ print $1 }' \
-                              | cut -d'/' -f2)
-            executable_path=$(which ${executable_name})
+            executable_path=$(gdb -ex "core-file ${corefile}" -ex \
+                'set pagination off' -ex 'info proc exe' -ex q \
+                2>/dev/null | tail -1 | cut -d "'" -f2 | cut -d " " -f1)
 
             echo ""
             echo "========================================================="
