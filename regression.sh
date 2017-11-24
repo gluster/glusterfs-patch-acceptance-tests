@@ -108,7 +108,7 @@ if [ ${cur_count} != ${core_count} ]; then
         do
             executable_name=$(gdb -ex "core-file ${corefile}" -ex \
                 'set pagination off' -ex 'info proc exe' -ex q \
-                2>/dev/null | tail -1 | cut -d "'" -f2)
+                2>/dev/null | tail -1 | cut -d "'" -f2 | cut -d " " -f1)
             executable_path=$(which ${executable_name})
 
             echo ""
