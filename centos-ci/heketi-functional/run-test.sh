@@ -10,7 +10,14 @@ set -x
 yum -y install centos-release-scl
 
 # install docker and Vagrant with QEMU
-yum -y install docker qemu-kvm sclo-vagrant1-vagrant-libvirt qemu-kvm-tools qemu-img
+#
+# note: adding sclo-vagrant1-vagrant explicitly seems to fix
+#   issues where libvirt fails to bring up the vm with errors like this:
+#   "Call to virDomainCreateWithFlags failed: the CPU is incompatible with host
+#    CPU: Host CPU does not provide required features: svm" (or vmx)
+#
+yum -y install docker qemu-kvm qemu-kvm-tools qemu-img \
+	sclo-vagrant1-vagrant sclo-vagrant1-vagrant-libvirt
 
 # install Go (Heketi depends on version 1.6+)
 if ! yum -y install 'golang >= 1.6'
