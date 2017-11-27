@@ -56,7 +56,7 @@ if [ "${BUG_STATUS}" != "NEW" -a "${BUG_STATUS}" != "POST" -a "${BUG_STATUS}" !=
 fi
 
 if [ "${BUG_OWNER}" = "bugs@gluster.org" ]; then
-    echo "BUG id ${BUG} has an invalid owner"
+    echo "BUG id ${BUG} is owned by bugs@gluster.org"
     exit 1
 fi
 
