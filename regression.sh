@@ -5,7 +5,7 @@ BASE="/build/install"
 ARCHIVE_BASE="/archives"
 ARCHIVED_BUILDS="archived_builds"
 UNIQUE_ID="${JOB_NAME}-${BUILD_ID}"
-SERVER=`hostname`
+SERVER=$(hostname)
 LIBLIST=${BASE}/cores/liblist.txt
 
 # Create the folders if they don't exist
@@ -22,7 +22,7 @@ getliblistfromcore() {
     rm -f ${BASE}/cores/gdbout.txt
 
     # execute the gdb command to get the share library raw output to file
-    gdb -c $1 -q -ex "set pagination off" -ex "info sharedlibrary" -ex q 2>/dev/null > ${BASE}/cores/gdbout.txt
+    gdb -c "$1" -q -ex "set pagination off" -ex "info sharedlibrary" -ex q 2>/dev/null > ${BASE}/cores/gdbout.txt
 
     # For each line start extracting the sharelibrary paths once we see
     # the text line "Shared Object Path" in the raw gdb output. Append this
@@ -44,7 +44,7 @@ getliblistfromcore() {
 }
 
 # Retrieve the Python version
-PY_VER=`python -c "import sys; print sys.version[:3]"`
+PY_VER=$(python -c "import sys; print sys.version[:3]")
 
 # Point to the build we're testing
 export PATH="${BASE}/sbin:${PATH}"
@@ -71,11 +71,11 @@ old_cores=$(ls /*.core);
 # Run the regression tests
 if [ -x ./run-tests.sh ]; then
     # If we're in the root of a GlusterFS source repo, use its tests
-    ./run-tests.sh $@
+    ./run-tests.sh "$@"
     RET=$?
 elif [ -x ${BASE}/share/glusterfs/run-tests.sh ]; then
     # Otherwise, use the tests in the installed location
-    ${BASE}/share/glusterfs/run-tests.sh $@
+    ${BASE}/share/glusterfs/run-tests.sh "$@"
     RET=$?
 fi
 
