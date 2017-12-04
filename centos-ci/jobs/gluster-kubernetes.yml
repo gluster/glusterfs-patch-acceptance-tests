@@ -25,7 +25,8 @@
         white-list:
         - jarrpa
         - obnoxxx
-        cron: */5 * * * *
+        cron: H/5 * * * *
+        status-context: centos-ci
 
     builders:
     - shell: !include-raw: ../scripts/get-node.sh
