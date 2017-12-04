@@ -105,7 +105,9 @@ if [ ${cur_count} != ${core_count} ]; then
         for corefile in "${corefiles[@]}"
         do
             set -x
-            gdb -ex 'core-file /glusterepoll1-30453.core' -ex 'set pagination off' -ex 'info proc exe' -ex q
+            gdb -ex "core-file ${corefile}" -ex \
+                'set pagination off' -ex 'info proc exe' -ex q \
+                2>/dev/null
             executable_name=$(gdb -ex "core-file ${corefile}" -ex \
                 'set pagination off' -ex 'info proc exe' -ex q \
                 2>/dev/null | tail -1 | cut -d "'" -f2 | cut -d " " -f1)
