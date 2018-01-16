@@ -157,6 +157,7 @@ if [ ${cur_count} != ${core_count} ]; then
     # 'h' option is so that the links are followed and actual content is in the tar
     tar -rhf ${ARCHIVE_BASE}/${filename} -T ${LIBLIST}
     bzip2 ${ARCHIVE_BASE}/${filename}
+    scp -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i "$WORKSPACE/$LOG_KEY" "${ARCHIVE_BASE}/${filename}" "_logs_collector@http.int.rht.gluster.org:/var/www/glusterfs-logs/$JOB_NAME-build-install-$BUILD_ID.tgz" || true
 
     # Cleanup the temporary files
     rm -f ${LIBLIST}
@@ -173,6 +174,7 @@ fi
 # If the regression run fails, then archive the GlusterFS logs for later analysis
 if [ ${RET} -ne 0 ]; then
     tar -czf $WORKSPACE/glusterfs-logs.tgz /var/log/glusterfs /var/log/messages*;
+    scp -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i "$WORKSPACE/$LOG_KEY" glusterfs-logs.tgz "_logs_collector@http.int.rht.gluster.org:/var/www/glusterfs-logs/$JOB_NAME-$BUILD_ID.tgz" || true
 fi
 
 # reset core_patterns
