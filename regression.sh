@@ -157,6 +157,7 @@ if [ ${cur_count} != ${core_count} ]; then
     # 'h' option is so that the links are followed and actual content is in the tar
     tar -rhf ${ARCHIVE_BASE}/${filename} -T ${LIBLIST}
     bzip2 ${ARCHIVE_BASE}/${filename}
+    scp -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i "$WORKSPACE/$LOG_KEY" "${ARCHIVE_BASE}/${filename}" "_logs_collector@http.int.rht.gluster.org:/var/www/glusterfs-logs/$JOB_NAME-build-install-$BUILD_ID.tgz" || true
 
     # Cleanup the temporary files
     rm -f ${LIBLIST}
