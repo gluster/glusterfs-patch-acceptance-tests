@@ -173,6 +173,7 @@ fi
 # If the regression run fails, then archive the GlusterFS logs for later analysis
 if [ ${RET} -ne 0 ]; then
     tar -czf $WORKSPACE/glusterfs-logs.tgz /var/log/glusterfs /var/log/messages*;
+    scp -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i "$WORKSPACE/$LOG_KEY" glusterfs-logs.tgz "_logs_collector@http.int.rht.gluster.org:/var/www/glusterfs-logs/$JOB_NAME-$BUILD_ID.tgz" || true
 fi
 
 # reset core_patterns
