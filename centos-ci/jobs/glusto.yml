@@ -3,7 +3,6 @@
     node: gluster
     description: Run the functional tests from glusto-tests
     project-type: freestyle
-    auth-token: !include-raw: ../secret/glusto.txt
     concurrent: true
 
     parameters:
