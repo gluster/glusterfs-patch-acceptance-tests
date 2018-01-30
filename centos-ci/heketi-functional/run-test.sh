@@ -92,7 +92,7 @@ fi
 
 # need to prevent sudo from disabling the SCL
 # PR: https://github.com/heketi/heketi/pull/395
-grep -q ^_sudo lib.sh || ( curl https://github.com/heketi/heketi/commit/981f84b2f7cf6ea39754a0fa275fdc86eb3affbb.patch | git apply )
+git grep -q ^_sudo tests/functional/lib.sh || ( curl https://github.com/heketi/heketi/commit/981f84b2f7cf6ea39754a0fa275fdc86eb3affbb.patch | git apply )
 
 # time to run the tests!
 
