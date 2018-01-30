@@ -108,7 +108,7 @@ TEST_TARGET="test-functional"
 RC=0
 make -q "${TEST_TARGET}" > /dev/null 2>&1 || RC=$?
 if [[ ${RC} -eq 1 ]]; then
-	scl enable sclo-vagrant1 make "${TEST_TARGET}"
+	echo make "${TEST_TARGET}" | scl enable sclo-vagrant1 bash
 else
 	# fallback for old branches that did not
 	# have the "test-functional target yet
