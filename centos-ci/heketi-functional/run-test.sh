@@ -104,8 +104,9 @@ git grep -q ^_sudo tests/functional/lib.sh || ( curl https://github.com/heketi/h
 # target does not resist, would result in a
 # return code of 2.
 TEST_TARGET="test-functional"
-make -q "${TEST_TARGET}" > /dev/null 2>&1
-RC=$?
+# note: this weird handling of RC is only because of "set -e" ...
+RC=0
+make -q "${TEST_TARGET}" > /dev/null 2>&1 || RC=$?
 if [[ ${RC} -eq 1 ]]; then
 	scl enable sclo-vagrant1 make "${TEST_TARGET}"
 else
