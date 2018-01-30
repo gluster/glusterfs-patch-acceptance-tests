@@ -90,12 +90,28 @@ else
 	go get github.com/tools/godep
 fi
 
-# time to run the tests!
-cd $GOPATH/src/github.com/heketi/heketi/tests/functional
-
 # need to prevent sudo from disabling the SCL
 # PR: https://github.com/heketi/heketi/pull/395
 grep -q ^_sudo lib.sh || ( curl https://github.com/heketi/heketi/commit/981f84b2f7cf6ea39754a0fa275fdc86eb3affbb.patch | git apply )
 
-scl enable sclo-vagrant1 ./run.sh
+# time to run the tests!
+
+# Check if the "test-funcional" target exists.
+# If "make -q" returns 1, then the target exists
+# and making is required. If it returns 0, then
+# the target exists and is up to date, which should
+# not happen for a .PHONY target. Error (e.g. the
+# target does not resist, would result in a
+# return code of 2.
+TEST_TARGET="test-functional"
+make -q "${TEST_TARGET}" > /dev/null 2>&1
+RC=$?
+if [[ ${RC} -eq 1 ]]; then
+	scl enable sclo-vagrant1 make "${TEST_TARGET}"
+else
+	# fallback for old branches that did not
+	# have the "test-functional target yet
+	cd $GOPATH/src/github.com/heketi/heketi/tests/functional
+	scl enable sclo-vagrant1 ./run.sh
+fi
 
