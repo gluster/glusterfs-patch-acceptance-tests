@@ -21,7 +21,7 @@
         <hudson.model.StringParameterDefinition>
           <name>TEST_SCRIPT</name>
           <description>Test script to execute on the reserved machine.</description>
-          <defaultValue>https://raw.githubusercontent.com/gluster/glusterfs-patch-acceptance-tests/master/centos-ci/heketi-functional/run-test.sh</defaultValue>
+          <defaultValue>https://raw.githubusercontent.com/heketi/ci-tests/centos-ci/heketi-centos-ci-tests.sh</defaultValue>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
