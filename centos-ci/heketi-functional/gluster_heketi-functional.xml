@@ -53,7 +53,7 @@
       <spec>H/5 * * * *</spec>
       <latestVersion>3</latestVersion>
       <configVersion>3</configVersion>
-      <adminlist>obnoxxx, raghavendra-talur, phlogistonjohn, nixpanic, jarrpa, humblec, SaravanaStorageNetwork, purpleidea</adminlist>
+      <adminlist>obnoxxx raghavendra-talur phlogistonjohn nixpanic jarrpa humblec SaravanaStorageNetwork purpleidea</adminlist>
       <allowMembersOfWhitelistedOrgsAsAdmin>false</allowMembersOfWhitelistedOrgsAsAdmin>
       <orgslist></orgslist>
       <cron>H/5 * * * *</cron>
