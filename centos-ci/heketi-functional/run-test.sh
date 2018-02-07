@@ -96,6 +96,15 @@ git grep -q ^_sudo tests/functional/lib.sh || ( curl https://github.com/heketi/h
 
 # time to run the tests!
 
+# prefetch the centos/7 vagrant box
+# we use the vagrant cloud rather than fecthing directly from centos
+# in order to get proper version metadata & caching support
+# (the echo is becuase of "set -e" and that an existing box will cause
+#  vagrant to return non-zero)
+scl enable sclo-vagrant1 -- \
+	vagrant box add "https://vagrantcloud.com/centos/7" --provider "libvirt" \
+	|| echo "Warning: the vagrant box may already exist OR an error occured"
+
 # Check if the "test-funcional" target exists.
 # If "make -q" returns 1, then the target exists
 # and making is required. If it returns 0, then
