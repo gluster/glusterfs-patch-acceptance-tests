@@ -1,4 +1,7 @@
-# Jenkins jobs and scripts for testing Gluster in the CentOS CI
+# DEPRECATED: Jenkins jobs and scripts for testing Gluster in the CentOS CI
+
+**THIS FOLDER IS DEPRECATED. PLEASE CONTRIBUTE NEW JOBS TO
+GITHUB.COM/GLUSTER/CENTOSCI
 
 This directory contains the configuration and scripts that get executed in the
 [CentOS CI](https://ci.centos.org/view/Gluster/). The tests are maintained by
@@ -22,7 +25,7 @@ Run the upstream functional tests from the
 a single brick volume. This test currently installs the latest released version
 of GlusterFS from the CentOS Storage SIG.
 
-The job checks every two hours for updates of the [yum 
+The job checks every two hours for updates of the [yum
 metadata](http://artifacts.ci.centos.org/gluster/nightly/master/7/x86_64/repodata/repomd.xml)
 for CentOS-7/x86_64 and the nightly Gluster RPMs for the master branch. If the
 metadata has been updated, a new run is attempted.
@@ -34,7 +37,7 @@ branch. This test currently installs the nightly builds from the GlusterFS
 Community that are made available on the [CentOS CI Artifacts
 server](http://artifacts.ci.centos.org/gluster/nightly/).
 
-The job checks every two hours for updates of the [yum 
+The job checks every two hours for updates of the [yum
 metadata](http://artifacts.ci.centos.org/gluster/nightly/master/7/x86_64/repodata/repomd.xml)
 for CentOS-7/x86_64 and the nightly Gluster RPMs for the master branch. If the
 metadata has been updated, a new run is attempted.
@@ -46,7 +49,7 @@ These tests use [Vagrant from the
 SCLo](https://wiki.centos.org/SpecialInterestGroup/SCLo/Vagrant) that is
 provided in CentOS.
 
-The job checks every two hours for updates of the [yum 
+The job checks every two hours for updates of the [yum
 metadata](http://artifacts.ci.centos.org/gluster/nightly/master/7/x86_64/repodata/repomd.xml)
 for CentOS-7/x86_64 and the nightly Gluster RPMs for the master branch. If the
 metadata has been updated, a new run is attempted. The test run itself [does
