@@ -27,6 +27,9 @@ yum -y install qemu-kvm sclo-vagrant1-vagrant sclo-vagrant1-vagrant-libvirt \
 # Vagrant needs libvirtd running
 systemctl start libvirtd
 
+# Vagrant changed the download location of the boxes
+export VAGRANT_SERVER_URL="https://vagrantcloud.com"
+
 # Log the virsh capabilites so that we know the
 # environment in case something goes wrong.
 virsh capabilities
