@@ -34,6 +34,9 @@ yum -y install git rsync
 yum -y install epel-release
 yum -y install ansible
 
+# Vagrant changed the download location of the boxes
+export VAGRANT_SERVER_URL="https://vagrantcloud.com"
+
 # clone the repository, github is faster than our Gerrit
 #git clone https://review.gluster.org/glusterfs
 git clone https://github.com/gluster/glusterfs
