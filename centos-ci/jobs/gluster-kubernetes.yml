@@ -18,6 +18,7 @@
         url: https://github.com/gluster/gluster-kubernetes/
 
     triggers:
+    - timed: '@daily'
     - github-pull-request:
         admin-list:
         - jarrpa
