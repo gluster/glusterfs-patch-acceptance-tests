@@ -36,7 +36,10 @@ def parse_commit_message(msg):
     issues = []
     for line in msg.split('\n'):
         for match in regex.finditer(line):
-            issues.append(unicode(match.group(5)))
+            issue=match.group(5)
+            if int(issue) >= 743000:
+                continue
+            issues.append(unicode(issue))
     if len(issues):
         print("Issues found in the commit message: {}".format(issues))
         return issues
