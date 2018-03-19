@@ -1,7 +1,7 @@
 # DEPRECATED: Jenkins jobs and scripts for testing Gluster in the CentOS CI
 
 **THIS FOLDER IS DEPRECATED. PLEASE CONTRIBUTE NEW JOBS TO
-GITHUB.COM/GLUSTER/CENTOSCI
+GITHUB.COM/GLUSTER/CENTOSCI**
 
 This directory contains the configuration and scripts that get executed in the
 [CentOS CI](https://ci.centos.org/view/Gluster/). The tests are maintained by
