@@ -8,7 +8,6 @@ import subprocess
 import re
 from github3 import login
 
-
 def get_commit_message():
     commit = subprocess.check_output(['git', 'log', '--format=%B', '-n', '1'])
     return commit
@@ -37,7 +36,7 @@ def parse_commit_message(msg):
     for line in msg.split('\n'):
         for match in regex.finditer(line):
             issue=match.group(5)
-            if int(issue) >= 743000:
+            if issue.to_i >= 743000:
                 continue
             issues.append(unicode(issue))
     if len(issues):
@@ -58,15 +57,7 @@ def remove_duplicates (project, branch, change_id, revision_number, issues):
     newissues = list(set(issues) - (set(issues) & set(oldissues)))
     return newissues
 
-
-def comment_on_issues(issues, commit, link, dry_run):
-    comment = ("A patch {} has been posted that references this issue.\n"
-               "  Commit message: {}".format(link, commit.split('\n')[0]))
-    for issue in issues:
-        comment_issue(issue, comment, dry_run)
-
-
-def comment_issue(num, comment, dry_run):
+def check_issue(num, comment, dry_run):
     if dry_run:
         print comment
     else:
@@ -75,11 +66,23 @@ def comment_issue(num, comment, dry_run):
         gh = login(gh_user, gh_pw)
         issue = gh.issue('gluster', 'glusterfs', num)
         if issue:
-            issue.create_comment(comment)
-            print "Updated issue #{}".format(num)
+            spec_approved = False
+            doc_approved = False
+            for lbl in issue.labels:
+                if lbl == "SpecApproved":
+                    spec_approved = True
+                if lbl == "DocApproved":
+                    doc_approved = True
+            if spec_approved and doc_approved:
+                print "All approvals in place"
+                exit (0)
+            else:
+                print "Missing the required approvals"
+                exit (1)
         else:
             print "Issue #{} does not exist".format(num)
-
+            print "FAIL"
+            exit(1)
 
 def main(dry_run):
     project = os.environ.get('GERRIT_PROJECT')
@@ -98,8 +101,9 @@ def main(dry_run):
         # remove duplicates from previous commit message (if any)
         newissues = remove_duplicates(project, branch, change_id, revision_number,
                                       issues)
-        # comment on issue: xxx about the review
-        comment_on_issues(newissues, commit, link, dry_run)
+        for issue in newissues:
+            # comment on issue: xxx about the review
+            check_issue(issue, commit, dry_run)
 
 
 parser = argparse.ArgumentParser(description='Comment on Github issue')
