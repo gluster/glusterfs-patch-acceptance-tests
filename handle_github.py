@@ -142,10 +142,12 @@ def check_issue(num):
         if spec_approved and doc_approved:
             print("All approvals in place")
             return 0
+        # TODO: Print more information about what's missing
         print("Missing the required approvals")
         return 1
     print("Issue #{} does not exist".format(num))
     print("FAIL")
+    # TODO: Handle failures gracefully
     return 1
 
 
