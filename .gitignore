@@ -1,3 +1,4 @@
 jenkins_jobs.ini
 centos-ci/secret/
 __pycache__
+*.pyc
