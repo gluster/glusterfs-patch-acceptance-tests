@@ -12,8 +12,8 @@ class IssueCheckTest(unittest.TestCase):
         '''
         # Mock the commit message
         mock.return_value = (
-                'This is a test commit\n\n'
-                'Fixes: bz#1234\n')
+            'This is a test commit\n\n'
+            'Fixes: bz#1234\n')
         commit_msg = handle_github.get_commit_message()
         commit = handle_github.CommitHandler('glusterfs')
         issues = commit.parse_commit_message(commit_msg)
@@ -27,8 +27,8 @@ class IssueCheckTest(unittest.TestCase):
         '''
         # Mock the commit message
         mock1.return_value = (
-                'This is a test commit\n\n'
-                'Fixes: #1234\n')
+            'This is a test commit\n\n'
+            'Fixes: #1234\n')
         commit_msg = handle_github.get_commit_message()
         commit = handle_github.CommitHandler('glusterfs')
         issues = commit.parse_commit_message(commit_msg)
@@ -36,10 +36,10 @@ class IssueCheckTest(unittest.TestCase):
 
         # Handle a valid issue
         mock2.side_effect = None
-        g = handle_github.GitHubHandler('glusterfs', True)
-        g.ghub = Mock(name='mockedgithub')
-        g.ghub.issue.return_value.labels = ['SpecApproved', 'DocApproved']
-        self.assertTrue(g.check_issue(issues[0]))
+        ghub = handle_github.GitHubHandler('glusterfs', True)
+        ghub.ghub = Mock(name='mockedgithub')
+        ghub.ghub.issue.return_value.labels = ['SpecApproved', 'DocApproved']
+        self.assertTrue(ghub.check_issue(issues[0]))
 
     @patch('handle_github.GitHubHandler._github_login')
     @patch('handle_github.get_commit_message')
@@ -49,8 +49,8 @@ class IssueCheckTest(unittest.TestCase):
         '''
         # Mock the commit message
         mock1.return_value = (
-                'This is a test commit\n\n'
-                'Fixes: #1234\n')
+            'This is a test commit\n\n'
+            'Fixes: #1234\n')
         commit_msg = handle_github.get_commit_message()
         commit = handle_github.CommitHandler('glusterfs')
         issues = commit.parse_commit_message(commit_msg)
@@ -58,10 +58,10 @@ class IssueCheckTest(unittest.TestCase):
 
         # Handle a valid issue
         mock2.side_effect = None
-        g = handle_github.GitHubHandler('glusterfs', True)
-        g.ghub = Mock(name='mockedgithub')
-        g.ghub.issue.return_value.labels = ['SpecApproved']
-        self.assertFalse(g.check_issue(issues[0]))
+        ghub = handle_github.GitHubHandler('glusterfs', True)
+        ghub.ghub = Mock(name='mockedgithub')
+        ghub.ghub.issue.return_value.labels = ['SpecApproved']
+        self.assertFalse(ghub.check_issue(issues[0]))
 
     @patch('handle_github.GitHubHandler._github_login')
     @patch('handle_github.get_commit_message')
@@ -71,8 +71,8 @@ class IssueCheckTest(unittest.TestCase):
         '''
         # Mock the commit message
         mock1.return_value = (
-                'This is a test commit with\n\n'
-                'Fixes: #123456\n')
+            'This is a test commit with\n\n'
+            'Fixes: #123456\n')
         commit_msg = handle_github.get_commit_message()
         commit = handle_github.CommitHandler('glusterfs')
         issues = commit.parse_commit_message(commit_msg)
@@ -80,10 +80,10 @@ class IssueCheckTest(unittest.TestCase):
 
         # Handle a valid issue
         mock2.side_effect = None
-        g = handle_github.GitHubHandler('glusterfs', True)
-        g.ghub = Mock(name='mockedgithub')
-        g.ghub.issue.return_value = None
-        self.assertFalse(g.check_issue(issues[0]))
+        ghub = handle_github.GitHubHandler('glusterfs', True)
+        ghub.ghub = Mock(name='mockedgithub')
+        ghub.ghub.issue.return_value = None
+        self.assertFalse(ghub.check_issue(issues[0]))
 
     @patch('handle_github.GitHubHandler._github_login')
     @patch('handle_github.get_commit_message')
@@ -93,9 +93,9 @@ class IssueCheckTest(unittest.TestCase):
         '''
         # Mock the commit message
         mock1.return_value = (
-                'This is a test commit\n\n'
-                'Fixes: #1234\n'
-                'Updates: #4567')
+            'This is a test commit\n\n'
+            'Fixes: #1234\n'
+            'Updates: #4567')
         commit_msg = handle_github.get_commit_message()
         commit = handle_github.CommitHandler('glusterfs')
         issues = commit.parse_commit_message(commit_msg)
@@ -103,11 +103,11 @@ class IssueCheckTest(unittest.TestCase):
 
         # Handle a valid issue
         mock2.side_effect = None
-        g = handle_github.GitHubHandler('glusterfs', True)
-        g.ghub = Mock(name='mockedgithub')
-        g.ghub.issue.return_value.labels = ['SpecApproved', 'DocApproved']
+        ghub = handle_github.GitHubHandler('glusterfs', True)
+        ghub.ghub = Mock(name='mockedgithub')
+        ghub.ghub.issue.return_value.labels = ['SpecApproved', 'DocApproved']
         for issue in issues:
-            self.assertTrue(g.check_issue(issue))
+            self.assertTrue(ghub.check_issue(issue))
 
     @patch('handle_github.GitHubHandler._github_login')
     @patch('handle_github.get_commit_message')
@@ -117,9 +117,9 @@ class IssueCheckTest(unittest.TestCase):
         '''
         # Mock the commit message
         mock1.return_value = (
-                'This is a test commit\n\n'
-                'Fixes: #1234\n'
-                'Updates: #4567')
+            'This is a test commit\n\n'
+            'Fixes: #1234\n'
+            'Updates: #4567')
         commit_msg = handle_github.get_commit_message()
         commit = handle_github.CommitHandler('glusterfs')
         issues = commit.parse_commit_message(commit_msg)
@@ -127,16 +127,16 @@ class IssueCheckTest(unittest.TestCase):
 
         # Handle a valid issue
         mock2.side_effect = None
-        g = handle_github.GitHubHandler('glusterfs', True)
+        ghub = handle_github.GitHubHandler('glusterfs', True)
         with MagicMock(name='mockedgithub') as m:
-            g.ghub = m
-            g.ghub.issue.return_value.labels = ['SpecApproved', 'DocApproved']
-            self.assertTrue(g.check_issue(issues[0]))
+            ghub.ghub = m
+            ghub.ghub.issue.return_value.labels = ['SpecApproved', 'DocApproved']
+            self.assertTrue(ghub.check_issue(issues[0]))
 
         with MagicMock(name='mockedgithub') as m:
-            g.ghub = m
-            g.ghub.issue.return_value.labels = ['DocApproved']
-            self.assertFalse(g.check_issue(issues[1]))
+            ghub.ghub = m
+            ghub.ghub.issue.return_value.labels = ['DocApproved']
+            self.assertFalse(ghub.check_issue(issues[1]))
 
     @patch('handle_github.GitHubHandler._github_login')
     @patch('handle_github.get_commit_message')
@@ -146,9 +146,9 @@ class IssueCheckTest(unittest.TestCase):
         '''
         # Mock the commit message
         mock1.return_value = (
-                'This is a test commit\n\n'
-                'Fixes: #1234\n'
-                'Updates: #4567')
+            'This is a test commit\n\n'
+            'Fixes: #1234\n'
+            'Updates: #4567')
         commit_msg = handle_github.get_commit_message()
         commit = handle_github.CommitHandler('glusterfs')
         issues = commit.parse_commit_message(commit_msg)
@@ -156,21 +156,50 @@ class IssueCheckTest(unittest.TestCase):
 
         # Handle a valid issue
         mock2.side_effect = None
-        g = handle_github.GitHubHandler('glusterfs', True)
+        ghub = handle_github.GitHubHandler('glusterfs', True)
         with MagicMock(name='mockedgithub') as m:
-            g.ghub = m
-            g.ghub.issue.return_value.labels = ['SpecApproved']
-            self.assertFalse(g.check_issue(issues[0]))
+            ghub.ghub = m
+            ghub.ghub.issue.return_value.labels = ['SpecApproved']
+            self.assertFalse(ghub.check_issue(issues[0]))
 
         with MagicMock(name='mockedgithub') as m:
-            g.ghub = m
-            g.ghub.issue.return_value.labels = ['DocApproved']
-            self.assertFalse(g.check_issue(issues[1]))
+            ghub.ghub = m
+            ghub.ghub.issue.return_value.labels = ['DocApproved']
+            self.assertFalse(ghub.check_issue(issues[1]))
 
-    #TODO: same repo issue link
-    #TODO: different repo issue link
+    @patch('handle_github.get_commit_message')
+    def test_issue_with_same_repo_name(self, mock):
+        '''
+        A commit with issue mentioning current repo
+        '''
+        # Mock the commit message
+        mock.return_value = (
+            'This is a test commit\n\n'
+            'Fixes: gluster/glusterfs#1234\n')
+        commit_msg = handle_github.get_commit_message()
+        commit = handle_github.CommitHandler('glusterfs')
+        issues = commit.parse_commit_message(commit_msg)
+        self.assertListEqual(issues, ['1234'])
+
+    @patch('handle_github.get_commit_message')
+    def test_issue_with_different_repo_name(self, mock):
+        '''
+        A commit with issue mentioning current repo
+        '''
+        # Mock the commit message
+        mock.return_value = (
+            'This is a test commit\n\n'
+            'Fixes: gluster/glusterdocs#1234\n')
+        commit_msg = handle_github.get_commit_message()
+        commit = handle_github.CommitHandler('glusterfs')
+        issues = commit.parse_commit_message(commit_msg)
+        self.assertListEqual(issues, [])
+
 
 class IssueDuplicationTest(unittest.TestCase):
+    '''
+    Test Handling of issue de-duplication by the Github handling code
+    '''
 
     @patch('handle_github.get_commit_message')
     def test_first_revision(self, mock):
@@ -179,8 +208,8 @@ class IssueDuplicationTest(unittest.TestCase):
         '''
         # Mock the commit message
         mock.return_value = (
-                'This is a test commit\n\n'
-                'Updates: #1234')
+            'This is a test commit\n\n'
+            'Updates: #1234')
 
         # Parse the commit message
         commit_msg = handle_github.get_commit_message()
@@ -201,8 +230,8 @@ class IssueDuplicationTest(unittest.TestCase):
         '''
         # Mock the commit message
         mock1.return_value = (
-                'This is a test commit\n\n'
-                'Updates: #1234')
+            'This is a test commit\n\n'
+            'Updates: #1234')
         # Parse the commit message
         commit_msg = handle_github.get_commit_message()
         commit = handle_github.CommitHandler('glusterfs')
@@ -211,8 +240,8 @@ class IssueDuplicationTest(unittest.TestCase):
 
         # Mock the commit message from Gerrit
         mock2.return_value = (
-                'This is the previous commit\n\n'
-                'Updates: #1234')
+            'This is the previous commit\n\n'
+            'Updates: #1234')
         commit.revision_number = 2
         deduped = commit.remove_duplicates(issues)
         self.assertListEqual(deduped, [])
@@ -225,8 +254,8 @@ class IssueDuplicationTest(unittest.TestCase):
         issue from the first revision
         '''
         mock1.return_value = (
-                'This is a test commit\n\n'
-                'Updates: #4567')
+            'This is a test commit\n\n'
+            'Updates: #4567')
         # Parse the commit message
         commit_msg = handle_github.get_commit_message()
         commit = handle_github.CommitHandler('glusterfs')
@@ -235,8 +264,8 @@ class IssueDuplicationTest(unittest.TestCase):
 
         # Mock the commit message from Gerrit
         mock2.return_value = (
-                'This is the previous commit\n\n'
-                'Fixes: #1234')
+            'This is the previous commit\n\n'
+            'Fixes: #1234')
         commit.revision_number = 2
         deduped = commit.remove_duplicates(issues)
         self.assertListEqual(deduped, ['4567'])
@@ -249,9 +278,9 @@ class IssueDuplicationTest(unittest.TestCase):
         issue
         '''
         mock1.return_value = (
-                'This is a test commit\n\n'
-                'Updates: #1234'
-                'Fixes: #4567')
+            'This is a test commit\n\n'
+            'Updates: #1234'
+            'Fixes: #4567')
         # Parse the commit message
         commit_msg = handle_github.get_commit_message()
         commit = handle_github.CommitHandler('glusterfs')
@@ -260,8 +289,8 @@ class IssueDuplicationTest(unittest.TestCase):
 
         # Mock the commit message from Gerrit
         mock2.return_value = (
-                'This is the previous commit\n\n'
-                'Updates: #1234')
+            'This is the previous commit\n\n'
+            'Updates: #1234')
         commit.revision_number = 2
         deduped = commit.remove_duplicates(issues)
         self.assertListEqual(deduped, ['4567'])
