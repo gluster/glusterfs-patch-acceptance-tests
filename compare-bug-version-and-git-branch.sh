@@ -59,6 +59,11 @@ if [ -z "${BUG}" -a -z "${REF}" ]; then
     exit 1
 fi
 
+if [ -z "${BUG}"  ]; then
+    "This commit has a Github issue and no bugzilla bug";
+    exit 0;
+fi
+
 # Query bugzilla with 3 retries
 [ "${DEBUG}" == '0' ] || BZQOPTS='--verbose'
 BUG_PRODUCT=""
