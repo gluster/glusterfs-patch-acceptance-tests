@@ -20,7 +20,7 @@ if ! git show --format='%B' | head -n 2 | tail -n 1 | grep -E '^$' >/dev/null 2>
 fi
 
 # Check for github issue first
-REF=$(git show --format='%b' | grep -ow -E "([fF][iI][xX][eE][sS]|[uU][pP][dD][aA][tT][eE][sS])(:)?[[:space:]]+#[:digit:]]+" | awk -F '#' '{print $2}');
+REF=$(git show --format='%b' | grep -ow -E "([fF][iI][xX][eE][sS]|[uU][pP][dD][aA][tT][eE][sS])(:)?[[:space:]]+#[[:digit:]]+" | awk -F '#' '{print $2}');
 
 # Check for bugzilla ID
 BUG=$(git show --format='%b' | grep -ow -E "([fF][iI][xX][eE][sS]|[uU][pP][dD][aA][tT][eE][sS])(:)?[[:space:]]+bz#[[:digit:]]+" | awk -F '#' '{print $2}');
