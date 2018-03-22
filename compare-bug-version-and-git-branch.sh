@@ -60,7 +60,7 @@ if [ -z "${BUG}" -a -z "${REF}" ]; then
 fi
 
 if [ -z "${BUG}"  ]; then
-    "This commit has a Github issue and no bugzilla bug";
+    echo "This commit has a Github issue and no bugzilla bug";
     exit 0;
 fi
 
