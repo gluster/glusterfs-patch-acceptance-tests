@@ -19,6 +19,21 @@ class IssueCheckTest(unittest.TestCase):
         issues = commit.parse_commit_message(commit_msg)
         self.assertListEqual(issues, [])
 
+    @patch('handle_github.get_commit_message')
+    def test_issue_and_bug(self, mock):
+        '''
+        A commit with an issue and bug
+        '''
+        # Mock the commit message
+        mock.return_value = (
+            'This is a test commit\n\n'
+            'Fixes: bz#1234\n'
+            'Fixes: #4567')
+        commit_msg = handle_github.get_commit_message()
+        commit = handle_github.CommitHandler('glusterfs')
+        issues = commit.parse_commit_message(commit_msg)
+        self.assertListEqual(issues, ['4567'])
+
     @patch('handle_github.GitHubHandler._github_login')
     @patch('handle_github.get_commit_message')
     def test_with_valid_issue(self, mock1, mock2):
