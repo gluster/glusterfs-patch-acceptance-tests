@@ -70,9 +70,9 @@ class GitHubHandler(object):
             spec_approved = False
             doc_approved = False
             for label in issue.labels:
-                if label == "SpecApproved":
+                if label.name == "SpecApproved":
                     spec_approved = True
-                if label == "DocApproved":
+                if label.name == "DocApproved":
                     doc_approved = True
             if not spec_approved:
                 print("Missing SpecApproved flag on Issue {}".format(num))
