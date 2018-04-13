@@ -54,7 +54,11 @@ class IssueCheckTest(unittest.TestCase):
         mock2.side_effect = None
         ghub = handle_github.GitHubHandler('glusterfs', True)
         ghub.ghub = Mock(name='mockedgithub')
-        ghub.ghub.issue.return_value.labels = ['SpecApproved', 'DocApproved']
+        label1 = Mock(name='mockedlabel')
+        label1.name = 'SpecApproved'
+        label2 = Mock(name='mockedlabel')
+        label2.name = 'DocApproved'
+        ghub.ghub.issue.return_value.labels = [label1, label2]
         self.assertTrue(ghub.check_issue(issues[0]))
 
     @patch('handle_github.GitHubHandler._github_login')
@@ -76,7 +80,9 @@ class IssueCheckTest(unittest.TestCase):
         mock2.side_effect = None
         ghub = handle_github.GitHubHandler('glusterfs', True)
         ghub.ghub = Mock(name='mockedgithub')
-        ghub.ghub.issue.return_value.labels = ['SpecApproved']
+        label = Mock(name='mockedlabel')
+        label.name = 'SpecApproved'
+        ghub.ghub.issue.return_value.labels = [label]
         self.assertFalse(ghub.check_issue(issues[0]))
 
     @patch('handle_github.GitHubHandler._github_login')
@@ -121,7 +127,11 @@ class IssueCheckTest(unittest.TestCase):
         mock2.side_effect = None
         ghub = handle_github.GitHubHandler('glusterfs', True)
         ghub.ghub = Mock(name='mockedgithub')
-        ghub.ghub.issue.return_value.labels = ['SpecApproved', 'DocApproved']
+        label1 = Mock(name='mockedlabel')
+        label1.name = 'SpecApproved'
+        label2 = Mock(name='mockedlabel')
+        label2.name = 'DocApproved'
+        ghub.ghub.issue.return_value.labels = [label1, label2]
         for issue in issues:
             self.assertTrue(ghub.check_issue(issue))
 
@@ -146,12 +156,18 @@ class IssueCheckTest(unittest.TestCase):
         ghub = handle_github.GitHubHandler('glusterfs', True)
         with MagicMock(name='mockedgithub') as m:
             ghub.ghub = m
-            ghub.ghub.issue.return_value.labels = ['SpecApproved', 'DocApproved']
+            label1 = Mock(name='mockedlabel')
+            label1.name = 'SpecApproved'
+            label2 = Mock(name='mockedlabel')
+            label2.name = 'DocApproved'
+            ghub.ghub.issue.return_value.labels = [label1, label2]
             self.assertTrue(ghub.check_issue(issues[0]))
 
         with MagicMock(name='mockedgithub') as m:
             ghub.ghub = m
-            ghub.ghub.issue.return_value.labels = ['DocApproved']
+            label2 = Mock(name='mockedlabel')
+            label2.name = 'DocApproved'
+            ghub.ghub.issue.return_value.labels = [label2]
             self.assertFalse(ghub.check_issue(issues[1]))
 
     @patch('handle_github.GitHubHandler._github_login')
@@ -175,12 +191,16 @@ class IssueCheckTest(unittest.TestCase):
         ghub = handle_github.GitHubHandler('glusterfs', True)
         with MagicMock(name='mockedgithub') as m:
             ghub.ghub = m
-            ghub.ghub.issue.return_value.labels = ['SpecApproved']
+            label = Mock(name='mockedlabel')
+            label.name = 'SpecApproved'
+            ghub.ghub.issue.return_value.labels = [label]
             self.assertFalse(ghub.check_issue(issues[0]))
 
         with MagicMock(name='mockedgithub') as m:
             ghub.ghub = m
-            ghub.ghub.issue.return_value.labels = ['DocApproved']
+            label2 = Mock(name='mockedlabel')
+            label2.name = 'DocApproved'
+            ghub.ghub.issue.return_value.labels = [label2]
             self.assertFalse(ghub.check_issue(issues[1]))
 
     @patch('commit.get_commit_message')
