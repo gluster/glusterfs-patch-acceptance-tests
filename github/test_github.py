@@ -330,3 +330,29 @@ class IssueDuplicationTest(unittest.TestCase):
         c.revision_number = 2
         deduped = c.remove_duplicates(issues)
         self.assertListEqual(deduped, ['4567'])
+
+
+class SecondPatchsetIssueLabelTest(unittest.TestCase):
+    '''
+    A series of test checking that the github issue status is handled correctly
+    when it's the second revision
+    '''
+
+    @patch('commit.CommitHandler.remove_duplicates')
+    @patch('handle_github.GitHubHandler.check_issue')
+    @patch('commit.CommitHandler.parse_commit_message')
+    def test_second_revision_bug_without_flags(self, issues, mock2, mock3):
+        '''
+        On the second revision, the bug is the same, and it still doesn't have
+        the required flags
+
+        '''
+        issues.return_value = ['4567']
+        mock2.return_value = False
+
+        # Handle a valid issue
+        mock3.return_value = []
+        with patch('sys.exit') as exit_mock:
+            handle_github.main('glusterfs', True)
+            self.assertEqual(exit_mock.called, True)
+            self.assertEqual(exit_mock.call_args, ((1,),))

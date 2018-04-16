@@ -8,6 +8,7 @@ every commit and comment on them when there is an updated patch
 from __future__ import absolute_import, print_function, unicode_literals
 import argparse
 import os
+import sys
 from github3 import login
 from commit import CommitHandler, get_commit_message
 
@@ -102,16 +103,17 @@ def main(repo, dry_run):
     issue_check_success = 0
 
     if issues:
+        for issue in issues:
+            if not github.check_issue(issue):
+                issue_check_success = 1
         # remove duplicates from previous commit message (if any)
         newissues = commit.remove_duplicates(issues)
         # comment on issue: xxx about the review
         for issue in newissues:
             # comment on issue: xxx about the review
-            if github.check_issue(issue):
-                github.comment_on_issues(newissues, commit)
-                continue
-            issue_check_success = 1
-    exit(issue_check_success)
+            github.comment_on_issues(newissues, commit)
+        # If issues do not have the flag, exit
+    sys.exit(issue_check_success)
 
 
 if __name__ == '__main__':
