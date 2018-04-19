@@ -332,10 +332,10 @@ class IssueDuplicationTest(unittest.TestCase):
         self.assertListEqual(deduped, ['4567'])
 
 
-class SecondPatchsetIssueLabelTest(unittest.TestCase):
+class PatchsetIssueLabelTest(unittest.TestCase):
     '''
-    A series of test checking that the github issue status is handled correctly
-    when it's the second revision
+    Check that the github issue status is handled correctly when it's the second
+    revision
     '''
 
     @patch('commit.CommitHandler.remove_duplicates')
@@ -356,3 +356,23 @@ class SecondPatchsetIssueLabelTest(unittest.TestCase):
             handle_github.main('glusterfs', True)
             self.assertEqual(exit_mock.called, True)
             self.assertEqual(exit_mock.call_args, ((1,),))
+
+    @patch('handle_github.GitHubHandler.comment_on_issues')
+    @patch('commit.CommitHandler.remove_duplicates')
+    @patch('handle_github.GitHubHandler.check_issue')
+    @patch('commit.CommitHandler.parse_commit_message')
+    def test_issue_comment_without_flags(self, issues, mock2, mock3, mock4):
+        '''
+        Test that there is a comment on the issue whatever the case
+        '''
+        issues.return_value = ['4567']
+        mock2.return_value = False
+
+        mock3.return_value = ['4567']
+        with patch('sys.exit') as exit_mock:
+            handle_github.main('glusterfs', True)
+            self.assertEqual(exit_mock.called, True)
+            self.assertEqual(exit_mock.call_args, ((1,),))
+
+        self.assertEqual(mock4.called, True)
+        self.assertIn(mock4.call_args, ((['4567'],),))

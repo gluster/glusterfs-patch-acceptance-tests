@@ -109,10 +109,7 @@ def main(repo, dry_run):
         # remove duplicates from previous commit message (if any)
         newissues = commit.remove_duplicates(issues)
         # comment on issue: xxx about the review
-        for issue in newissues:
-            # comment on issue: xxx about the review
-            github.comment_on_issues(newissues, commit)
-        # If issues do not have the flag, exit
+        github.comment_on_issues(newissues, commit_msg)
     sys.exit(issue_check_success)
 
 
