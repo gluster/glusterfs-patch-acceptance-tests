@@ -18,16 +18,20 @@ class GitHubHandler(object):
     This class handles all the Github interactions
     '''
 
-    def __init__(self, repo, dry_run):
+    def __init__(self, repo, dry_run, comment_file=False):
         self.repo = repo
         self.dry_run = dry_run
         self.link = os.environ.get('GERRIT_CHANGE_URL')
+        self.comment_file = comment_file
+        self.error_string = []
         self._github_login()
 
     def _github_login(self):
         gh_user = os.environ.get('GITHUB_USER')
         gh_pw = os.environ.get('GITHUB_PASS')
         self.ghub = login(gh_user, gh_pw)
+        if not self.ghub:
+            raise Exception('Github Authentication Error')
 
     def comment_on_issues(self, issues, commit):
         '''
@@ -76,24 +80,42 @@ class GitHubHandler(object):
                 if label.name == "DocApproved":
                     doc_approved = True
             if not spec_approved:
-                print("Missing SpecApproved flag on Issue {}".format(num))
+                error = "Missing SpecApproved flag on Issue {}".format(num)
+                print(error)
+                self.error_string.append(error)
             if not doc_approved:
-                print("Missing DocApproved flag on Issue {}".format(num))
+                error = "Missing DocApproved flag on Issue {}".format(num)
+                print(error)
+                self.error_string.append(error)
             if spec_approved and doc_approved:
-                print("All approvals in place")
+                error = "All approvals in place"
+                print(error)
+                self.error_string.append(error)
                 return True
             return False
         print("Issue #{} does not exist in {} repo".format(num, self.repo))
         return False
 
+    def write_error_string(self):
+        '''
+        Verify that error string is written to file
+        '''
+        if not self.error_string:
+            return False
+        with open('gerrit_comment', 'w') as f:
+            for line in self.error_string:
+                f.write(line)
+                f.write('\n')
 
 
-def main(repo, dry_run):
+
+
+def main(repo, dry_run, comment_file=False):
     '''
     The main function for this program. The actual program execution happens
     here
     '''
-    github = GitHubHandler(repo, dry_run)
+    github = GitHubHandler(repo, dry_run, comment_file)
     commit = CommitHandler(repo)
     # get commit message
     commit_msg = get_commit_message()
@@ -106,6 +128,8 @@ def main(repo, dry_run):
         for issue in issues:
             if not github.check_issue(issue):
                 issue_check_success = 1
+
+            github.write_error_string()
         # remove duplicates from previous commit message (if any)
         newissues = commit.remove_duplicates(issues)
         # comment on issue: xxx about the review
@@ -125,5 +149,10 @@ if __name__ == '__main__':
         action='store',
         help="The repo to check for issues or add comments to",
     )
+    PARSER.add_argument(
+        '--comment-file', '-c',
+        action='store_true',
+        help="The file to store the comment for failure, if any",
+    )
     ARGS = PARSER.parse_args()
-    main(ARGS.repo, ARGS.dry_run)
+    main(ARGS.repo, ARGS.dry_run, ARGS.comment_file)

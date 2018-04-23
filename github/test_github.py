@@ -375,4 +375,4 @@ class PatchsetIssueLabelTest(unittest.TestCase):
             self.assertEqual(exit_mock.call_args, ((1,),))
 
         self.assertEqual(mock4.called, True)
-        self.assertIn(mock4.call_args, ((['4567'],),))
+        self.assertEqual(mock4.call_args[0][0], ['4567'])
