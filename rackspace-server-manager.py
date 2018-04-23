@@ -41,6 +41,9 @@ def create_node(nova, counts):
         for network in node.networks['public']:
             if re.match('\d+\.\d+\.\d+\.\d+', network):
                 ip_address = network
+                f = open(hosts, 'a')
+                f.write("{}\n".format(ip_address))
+                f.close()
                 break
         if ip_address is None:
             print 'No IP address assigned!'
@@ -63,11 +66,9 @@ def delete_node(nova, counts):
 
 
 def main():
-    #mport pdb; pdb.set_trace()
     pyrax.set_setting('identity_type', 'rackspace')
     pyrax.set_default_region('ORD')
-    pyrax.set_credential_file("/home/dkhandel/.rackspace_cloud_credentials")
-    #pyrax.set_credentials(os.environ.get('USERNAME'),os.environ.get('PASSWORD'))
+    pyrax.set_credentials(os.environ.get('USERNAME'),os.environ.get('PASSWORD'))
     nova_obj = pyrax.cloudservers
 
     parser = argparse.ArgumentParser(description="Rackspace server creation/deletion")
