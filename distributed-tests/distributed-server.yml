@@ -1,0 +1,106 @@
+---
+- hosts: all
+  tasks:
+  - lineinfile:
+      dest: /etc/sysconfig/network-scripts/ifcfg-eth0
+      regexp: ^IPV6INIT=
+      line: IPV6INIT=no
+    name: Disable ipv6 in eth0 config
+
+  - lineinfile:
+      dest: /etc/sysconfig/network
+      regexp: ^NETWORKING_IPV6=
+      line: NETWORKING_IPV6=no
+    name: Disable ipv6 in network config
+
+  - sysctl:
+      name: "{{ item }}"
+      value: 1
+      state: present
+      reload: yes
+    with_items:
+    - net.ipv6.conf.all.disable_ipv6
+    - net.ipv6.conf.default.disable_ipv6
+    name: Disable ipv6 in sysctl
+    notify:
+    - run dracut
+
+  # use "install ipv6 /bin/true", since that's what ip6tables check to see if
+  # ipv6 is disabled. See reload function on /etc/init.d/ip6tables on RHEL 6.
+  - copy:
+      dest: /etc/modprobe.d/ipv6.conf
+      content: "options ipv6 disable=1\ninstall ipv6 /bin/true"
+    name: Disable ipv6 module
+
+  - name: Clean hosts
+    lineinfile:
+      state: absent
+      dest: /etc/hosts
+      regexp: "^(10\\.|2001:|::1)"
+
+  - name: Setup hosts file so that IP is in /etc/hosts
+    lineinfile:
+      state: present
+      dest: /etc/hosts
+      line: "{{ ansible_eth0['ipv4']['address'] }} {{ ansible_nodename }}"
+      regexp: "^{{ ansible_eth0['ipv4']['address'] }}.*"
+
+  - name: Make sure firewalld allows traffic from the machine to itself
+    firewalld:
+      rich_rule: "rule family='ipv4' source address='{{ansible_eth0['ipv4']['address']}}' accept"
+      permanent: true
+      state: enabled
+
+  - name: Make sure eth0 is enabled
+    lineinfile:
+      state: present
+      dest: /etc/sysconfig/network-scripts/ifcfg-eth0
+      regexp: ^ONBOOT=
+      line: ONBOOT=yes
+
+  - name: Make sure eth1 is disabled
+    lineinfile:
+      state: present
+      dest: /etc/sysconfig/network-scripts/ifcfg-eth1
+      regexp: ^ONBOOT=
+      line: ONBOOT=no
+    when: ansible_eth1 is defined
+
+  - name: Create the data file
+    command: fallocate -l 10G /var/data
+    args:
+      creates: /var/data
+
+  - name: Format data file to xfs
+    filesystem:
+      fstype: xfs
+      dev: /var/data
+
+  - name: Mount /d
+    mount:
+      path: /d
+      src: /var/data
+      fstype: xfs
+      state: present
+
+  - name: Start and enable rpc-statd
+    service:
+      name: rpc-statd
+      enabled: true
+      state: started
+
+  - name: Create the file to be used for swap
+    command: dd if=/dev/zero of=/root/swapfile bs=1M count=1024
+
+  - name: Format the file for swap
+    command: mkswap /root/swapfile
+
+  - name: Change swap file permissions
+    file: path=/root/myswapfile owner=root group=root mode=0600
+
+  - name: Add the file to the system as a swap file
+    command: swapon  /root/swapfile
+
+  handlers:
+  - name: run dracut
+    command: dracut -v -f
