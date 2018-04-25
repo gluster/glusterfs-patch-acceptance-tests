@@ -101,6 +101,19 @@
   - name: Add the file to the system as a swap file
     command: swapon  /root/swapfile
 
+  - name: Clone the glusterfs code
+    git:
+      repo: 'git://review.gluster.org/glusterfs'
+      dest: '/srv'
+      version: HEAD
+      update: yes
+      force: yes
+
+  - name: Run the test server script
+    command: ./distributed-test-runner.py --server
+    args:
+      chdir: /srv/glusterfs/extras/distributed-testing
+
   handlers:
   - name: run dracut
     command: dracut -v -f

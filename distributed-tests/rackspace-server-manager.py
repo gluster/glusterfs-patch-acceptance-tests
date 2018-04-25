@@ -8,26 +8,13 @@ import time
 import re
 import os
 import argparse
-from Crypto.PublicKey import RSA
 import uuid
-
-def create_key():
-    key = RSA.generate(1024)
-    f = open("private.pem", "wb")
-    f.write(key.exportKey('PEM'))
-    f.close()
-
-    pubkey = key.publickey()
-    f = open("public.pem", "wb")
-    f.write(pubkey.exportKey('OpenSSH'))
-    f.close()
 
 
 def create_node(nova, counts):
     flavor = nova.flavors.find(name='2 GB General Purpose v1')
     image = nova.images.find(name='centos7-test')
-    create_key()
-    pubkey = open('public.pem', 'r').read()
+    pubkey = open('key.pub', 'r').read()
     nova.keypairs.create('distkey', pubkey)
     for count in range(int(counts)):
         name = 'distributed-testing.'+str(uuid.uuid4())
@@ -62,8 +49,6 @@ def delete_node(nova):
 
         # delete the public key on Rackspace as well as locally
         nova.keypairs.delete('distkey')
-        os.remove('public.pem')
-        os.remove('private.pem')
 
 
 def main():
@@ -78,8 +63,7 @@ def main():
     # configuration of cloud service provider
     pyrax.set_setting('identity_type', 'rackspace')
     pyrax.set_default_region(region)
-    pyrax.set_credential_file("/home/dkhandel/.rackspace_cloud_credentials")
-    #pyrax.set_credentials(os.environ.get('USERNAME'),os.environ.get('PASSWORD'))
+    pyrax.set_credentials(os.environ.get('USERNAME'),os.environ.get('PASSWORD'))
     nova_obj = pyrax.cloudservers
 
     if (args.action == 'create'):
