@@ -15,11 +15,14 @@ def create_node(nova, counts):
     flavor = nova.flavors.find(name='2 GB General Purpose v1')
     image = nova.images.find(name='centos7-test')
     pubkey = open('key.pub', 'r').read()
-    nova.keypairs.create('distkey', pubkey)
+    job_name = os.environ.get('JOB_NAME')
+    build_number = os.environ.get('BUILD_NUMBER')
+    key_name = job_name+'.'+build_number
+    nova.keypairs.create(key_name, pubkey)
     for count in range(int(counts)):
         name = 'distributed-testing.'+str(uuid.uuid4())
         node = nova.servers.create(name=name, flavor=flavor.id,
-                                   image=image.id, key_name='distkey')
+                                   image=image.id, key_name=key_name)
 
         while node.status == 'BUILD':
             time.sleep(5)
@@ -47,8 +50,9 @@ def delete_node(nova):
         server.delete()
         print 'Deleting {0}, please wait...'.format(machine_name)
 
-        # delete the public key on Rackspace as well as locally
-        nova.keypairs.delete('distkey')
+        # delete the public key on Rackspace
+        key_name = os.environ.get('JOB_NAME')+'.'+os.environ.get('BUILD_NUMBER')
+        nova.keypairs.delete(key_name)
 
 
 def main():
