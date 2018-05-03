@@ -1,11 +1,11 @@
 #!/usr/bin/env python
+# encoding: utf-8
 '''
 This small program should be able to verify that github issues are specified in
 every commit and comment on them when there is an updated patch
 '''
 
-
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import unicode_literals, absolute_import, print_function
 import argparse
 import os
 import sys

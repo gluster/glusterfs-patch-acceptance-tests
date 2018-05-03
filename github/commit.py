@@ -1,7 +1,8 @@
+# -*- coding: utf-8
 '''
 This code handles extracting data from the commit message
 '''
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import unicode_literals, absolute_import, print_function
 import json
 import os
 import re
@@ -14,7 +15,7 @@ def get_commit_message():
     current directory
     '''
     commit = subprocess.check_output(['git', 'log', '--format=%B', '-n', '1'])
-    return commit
+    return unicode(commit, 'utf-8')
 
 
 class CommitHandler(object):

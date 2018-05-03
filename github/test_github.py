@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import unittest
 import handle_github
 import commit
@@ -28,6 +30,22 @@ class IssueCheckTest(unittest.TestCase):
         # Mock the commit message
         mock.return_value = (
             'This is a test commit\n\n'
+            'Fixes: bz#1234\n'
+            'Fixes: #4567')
+        commit_msg = commit.get_commit_message()
+        c = commit.CommitHandler('glusterfs')
+        issues = c.parse_commit_message(commit_msg)
+        self.assertListEqual(issues, ['4567'])
+
+    @patch('commit.get_commit_message')
+    def test_with_unicode(self, mock):
+        '''
+        A commit with an issue and bug
+        '''
+        # Mock the commit message
+        mock.return_value = (
+            'This is a test commit\n\n'
+            '♥'
             'Fixes: bz#1234\n'
             'Fixes: #4567')
         commit_msg = commit.get_commit_message()
