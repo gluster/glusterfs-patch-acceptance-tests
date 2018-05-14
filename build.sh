@@ -37,5 +37,5 @@ rm -rf $P/install;
 $SRC/configure --prefix=$P/install --with-mountutildir=$P/install/sbin \
                --with-initdir=$P/install/etc --localstatedir=/var \
                --enable-bd-xlator=${bd} --enable-debug --enable-gnfs --silent
-make install CFLAGS="-Wall ${werror}" -j ${nproc}
+make install CFLAGS="-Wall ${werror} -Wno-cpp" -j ${nproc}
 cd $SRC;
