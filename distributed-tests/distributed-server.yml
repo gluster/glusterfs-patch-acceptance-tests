@@ -98,10 +98,13 @@
     command: mkswap /root/swapfile
 
   - name: Change swap file permissions
-    file: path=/root/myswapfile owner=root group=root mode=0600
+    file: path=/root/swapfile owner=root group=root mode=0600
 
   - name: Add the file to the system as a swap file
     command: swapon  /root/swapfile
+
+  - name: Write swap entry in fstab
+    mount: name=none src=/root/swapfile fstype=swap opts=sw passno=0 dump=0 state=present
 
   - name: Clone the glusterfs code
     git:
