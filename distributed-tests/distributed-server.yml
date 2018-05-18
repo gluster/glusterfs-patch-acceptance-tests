@@ -123,12 +123,12 @@
   - name: Clone the glusterfs code
     git:
       repo: 'git://review.gluster.org/glusterfs'
-      dest: '/srv'
+      dest: '/srv/glusterfs'
       version: HEAD
       update: yes
       force: yes
 
   - name: Run the test server script
-    command: nohup ./distributed-test-runner.py --server &
+    shell: nohup ./distributed-test-runner.py --server &
     args:
       chdir: /srv/glusterfs/extras/distributed-testing
