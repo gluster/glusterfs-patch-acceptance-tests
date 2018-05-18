@@ -13,7 +13,8 @@
       line: NETWORKING_IPV6=no
     name: Disable ipv6 in network config
 
-  - sysctl:
+  - name: Disable ipv6 in sysctl
+    sysctl:
       name: "{{ item }}"
       value: 1
       state: present
@@ -21,11 +22,24 @@
     with_items:
     - net.ipv6.conf.all.disable_ipv6
     - net.ipv6.conf.default.disable_ipv6
-    name: Disable ipv6 in sysctl
-    notify:
-    - Run dracut
-    - Restart the server
-    - Wait for the server to restart
+
+  - name: Run dracut
+    command: dracut -v -f
+
+  - name: Restart the server
+    shell: sleep 2 && shutdown -r now "Updating the kernel"
+    async: 1
+    poll: 0
+
+  - name: Wait for the server to restart
+    wait_for:
+      host: "{{ inventory_hostname }}"
+      state: started
+      delay: 30
+      timeout: 300
+      port: 22
+    delegate_to: localhost
+
 
   # use "install ipv6 /bin/true", since that's what ip6tables check to see if
   # ipv6 is disabled. See reload function on /etc/init.d/ip6tables on RHEL 6.
@@ -118,21 +132,3 @@
     command: nohup ./distributed-test-runner.py --server &
     args:
       chdir: /srv/glusterfs/extras/distributed-testing
-
-  handlers:
-  - name: Run dracut
-    command: dracut -v -f
-
-  - name: Restart the server
-    shell: sleep 2 && shutdown -r now "Updating the kernel"
-    async: 1
-    poll: 0
-
-  - name: Wait for the server to restart
-    wait_for:
-      host: "{{ inventory_hostname }}"
-      state: started
-      delay: 30
-      timeout: 300
-      port: 22
-    delegate_to: localhost
