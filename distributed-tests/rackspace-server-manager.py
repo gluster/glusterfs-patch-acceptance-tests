@@ -17,7 +17,7 @@ def create_node(nova, counts):
     pubkey = open('key.pub', 'r').read()
     job_name = os.environ.get('JOB_NAME')
     build_number = os.environ.get('BUILD_NUMBER')
-    key_name = job_name+'.'+build_number
+    key_name = job_name+'_'+build_number
     nova.keypairs.create(key_name, pubkey)
     for count in range(int(counts)):
         name = 'distributed-testing.'+str(uuid.uuid4())
@@ -51,7 +51,7 @@ def delete_node(nova):
         print 'Deleting {0}, please wait...'.format(machine_name)
 
         # delete the public key on Rackspace
-        key_name = os.environ.get('JOB_NAME')+'.'+os.environ.get('BUILD_NUMBER')
+        key_name = os.environ.get('JOB_NAME')+'_'+os.environ.get('BUILD_NUMBER')
         nova.keypairs.delete(key_name)
 
 
