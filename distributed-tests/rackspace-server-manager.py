@@ -51,7 +51,7 @@ def delete_node(nova):
         print 'Deleting {0}, please wait...'.format(machine_name)
 
         # delete the public key on Rackspace
-        key_name = os.environ.get('JOB_NAME')+'.'+os.environ.get('BUILD_NUMBER')
+        key_name = os.environ.get('JOB_NAME')+'_'+os.environ.get('BUILD_NUMBER')
         nova.keypairs.delete(key_name)
 
 
