@@ -17,7 +17,7 @@ def create_node(nova, counts):
     pubkey = open('key.pub', 'r').read()
     job_name = os.environ.get('JOB_NAME')
     build_number = os.environ.get('BUILD_NUMBER')
-    key_name = job_name+'.'+build_number
+    key_name = job_name+'_'+build_number
     nova.keypairs.create(key_name, pubkey)
     for count in range(int(counts)):
         name = 'distributed-testing.'+str(uuid.uuid4())
