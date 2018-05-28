@@ -11,6 +11,15 @@ import argparse
 import uuid
 
 
+def ping_node(ip):
+    '''
+    Function to check whether the node is alive or not by sending 3 packets
+    and wait upto 10 milliseconds for the response
+    '''
+    ret = subprocess.call(['ping', '-c', '3', '-W', '10', ip], stdout=open(os.devnull, 'w'))
+    return ret
+
+
 def create_node(nova, counts):
     flavor = nova.flavors.find(name='2 GB General Purpose v1')
     image = nova.images.find(name='centos7-test')
@@ -39,7 +48,13 @@ def create_node(nova, counts):
         if ip_address is None:
             print 'No IP address assigned!'
             sys.exit(1)
-        print 'The server {0} is waiting at IP address {1}.'.format(count, ip_address)
+        else:
+            ret = ping_node(ip_address)
+            while ret != 0:
+                print 'Waiting for the server {0} to alive'.format(count)
+                time.sleep(5)
+                ret = ping_node(ip_address)
+            print 'The server {0} is alive and waiting at IP address {1}.'.format(count, ip_address)
 
 
 def delete_node(nova):
