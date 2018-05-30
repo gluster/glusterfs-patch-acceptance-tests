@@ -1,5 +1,6 @@
 ---
 - hosts: all
+  gather_facts: no
   tasks:
   - lineinfile:
       dest: /etc/sysconfig/network-scripts/ifcfg-eth0
@@ -36,7 +37,7 @@
       host: "{{ inventory_hostname }}"
       state: started
       delay: 30
-      timeout: 300
+      timeout: 600
       port: 22
     delegate_to: localhost
 

@@ -9,6 +9,16 @@ import re
 import os
 import argparse
 import uuid
+import sys
+
+
+def ping_node(ip):
+    '''
+    Function to check whether the node is alive or not by sending 3 packets
+    and wait upto 10 milliseconds for the response
+    '''
+    ret = subprocess.call(['ping', '-c', '3', '-W', '10', ip], stdout=open(os.devnull, 'w'))
+    return ret
 
 
 def create_node(nova, counts):
@@ -19,12 +29,16 @@ def create_node(nova, counts):
     build_number = os.environ.get('BUILD_NUMBER')
     key_name = job_name+'_'+build_number
     nova.keypairs.create(key_name, pubkey)
+    ips = []
     for count in range(int(counts)):
         name = 'distributed-testing.'+str(uuid.uuid4())
         node = nova.servers.create(name=name, flavor=flavor.id,
                                    image=image.id, key_name=key_name)
 
+        timeout = time.time() + 300
         while node.status == 'BUILD':
+            if time.time() > timeout:
+                break
             time.sleep(5)
             node = nova.servers.get(node.id)
 
@@ -39,7 +53,22 @@ def create_node(nova, counts):
         if ip_address is None:
             print 'No IP address assigned!'
             sys.exit(1)
-        print 'The server {0} is waiting at IP address {1}.'.format(count, ip_address)
+        else:
+            ips.append(ip_address)
+
+
+    for ip in reversed(ips):
+        ret = ping_node(ip)
+        timeout = time.time()
+        while ret != 0:
+            if time.time() > timeout:
+                print 'Not able to connect to a server with IP address {0}'.format(ip)
+                ips = ips.remove(ip)
+                break
+            time.sleep(5)
+            ret = ping_node(ip)
+
+    print 'The list of alive servers is: {0}'.format(ips)
 
 
 def delete_node(nova):
