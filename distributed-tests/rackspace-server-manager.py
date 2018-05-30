@@ -9,6 +9,7 @@ import re
 import os
 import argparse
 import uuid
+import sys
 
 
 def ping_node(ip):
@@ -56,7 +57,7 @@ def create_node(nova, counts):
             ips.append(ip_address)
 
 
-    for ip in ips:
+    for ip in reversed(ips):
         ret = ping_node(ip)
         timeout = time.time()
         while ret != 0:
