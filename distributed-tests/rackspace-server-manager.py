@@ -28,12 +28,16 @@ def create_node(nova, counts):
     build_number = os.environ.get('BUILD_NUMBER')
     key_name = job_name+'_'+build_number
     nova.keypairs.create(key_name, pubkey)
+    ips = []
     for count in range(int(counts)):
         name = 'distributed-testing.'+str(uuid.uuid4())
         node = nova.servers.create(name=name, flavor=flavor.id,
                                    image=image.id, key_name=key_name)
 
+        timeout = time.time() + 300
         while node.status == 'BUILD':
+            if time.time() > timeout:
+                break
             time.sleep(5)
             node = nova.servers.get(node.id)
 
@@ -49,12 +53,21 @@ def create_node(nova, counts):
             print 'No IP address assigned!'
             sys.exit(1)
         else:
-            ret = ping_node(ip_address)
-            while ret != 0:
-                print 'Waiting for the server {0} to alive'.format(count)
-                time.sleep(5)
-                ret = ping_node(ip_address)
-            print 'The server {0} is alive and waiting at IP address {1}.'.format(count, ip_address)
+            ips.append(ip_address)
+
+
+    for ip in ips:
+        ret = ping_node(ip)
+        timeout = time.time()
+        while ret != 0:
+            if time.time() > timeout:
+                print 'Not able to connect to a server with IP address {0}'.format(ip)
+                ips = ips.remove(ip)
+                break
+            time.sleep(5)
+            ret = ping_node(ip)
+
+    print 'The list of alive servers is: {0}'.format(ips)
 
 
 def delete_node(nova):
