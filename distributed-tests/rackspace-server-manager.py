@@ -10,6 +10,7 @@ import os
 import argparse
 import uuid
 import sys
+import subprocess
 
 
 def ping_node(ip):
