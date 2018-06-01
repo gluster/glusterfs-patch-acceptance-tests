@@ -17,7 +17,7 @@ def ssh_node(ip):
     '''
     Function to check if there's successful ssh connection can be established
     '''
-    ret = subprocess.call(['ssh', '-i', 'key', ip, 'echo'], stdout=open(os.devnull, 'w'))
+    ret = subprocess.call(['ssh', '-i', 'key', 'root@%s' % ip, 'echo'], stdout=open(os.devnull, 'w'))
     return ret
 
 
