@@ -13,12 +13,11 @@ import sys
 import subprocess
 
 
-def ping_node(ip):
+def ssh_node(ip):
     '''
-    Function to check whether the node is alive or not by sending 3 packets
-    and wait upto 10 milliseconds for the response
+    Function to check if there's successful ssh connection can be established
     '''
-    ret = subprocess.call(['ping', '-c', '3', '-W', '10', ip], stdout=open(os.devnull, 'w'))
+    ret = subprocess.call(['ssh', '-i', 'key', ip, 'echo'], stdout=open(os.devnull, 'w'))
     return ret
 
 
@@ -55,21 +54,21 @@ def create_node(nova, counts):
             print 'No IP address assigned!'
             sys.exit(1)
         else:
-            ips.append(ip_address)
+            ips.append(str(ip_address))
 
 
     for ip in reversed(ips):
-        ret = ping_node(ip)
-        timeout = time.time()
+        ret = ssh_node(ip)
+        timeout = time.time() + 300
         while ret != 0:
             if time.time() > timeout:
-                print 'Not able to connect to a server with IP address {0}'.format(ip)
+                print 'Not able to connect to a server {0} via SSH'.format(ip)
                 ips = ips.remove(ip)
                 break
             time.sleep(5)
-            ret = ping_node(ip)
+            ret = ssh_node(ip)
 
-    print 'The list of alive servers is: {0}'.format(ips)
+    print 'The list of reachable servers: {0}'.format(ips)
 
 
 def delete_node(nova):
