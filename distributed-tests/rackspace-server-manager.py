@@ -18,8 +18,8 @@ def check_ssh(ips):
     Function to check if there's successful ssh connection can be established
     '''
     for ip in ips:
-        ret = subprocess.call(['ssh', '-i', 'key', 'root@%s' % ip, 'echo'], stdout=open(os.devnull, 'w'))
-        if ret == 0:
+        rv = subprocess.call(['ssh', '-i', 'key', 'root@%s' % ip, 'echo'], stdout=open(os.devnull, 'w'))
+        if rv == 0:
             ips[ip] = 'reachable'
     ret = all(connection == 'reachable' for connection in ips.values())
     return ret
