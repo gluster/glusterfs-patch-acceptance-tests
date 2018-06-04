@@ -13,12 +13,15 @@ import sys
 import subprocess
 
 
-def ping_node(ip):
+def check_ssh(ips):
     '''
-    Function to check whether the node is alive or not by sending 3 packets
-    and wait upto 10 milliseconds for the response
+    Function to check if there's successful ssh connection can be established
     '''
-    ret = subprocess.call(['ping', '-c', '3', '-W', '10', ip], stdout=open(os.devnull, 'w'))
+    for ip in ips:
+        ret = subprocess.call(['ssh', '-i', 'key', 'root@%s' % ip, 'echo'], stdout=open(os.devnull, 'w'))
+        if ret == 0:
+            ips[ip] = 'reachable'
+    ret = all(connection == 'reachable' for connection in ips.values())
     return ret
 
 
@@ -30,7 +33,7 @@ def create_node(nova, counts):
     build_number = os.environ.get('BUILD_NUMBER')
     key_name = job_name+'_'+build_number
     nova.keypairs.create(key_name, pubkey)
-    ips = []
+    ips = {}
     for count in range(int(counts)):
         name = 'distributed-testing.'+str(uuid.uuid4())
         node = nova.servers.create(name=name, flavor=flavor.id,
@@ -55,24 +58,19 @@ def create_node(nova, counts):
             print 'No IP address assigned!'
             sys.exit(1)
         else:
-            ips.append(ip_address)
+            # by default set the value of ip_address to unreachable
+            ips[str(ip_address)] = 'unreachable'
+
+    timeout = 0
+    ret = check_ssh(ips)
+    while ret != True and timeout < 300:
+        ret = check_ssh(ips)
+        time.sleep(5)
+        timeout = timeout + 5
+    print 'The list of servers: {0}'.format(ips.items())
 
 
-    for ip in reversed(ips):
-        ret = ping_node(ip)
-        timeout = time.time()
-        while ret != 0:
-            if time.time() > timeout:
-                print 'Not able to connect to a server with IP address {0}'.format(ip)
-                ips = ips.remove(ip)
-                break
-            time.sleep(5)
-            ret = ping_node(ip)
-
-    print 'The list of alive servers is: {0}'.format(ips)
-
-
-def delete_node(nova):
+    def delete_node(nova):
     servers = [line.split(' ')[0] for line in open('hosts')]
     for node_name in servers:
         # find the server by name
