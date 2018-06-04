@@ -20,8 +20,8 @@ def check_ssh(ips):
     for ip in ips:
         ret = subprocess.call(['ssh', '-i', 'key', 'root@%s' % ip, 'echo'], stdout=open(os.devnull, 'w'))
         if ret == 0:
-            ips[ip] = True
-    ret = all(connection == True for connection in ips.values())
+            ips[ip] = 'reachable'
+    ret = all(connection == 'reachable' for connection in ips.values())
     return ret
 
 
@@ -58,7 +58,8 @@ def create_node(nova, counts):
             print 'No IP address assigned!'
             sys.exit(1)
         else:
-            ips.update({str(ip_address):False})
+            # by default set the value of ip_address to unreachable
+            ips[str(ip_address)] = 'unreachable'
 
     timeout = 0
     ret = check_ssh(ips)
@@ -66,8 +67,7 @@ def create_node(nova, counts):
         ret = check_ssh(ips)
         time.sleep(5)
         timeout = timeout + 5
-    reachable_ip = [ip for ip, val in ips.items() if val==True]
-    print 'The list of reachable servers: {0}'.format(ip)
+    print 'The list of servers: {0}'.format(ips.items())
 
 
     def delete_node(nova):
