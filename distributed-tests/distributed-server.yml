@@ -1,6 +1,6 @@
 ---
 - hosts: all
-  gather_facts: no
+  gather_facts: yes
   tasks:
   - lineinfile:
       dest: /etc/sysconfig/network-scripts/ifcfg-eth0
@@ -24,23 +24,8 @@
     - net.ipv6.conf.all.disable_ipv6
     - net.ipv6.conf.default.disable_ipv6
 
-  - name: Run dracut
-    command: dracut -v -f
-
-  - name: Restart the server
-    shell: sleep 2 && shutdown -r now "Updating the kernel"
-    async: 1
-    poll: 0
-
-  - name: Wait for the server to restart
-    wait_for:
-      host: "{{ inventory_hostname }}"
-      state: started
-      delay: 30
-      timeout: 800
-      port: 22
-    delegate_to: localhost
-
+  - name: Load kernel parameters
+    command: sysctl -p
 
   # use "install ipv6 /bin/true", since that's what ip6tables check to see if
   # ipv6 is disabled. See reload function on /etc/init.d/ip6tables on RHEL 6.
