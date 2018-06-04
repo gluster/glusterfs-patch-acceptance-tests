@@ -70,7 +70,7 @@ def create_node(nova, counts):
     print 'The list of servers: {0}'.format(ips.items())
 
 
-    def delete_node(nova):
+def delete_node(nova):
     servers = [line.split(' ')[0] for line in open('hosts')]
     for node_name in servers:
         # find the server by name
