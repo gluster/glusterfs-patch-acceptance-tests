@@ -108,7 +108,7 @@
 
   - name: Open a port for XMLRPC connection
     firewalld:
-      rich_rule: "rule family='ipv4' source address='8.43.85.181' port port=9999 accept"
+      rich_rule: "rule family='ipv4' source address='8.43.85.181' port port=9999 protocol='tcp' accept"
       state: enabled
       immediate: yes
       permanent: true
