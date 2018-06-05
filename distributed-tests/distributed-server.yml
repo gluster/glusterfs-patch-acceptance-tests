@@ -106,6 +106,13 @@
   - name: Write swap entry in fstab
     mount: name=none src=/root/swapfile fstype=swap opts=sw passno=0 dump=0 state=present
 
+  - name: Open a port for XMLRPC connection
+    firewalld:
+      rich_rule: "rule family='ipv4' source address='8.43.85.181' port port=9999 protocol='tcp' accept"
+      state: enabled
+      immediate: yes
+      permanent: true
+
   - name: Clone the glusterfs code
     git:
       repo: 'git://review.gluster.org/glusterfs'
