@@ -18,8 +18,12 @@ def get_ansible_host_ip():
 
 
 def main():
+    max_attempts = 3
     ip = get_ansible_host_ip()
-    subprocess.call(['./extras/distributed-testing/distributed-test.sh', '--hosts', '%s' % ip, '--id-rsa', 'key', '-v'])
+    rv = subprocess.call(['./extras/distributed-testing/distributed-test.sh', '--hosts', '%s' % ip, '--id-rsa', 'key', '-v'])
+    while max_attempts != 1 and rv != 0:
+        rv = subprocess.call(['./extras/distributed-testing/distributed-test.sh', '--hosts', '%s' % ip, '--id-rsa', 'key', '-v'])
+        max_attempts = max_attempts - 1
 
 
 main()
