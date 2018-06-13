@@ -78,7 +78,7 @@ def delete_node(nova):
         # find the server by name
         server = nova.servers.find(name=node_name)
         server.delete()
-        print 'Deleting {0}, please wait...'.format(machine_name)
+        print 'Deleting {0}, please wait...'.format(node_name)
 
         # delete the public key on Rackspace
         key_name = os.environ.get('JOB_NAME')+'_'+os.environ.get('BUILD_NUMBER')
