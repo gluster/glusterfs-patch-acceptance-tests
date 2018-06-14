@@ -22,6 +22,7 @@ class GitHubHandler(object):
         self.repo = repo
         self.dry_run = dry_run
         self.link = os.environ.get('GERRIT_CHANGE_URL')
+        self.branch = os.environ.get('GERRIT_BRANCH')
         self.comment_file = comment_file
         self.error_string = []
         self._github_login()
@@ -72,6 +73,11 @@ class GitHubHandler(object):
         '''
         issue = self.ghub.issue('gluster', self.repo, num)
         if issue:
+            if self.branch == 'experimental':
+                error = "No label check for 'experimental' branch"
+                print(error)
+                self.error_string.append(error)
+                return True
             spec_approved = False
             doc_approved = False
             for label in issue.labels:
