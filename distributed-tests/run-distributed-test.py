@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import subprocess
+import sys
 import os
 from ansible.parsing.dataloader import DataLoader
 from ansible.vars.manager import VariableManager
@@ -19,7 +20,10 @@ def get_ansible_host_ip():
 
 def main():
     ip = get_ansible_host_ip()
-    subprocess.call(['./extras/distributed-testing/distributed-test.sh', '--hosts', '%s' % ip, '--id-rsa', 'key', '-v'])
-
+    rv = subprocess.call(['./extras/distributed-testing/distributed-test.sh', '--hosts', '%s' % ip, '--id-rsa', 'key', '-v'])
+    if rv != 0:
+        sys.exit(1)
+    else:
+        sys.exit(0)
 
 main()

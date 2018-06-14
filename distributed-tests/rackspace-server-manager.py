@@ -80,9 +80,9 @@ def delete_node(nova):
         server.delete()
         print 'Deleting {0}, please wait...'.format(node_name)
 
-        # delete the public key on Rackspace
-        key_name = os.environ.get('JOB_NAME')+'_'+os.environ.get('BUILD_NUMBER')
-        nova.keypairs.delete(key_name)
+    # delete the public key on Rackspace
+    key_name = os.environ.get('JOB_NAME')+'_'+os.environ.get('BUILD_NUMBER')
+    nova.keypairs.delete(key_name)
 
 
 def main():
