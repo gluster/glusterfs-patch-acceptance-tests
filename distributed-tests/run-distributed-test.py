@@ -20,10 +20,7 @@ def get_ansible_host_ip():
 
 def main():
     ip = get_ansible_host_ip()
-    rv = subprocess.call(['./extras/distributed-testing/distributed-test.sh', '--hosts', '%s' % ip, '--id-rsa', 'key', '-v'])
-    if rv != 0:
-        sys.exit(1)
-    else:
-        sys.exit(0)
+    subprocess.call(['./extras/distributed-testing/distributed-test.sh', '--hosts', '%s' % ip, '--id-rsa', 'key', '-v'])
 
-main()
+if __name__ == '__main__':
+    main()
