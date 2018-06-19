@@ -92,7 +92,7 @@
       state: started
 
   - name: Create the file to be used for swap
-    command: dd if=/dev/zero of=/root/swapfile bs=1M count=1024
+    command: dd if=/dev/zero of=/root/swapfile bs=1024 count=2097152
 
   - name: Format the file for swap
     command: mkswap /root/swapfile

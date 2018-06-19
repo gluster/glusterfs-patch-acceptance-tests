@@ -21,5 +21,5 @@ def main():
     ip = get_ansible_host_ip()
     subprocess.call(['./extras/distributed-testing/distributed-test.sh', '--hosts', '%s' % ip, '--id-rsa', 'key', '-v'])
 
-
-main()
+if __name__ == '__main__':
+    main()
