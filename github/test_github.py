@@ -250,6 +250,32 @@ class IssueCheckTest(unittest.TestCase):
         self.assertListEqual(issues, [])
 
 
+    @patch('handle_github.GitHubHandler._github_login')
+    @patch('commit.get_commit_message')
+    def test_commit_with_exp_branch_issue(self, mock, mock2):
+        '''
+        A commit in the experimental branch
+        '''
+        # Mock the commit message
+        mock.return_value = (
+            'This is a test commit\n\n'
+            'Fixes: #1234\n')
+        commit_msg = commit.get_commit_message()
+        c = commit.CommitHandler('glusterfs')
+        issues = c.parse_commit_message(commit_msg)
+        self.assertListEqual(issues, ['1234'])
+        # Handle a valid issue
+        mock2.side_effect = None
+        ghub = handle_github.GitHubHandler('glusterfs', True)
+        with MagicMock(name='mockedgithub') as m:
+            ghub.ghub = m
+            label = Mock(name='mockedlabel')
+            label.name = 'SpecApproved'
+            ghub.ghub.issue.return_value.labels = [label]
+            ghub.branch = 'experimental'
+            self.assertTrue(ghub.check_issue(issues[0]))
+
+
 class IssueDuplicationTest(unittest.TestCase):
     '''
     Test Handling of issue de-duplication by the Github handling code
@@ -356,10 +382,11 @@ class PatchsetIssueLabelTest(unittest.TestCase):
     revision
     '''
 
+    @patch('handle_github.GitHubHandler._github_login')
     @patch('commit.CommitHandler.remove_duplicates')
     @patch('handle_github.GitHubHandler.check_issue')
     @patch('commit.CommitHandler.parse_commit_message')
-    def test_second_revision_bug_without_flags(self, issues, mock2, mock3):
+    def test_second_revision_bug_without_flags(self, issues, mock2, mock3, mock4):
         '''
         On the second revision, the bug is the same, and it still doesn't have
         the required flags
@@ -370,16 +397,18 @@ class PatchsetIssueLabelTest(unittest.TestCase):
 
         # Handle a valid issue
         mock3.return_value = []
+        mock4.side_effect = None
         with patch('sys.exit') as exit_mock:
             handle_github.main('glusterfs', True)
             self.assertEqual(exit_mock.called, True)
             self.assertEqual(exit_mock.call_args, ((1,),))
 
+    @patch('handle_github.GitHubHandler._github_login')
     @patch('handle_github.GitHubHandler.comment_on_issues')
     @patch('commit.CommitHandler.remove_duplicates')
     @patch('handle_github.GitHubHandler.check_issue')
     @patch('commit.CommitHandler.parse_commit_message')
-    def test_issue_comment_without_flags(self, issues, mock2, mock3, mock4):
+    def test_issue_comment_without_flags(self, issues, mock2, mock3, mock4, mock5):
         '''
         Test that there is a comment on the issue whatever the case
         '''
@@ -387,6 +416,7 @@ class PatchsetIssueLabelTest(unittest.TestCase):
         mock2.return_value = False
 
         mock3.return_value = ['4567']
+        mock5.side_effect = None
         with patch('sys.exit') as exit_mock:
             handle_github.main('glusterfs', True)
             self.assertEqual(exit_mock.called, True)
