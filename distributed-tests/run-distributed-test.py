@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import subprocess
+import argparse
 import sys
 from ansible.parsing.dataloader import DataLoader
 from ansible.vars.manager import VariableManager
@@ -18,8 +19,11 @@ def get_ansible_host_ip():
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Run distributed test")
+    parser.add_argument("--n", help="Maximum number of machines to use")
+    args = parser.parse_args()
     ip = get_ansible_host_ip()
-    failed_tests = subprocess.call(['./extras/distributed-testing/distributed-test.sh', '--hosts', '%s' % ip, '--id-rsa', 'key', '-v'])
+    failed_tests = subprocess.call(['./extras/distributed-testing/distributed-test.sh', '--hosts', '%s' % ip, '--id-rsa', 'key', '-n', '%s' % args.n '-v'])
     sys.exit(failed_tests)
 
 
