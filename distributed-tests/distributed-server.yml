@@ -125,3 +125,12 @@
     shell: nohup ./distributed-test-runner.py --server &
     args:
       chdir: /srv/glusterfs/extras/distributed-testing
+    notify:
+      - Copy glusterfs logs
+
+  handlers:
+    - name:  Copy glusterfs logs
+      synchronize:
+        src: '/var/log/glusterfs'
+        dest: '/tmp/failed-tests'
+        mode: pull
