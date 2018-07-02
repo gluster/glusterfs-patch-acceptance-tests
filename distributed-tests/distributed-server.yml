@@ -121,6 +121,31 @@
       update: yes
       force: yes
 
+  - shell: ssh-keygen -q -P '' -C "key for georep test" -f /root/.ssh/id_georep
+    name: Generate a key for georep
+    args:
+      creates: /root/.ssh/id_georep
+
+  - shell: cat /root/.ssh/id_georep.pub
+    name: Get the public key
+    register: georep_pub_key
+    changed_when: False
+
+  - name: Link the key to the default key
+    file:
+      state: link
+      src: /root/.ssh/id_georep{{ item }}
+      dest: /root/.ssh/id_rsa{{ item }}
+    with_items:
+    - ''
+    - '.pub'
+
+  - authorized_key:
+      user: root
+      key: "{{ georep_pub_key.stdout }}"
+      key_options: 'from="127.0.0.1"'
+    name: Add authorized_key for georep tests
+
   - name: Run the test server script
     shell: nohup ./distributed-test-runner.py --server &
     args:
@@ -129,7 +154,7 @@
   - name:  Copy glusterfs logs
     synchronize:
       src: '/var/log/glusterfs'
-      dest: '/tmp/failed-tests'
+      dest: '/tmp/failed-tests/{{ ansible_nodename }}'
       mode: pull
     tags:
       - copy_logs
