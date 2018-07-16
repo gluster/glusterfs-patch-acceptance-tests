@@ -151,6 +151,13 @@
     args:
       chdir: /srv/glusterfs/extras/distributed-testing
 
+  - name: Create directory for storing the logs
+    file:
+      path: '/tmp/failed-tests/{{ ansible_nodename }}'
+      state: directory
+    tags:
+      - copy_logs
+
   - name:  Copy glusterfs logs
     synchronize:
       src: '/var/log/glusterfs'
