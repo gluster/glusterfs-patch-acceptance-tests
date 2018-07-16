@@ -5,17 +5,22 @@
 # Author: Niels de Vos <ndevos@redhat.com>
 #
 
+OUTPUT_FILE=${OUTPUT_FILE:="gerrit_comment"}
 DEBUG=${DEBUG:=0}
+
 [ "${DEBUG}" == '0' ] || set -x
 
 # Not all versions set GERRIT_TOPIC, set it to 'rfc' if no BUG was given
 [ -z "${BUG}" ] && [ -z "${GERRIT_TOPIC}" ] && GERRIT_TOPIC='rfc'
 
+echo > "${OUTPUT_FILE}"
+
 # If the second line is not empty, raise an error
 # It may be so that the title itself is long, but then it has to be on a single line
 # and should not be broken into mutliple lines with new-lines in between
 if ! git show --format='%B' | head -n 2 | tail -n 1 | grep -E '^$' >/dev/null 2>&1 ; then
-    echo "Bad commit message format! Please add an empty line after the subject line. Do not break subject line with new-lines."
+    echo "Bad commit message format! Please add an empty line after the subject line. Do not break subject line with new-lines."  >> "${OUTPUT_FILE}"
+    cat "${OUTPUT_FILE}"
     exit 1
 fi
 
@@ -29,33 +34,35 @@ if [ -z "${BUG}" -a -z "${REF}" ] ; then
     BUG=$(git show --format='%b' | awk '{IGNORECASE=1} /^bug: /{print $2}' | tail -1)
 fi
 if [ -z "${BUG}" -a -z "${REF}" ]; then
-    echo ""
-    echo "=== Missing a reference in commit! ==="
-    echo ""
-    echo "Gluster commits are made with a reference to a bug or a github issue"
-    echo ""
-    echo "Submissions that are enhancements (IOW, not functional"
-    echo "bug fixes, but improvements of any nature to the code) are tracked"
-    echo "using github issues [1]."
-    echo ""
-    echo "Submissions that are bug fixes are tracked using Bugzilla [2]."
-    echo ""
-    echo "A check on the commit message, reveals that there is no bug or"
-    echo "github issue referenced in the commit message"
-    echo ""
-    echo "[1] https://github.com/gluster/glusterfs/issues/new"
-    echo "[2] https://bugzilla.redhat.com/enter_bug.cgi?product=GlusterFS"
-    echo ""
-    echo "Please file an github issue or bug and reference the same in the"
-    echo "commit message using the following tags:"
-    echo "For Github issues:"
-    echo "\"Fixes: gluster/glusterfs#n\" OR \"Updates: gluster/glusterfs#n\" OR"
-    echo "\"Fixes: #n\" OR \"Updates: #n\","
-    echo "For a Bug fix:"
-    echo "\"Fixes: bz#n\" OR \"Updates: bz#n\","
-    echo "where 'n' is the issue number or a bug id"
-    echo ""
-    echo "Please resubmit your patch with reference to get +1 vote from this job"
+    cat <<EOF >> "${OUTPUT_FILE}"
+=== Missing a reference in commit! ===
+
+Gluster commits are made with a reference to a bug or a github issue
+
+Submissions that are enhancements (IOW, not functional
+bug fixes, but improvements of any nature to the code) are tracked
+using github issues [1].
+
+Submissions that are bug fixes are tracked using Bugzilla [2].
+
+A check on the commit message, reveals that there is no bug or
+github issue referenced in the commit message
+
+[1] https://github.com/gluster/glusterfs/issues/new
+[2] https://bugzilla.redhat.com/enter_bug.cgi?product=GlusterFS
+
+Please file an github issue or bug and reference the same in the
+commit message using the following tags:
+For Github issues:
+\"Fixes: gluster/glusterfs#n\" OR \"Updates: gluster/glusterfs#n\" OR
+\"Fixes: #n\" OR \"Updates: #n\",
+For a Bug fix:
+\"Fixes: bz#n\" OR \"Updates: bz#n\",
+where 'n' is the issue number or a bug id
+
+Please resubmit your patch with reference to get +1 vote from this job
+EOF
+    cat "${OUTPUT_FILE}"
     exit 1
 fi
 
@@ -71,8 +78,11 @@ BZQTRY=0
 while [ -z "${BUG_PRODUCT}" ] && [ ${BZQTRY} -le 3 ]; do
     BZQTRY=$((BZQTRY+1))
     if [ "x${BZQTRY}" = "x3" ]; then
-        echo "Failed to get details for BUG id ${BUG}, please verify the bug is not private"
-        echo "If the bug is public and readable, please email gluster-infra@gluster.org."
+        cat <<EOF >> "${OUTPUT_FILE}"
+Failed to get details for BUG id ${BUG}, please verify the bug is not private
+If the bug is public and readable, please email gluster-infra@gluster.org.
+EOF
+        cat "${OUTPUT_FILE}"
         echo 1
     fi
 
@@ -84,17 +94,20 @@ while [ -z "${BUG_PRODUCT}" ] && [ ${BZQTRY} -le 3 ]; do
 done
 
 if [ "${BUG_PRODUCT}" != "GlusterFS" ]; then
-    echo "BUG id ${BUG} belongs to '${BUG_PRODUCT}' and not 'GlusterFS'."
+    echo "BUG id ${BUG} belongs to '${BUG_PRODUCT}' and not 'GlusterFS'." >> "${OUTPUT_FILE}"
+    cat "${OUTPUT_FILE}"
     exit 1
 fi
 
 if [ "${BUG_STATUS}" != "NEW" ] && [ "${BUG_STATUS}" != "POST" ] && [ "${BUG_STATUS}" != "ASSIGNED" ] && [ "${BUG_STATUS}" != "MODIFIED" ]; then
-    echo "BUG id ${BUG} has an invalid status as ${BUG_STATUS}. Acceptable status values are NEW, ASSIGNED, POST or MODIFIED"
+    echo "BUG id ${BUG} has an invalid status as ${BUG_STATUS}. Acceptable status values are NEW, ASSIGNED, POST or MODIFIED" >> "${OUTPUT_FILE}"
+    cat "${OUTPUT_FILE}"
     exit 1
 fi
 
 if [ "${BUG_GROUPS}" != '[]' ]; then
-    echo "BUG id ${BUG} is marked private, please remove the groups."
+    echo "BUG id ${BUG} is marked private, please remove the groups." >> "${OUTPUT_FILE}"
+    cat "${OUTPUT_FILE}"
     exit 1
 fi
 
@@ -116,7 +129,8 @@ BUG_VER=$(cut -d. -f1,2  <<< "${BUG_VERSION}")
 GERRIT_VER=$(sed 's/.*-//' <<< "${GERRIT_BRANCH}")
 
 if [ "${BUG_VER}" != "${GERRIT_VER}" ]; then
-    echo "BUG id ${BUG} was filed against version '${BUG_VER}', but the change is sent for '${GERRIT_BRANCH}'"
+    echo "BUG id ${BUG} was filed against version '${BUG_VER}', but the change is sent for '${GERRIT_BRANCH}'" >> "${OUTPUT_FILE}"
+    cat "${OUTPUT_FILE}"
     exit 1
 fi
 
