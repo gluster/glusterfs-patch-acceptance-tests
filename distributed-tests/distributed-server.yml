@@ -153,8 +153,9 @@
 
   - name: Create directory for storing the logs
     file:
-      path: '/tmp/failed-tests/{{ ansible_nodename }}'
+      path: '/tmp/failed-tests'
       state: directory
+    delegate_to: localhost
     tags:
       - copy_logs
 
