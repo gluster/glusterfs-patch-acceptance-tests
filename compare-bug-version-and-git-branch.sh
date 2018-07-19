@@ -54,10 +54,10 @@ github issue referenced in the commit message
 Please file an github issue or bug and reference the same in the
 commit message using the following tags:
 For Github issues:
-\"Fixes: gluster/glusterfs#n\" OR \"Updates: gluster/glusterfs#n\" OR
-\"Fixes: #n\" OR \"Updates: #n\",
+"Fixes: gluster/glusterfs#n" OR "Updates: gluster/glusterfs#n" OR
+"Fixes: #n" OR "Updates: #n",
 For a Bug fix:
-\"Fixes: bz#n\" OR \"Updates: bz#n\",
+"Fixes: bz#n" OR "Updates: bz#n",
 where 'n' is the issue number or a bug id
 
 Please resubmit your patch with reference to get +1 vote from this job
