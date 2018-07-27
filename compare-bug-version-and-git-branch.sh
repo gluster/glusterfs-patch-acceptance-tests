@@ -18,20 +18,20 @@ echo > "${OUTPUT_FILE}"
 # If the second line is not empty, raise an error
 # It may be so that the title itself is long, but then it has to be on a single line
 # and should not be broken into mutliple lines with new-lines in between
-if ! git show --format='%B' | head -n 2 | tail -n 1 | grep -E '^$' >/dev/null 2>&1 ; then
+if ! git log -n1 --format='%B' | head -n 2 | tail -n 1 | grep -E '^$' >/dev/null 2>&1 ; then
     echo "Bad commit message format! Please add an empty line after the subject line. Do not break subject line with new-lines."  >> "${OUTPUT_FILE}"
     cat "${OUTPUT_FILE}"
     exit 1
 fi
 
 # Check for github issue first
-REF=$(git show --format='%b' | grep -ow -E "([fF][iI][xX][eE][sS]|[uU][pP][dD][aA][tT][eE][sS])(:)?[[:space:]]+#[[:digit:]]+" | awk -F '#' '{print $2}');
+REF=$(git log -n1 --format='%b' | grep -ow -E "(^[fF][iI][xX][eE][sS]|[uU][pP][dD][aA][tT][eE][sS])(:)?[[:space:]]+#[[:digit:]]+" | awk -F '#' '{print $2}');
 
 # Check for bugzilla ID
-BUG=$(git show --format='%b' | grep -ow -E "([fF][iI][xX][eE][sS]|[uU][pP][dD][aA][tT][eE][sS])(:)?[[:space:]]+bz#[[:digit:]]+" | awk -F '#' '{print $2}');
+BUG=$( git log -n1 --format='%b' | grep -ow -E "(^[fF][iI][xX][eE][sS]|[uU][pP][dD][aA][tT][eE][sS])(:)?[[:space:]]+bz#[[:digit:]]+" | awk -F '#' '{print $2}');
 if [ -z "${BUG}" -a -z "${REF}" ] ; then
     # Backward compatibility with earlier model.
-    BUG=$(git show --format='%b' | awk '{IGNORECASE=1} /^bug: /{print $2}' | tail -1)
+    BUG=$( git log -n1 --format='%b' | awk '{IGNORECASE=1} /^bug: /{print $2}' | tail -1)
 fi
 if [ -z "${BUG}" -a -z "${REF}" ]; then
     cat <<EOF >> "${OUTPUT_FILE}"
