@@ -40,8 +40,8 @@ class GitHubHandler(object):
 
         :param list(int) issues: List of issues to comment on
         '''
-        comment = ("A patch {} has been posted that references this issue.\n"
-                   "Commit message: {}".format(self.link, commit.split('\n')[0]))
+        comment = ("A patch {} has been posted that references this issue.\n\n"
+                   "{}".format(self.link, commit))
         for issue in issues:
             self._comment_on_issue(issue, comment)
 
