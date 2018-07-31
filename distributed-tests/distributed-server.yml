@@ -83,7 +83,7 @@
       path: /d
       src: /var/data
       fstype: xfs
-      state: present
+      state: mounted
 
   - name: Start and enable rpc-statd
     service:
