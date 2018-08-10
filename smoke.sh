@@ -24,9 +24,20 @@ function start_fs_with_arbiter()
     chmod 0755 $P/export;
 
     glusterd;
-    gluster --mode=script volume create $V replica 3 arbiter 1 $H:$P/export/export{1,2,3,4,5,6} force;
+    gluster --mode=script volume create $V replica 2 arbiter 1 $H:$P/export/arbiter{1,2,3,4,5,6} force;
     gluster volume start $V;
-    gluster volume set $V performance.write-behind off;
+    glusterfs -s $H --volfile-id $V $M;
+#    mount -t glusterfs $H:/$V $M;
+}
+
+function start_fs_with_replica()
+{
+    mkdir -p $P/export;
+    chmod 0755 $P/export;
+
+    glusterd;
+    gluster --mode=script volume create $V replica 3 $H:$P/export/replica{1,2,3,4,5,6} force;
+    gluster volume start $V;
     glusterfs -s $H --volfile-id $V $M;
 #    mount -t glusterfs $H:/$V $M;
 }
@@ -37,9 +48,33 @@ function start_fs_with_disperse()
     chmod 0755 $P/export;
 
     glusterd;
-    gluster --mode=script volume create $V disperse 6 redundancy 2 $H:$P/export/export{1,2,3,4,5,6,7,8,9,10,11,12} force;
+    gluster --mode=script volume create $V disperse 6 redundancy 2 $H:$P/export/disperse{1,2,3,4,5,6,7,8,9,10,11,12} force;
     gluster volume start $V;
-    gluster volume set $V performance.write-behind off;
+    glusterfs -s $H --volfile-id $V $M;
+#    mount -t glusterfs $H:/$V $M;
+}
+
+function start_fs_with_shard()
+{
+    mkdir -p $P/export;
+    chmod 0755 $P/export;
+
+    glusterd;
+    gluster --mode=script volume create $V $H:$P/export/shard{1,2,3,4,5} force;
+    gluster volume set $V features.shard enable;
+    gluster volume start $V;
+    glusterfs -s $H --volfile-id $V $M;
+#    mount -t glusterfs $H:/$V $M;
+}
+
+function start_fs_with_distribute()
+{
+    mkdir -p $P/export;
+    chmod 0755 $P/export;
+
+    glusterd;
+    gluster --mode=script volume create $V $H:$P/export/dht{1,2,3,4,5} force;
+    gluster volume start $V;
     glusterfs -s $H --volfile-id $V $M;
 #    mount -t glusterfs $H:/$V $M;
 }
@@ -114,9 +149,29 @@ function main ()
 
     cleanup;
 
-    #start_fs_with_disperse;
+    start_fs_with_disperse;
 
-    #run_tests;
+    run_tests;
+
+    cleanup;
+
+    start_fs_with_replica;
+
+    run_tests;
+
+    cleanup;
+
+    start_fs_with_shard;
+
+    run_tests;
+
+    cleanup;
+
+    start_fs_with_distribute;
+
+    run_tests;
+
+    cleanup;
 }
 
 main "$@";
