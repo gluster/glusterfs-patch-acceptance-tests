@@ -39,4 +39,4 @@ make gd2conf
 make test TESTOPTIONS=-v
 
 # run functional tests
-sudo make functest
+sudo -E PATH=$PATH make functest
