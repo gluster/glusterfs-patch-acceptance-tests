@@ -16,6 +16,7 @@ set -e
 mkdir -p go/{pkg,src,bin}
 export GOPATH=$PWD/go
 export PATH=$PATH:$GOPATH/bin
+export PATH=$PATH:/usr/sbin
 
 # clone glusterd2 source into GOPATH
 export GD2GIT=https://github.com/gluster/glusterd2.git
