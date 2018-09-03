@@ -1,5 +1,6 @@
 import ast
 import sys
+from platform import python_version
 
 
 def test_source_code_compatible(code_file):
@@ -9,8 +10,19 @@ def test_source_code_compatible(code_file):
         return False
 
 
-if __name__ == '__main__':
-    for code in sys.argv:
+def test_files(files):
+    success = True
+    for code in files:
         with open(code) as f:
             if not test_source_code_compatible(f):
-                print("{} is not compatible".format(code))
+                success = False
+                print("{} is not compatible with Python {}".format(
+                    code,
+                    python_version())
+                )
+    return success
+
+if __name__ == '__main__':
+    success = test_files(sys.argv)
+    if not success:
+        sys.exit(1)
