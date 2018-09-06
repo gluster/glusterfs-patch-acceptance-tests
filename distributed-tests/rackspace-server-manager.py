@@ -1,108 +1,82 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
+
 '''
 A script to create and delete the number of servers on Rackspace
 '''
 
-import pyrax
-import time
-import re
 import os
 import argparse
 import uuid
 import sys
+import socket
 import subprocess
+from multiprocessing.dummy import Pool
+import time
+from functools import partial
+from libcloud.compute.types import Provider
+from libcloud.compute.providers import get_driver
+from libcloud.compute.deployment import SSHKeyDeployment
 
 
-def check_ssh(ips):
+def create_node(counts, conn, flavor, image, step):
     '''
-    Function to check if there's successful ssh connection can be established
+    Function to create a node on cloud
     '''
-    for ip in ips:
-        rv = subprocess.call(['ssh', '-t', '-o', 'UserKnownHostsFile=/dev/null',
-                              '-o', 'StrictHostKeyChecking=no', '-i', 'key',
-                              'root@%s' % ip, 'echo'], stdout=open(os.devnull, 'w'))
-        if rv == 0:
-            ips[ip] = 'reachable'
-    ret = all(connection == 'reachable' for connection in ips.values())
-    return ret
+    name = 'distributed-testing.'+str(uuid.uuid4())
+    node = conn.deploy_node(
+            name=name, image=image, size=flavor, deploy=step)
+    time.sleep(5)
+    for ip_addr in node.public_ips:
+            try:
+                socket.inet_pton(socket.AF_INET, ip_addr)
+                with open('hosts', 'a') as file:
+                    file.write("{} ansible_host={}\n".format(name, ip_addr))
+                return str(ip_addr)
+            except socket.error:
+                continue
 
 
-def create_node(nova, counts):
-    flavor = nova.flavors.find(name='2 GB General Purpose v1')
-    image = nova.images.find(name='centos7-test')
-    pubkey = open('key.pub', 'r').read()
-    job_name = os.environ.get('JOB_NAME')
-    build_number = os.environ.get('BUILD_NUMBER')
-    key_name = job_name+'_'+build_number
-    nova.keypairs.create(key_name, pubkey)
-    ips = {}
-    for count in range(int(counts)):
-        name = 'distributed-testing.'+str(uuid.uuid4())
-        node = nova.servers.create(name=name, flavor=flavor.id,
-                                   image=image.id, key_name=key_name)
-
-        timeout = time.time() + 300
-        while node.status == 'BUILD':
-            if time.time() > timeout:
-                break
-            time.sleep(5)
-            node = nova.servers.get(node.id)
-
-        ip_address = None
-        for network in node.networks['public']:
-            if re.match('\d+\.\d+\.\d+\.\d+', network):
-                ip_address = network
-                f = open('hosts', 'a')
-                f.write("{} ansible_host={}\n".format(name, ip_address))
-                f.close()
-                break
-        if ip_address is None:
-            print 'No IP address assigned!'
-            sys.exit(1)
-        else:
-            # by default set the value of ip_address to unreachable
-            ips[str(ip_address)] = 'unreachable'
-
-    timeout = 0
-    ret = check_ssh(ips)
-    while ret != True and timeout < 300:
-        ret = check_ssh(ips)
-        time.sleep(5)
-        timeout = timeout + 5
-    print 'The list of servers: {0}'.format(ips.items())
-
-
-def delete_node(nova):
+def delete_node(conn):
+    '''
+    Function to delete node from cloud
+    '''
     servers = [line.split(' ')[0] for line in open('hosts')]
-    for node_name in servers:
-        # find the server by name
-        server = nova.servers.find(name=node_name)
-        server.delete()
-        print 'Deleting {0}, please wait...'.format(node_name)
-
-    # delete the public key on Rackspace
-    key_name = os.environ.get('JOB_NAME')+'_'+os.environ.get('BUILD_NUMBER')
-    nova.keypairs.delete(key_name)
+    for node in conn.list_nodes():
+        if node.name in servers:
+            node.destroy()
+            print 'Deleting {0}, please wait...'.format(node.name)
 
 
 def main():
     parser = argparse.ArgumentParser(description="Rackspace server creation/deletion")
-    parser.add_argument("action", choices=['create', 'delete'], help='Action to be perfromed')
+    parser.add_argument("action", choices=['create', 'delete'], help='Action to be performed')
     parser.add_argument("-n", "--count", help='Number of machines')
-    parser.add_argument("--region", help='Region to launch the machines', default='ORD')
+    parser.add_argument("-w", "--worker", help='Number of worker processes', default=4)
     args = parser.parse_args()
-    count = args.count
-    region = args.region
 
-    # configuration of cloud service provider
-    pyrax.set_setting('identity_type', 'rackspace')
-    pyrax.set_default_region(region)
-    pyrax.set_credentials(os.environ.get('USERNAME'),os.environ.get('PASSWORD'))
-    nova_obj = pyrax.cloudservers
+    driver = get_driver(Provider.RACKSPACE)
+    conn = driver(
+            os.environ.get('USERNAME'),
+            os.environ.get('API_KEY'),
+            region=os.environ.get('AUTH_SYSTEM_REGION')
+    )
+    flavor = conn.ex_get_size('performance1-2')
+    image = conn.get_image('8bca010c-c027-4947-b9c9-adaae6e4f020')
+    with open('dkhandel.pub', 'r') as file:
+        pubkey = file.read()
 
+    if not isinstance(pubkey, str):
+        pubkey = str(pubkey)
+
+    step = SSHKeyDeployment(pubkey)
     if (args.action == 'create'):
-        create_node(nova_obj, count)
+        pool = Pool(args.worker)
+        create = partial(create_node, conn=conn, flavor=flavor, image=image, step=step)
+        ips = pool.map(create, range(int(args.count)))
+        pool.close()
+        pool.join()
+        print 'The list of servers: {0}'.format(ips)
     elif (args.action == 'delete'):
-        delete_node(nova_obj)
+        delete_node(conn)
 
 main()
