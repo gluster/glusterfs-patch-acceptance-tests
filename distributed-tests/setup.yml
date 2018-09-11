@@ -1,6 +1,9 @@
 ---
 - hosts: all
   gather_facts: yes
+  vars:
+    - scratchdir: /tmp/gluster-test
+    - version: HEAD
   tasks:
   - lineinfile:
       dest: /etc/sysconfig/network-scripts/ifcfg-eth0
@@ -116,10 +119,18 @@
   - name: Clone the glusterfs code
     git:
       repo: 'git://review.gluster.org/glusterfs'
-      dest: '/srv/glusterfs'
-      version: HEAD
+      dest: '{{ scratchdir }}/glusterfs'
+      version: '{{ version }}'
       update: yes
       force: yes
+
+  - name: Build glusterfs
+    shell: |
+      ./autogen.sh
+      ./configure --disable-bd-xlator --enable-debug --enable-gnfs --silent
+      make install
+    args:
+      chdir: '{{ scratchdir }}/glusterfs'
 
   - shell: ssh-keygen -q -P '' -C "key for georep test" -f /root/.ssh/id_georep
     name: Generate a key for georep
@@ -145,11 +156,6 @@
       key: "{{ georep_pub_key.stdout }}"
       key_options: 'from="127.0.0.1"'
     name: Add authorized_key for georep tests
-
-  - name: Run the test server script
-    shell: nohup ./distributed-test-runner.py --server &
-    args:
-      chdir: /srv/glusterfs/extras/distributed-testing
 
   - name: Create directory for storing the logs
     file:

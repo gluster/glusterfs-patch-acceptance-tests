@@ -1,0 +1,27 @@
+- name: Create rackspace instances
+  hosts: localhost
+  gather_facts: False
+  vars:
+    - COUNT: 5
+    - NAME: 'testing'
+  tasks:
+    - name: Create servers
+      rax:
+        name: '{{ NAME }}%03d'
+        flavor: performance1-2
+        image: 8bca010c-c027-4947-b9c9-adaae6e4f020
+        state: present
+        count: '{{ COUNT }}'
+        count_offset: 1
+        exact_count: yes
+        group: distributed-test
+        wait: yes
+      register: rax
+
+    - name: Create inventory file
+      lineinfile:
+        path: ./hosts
+        state: present
+        create: yes
+        line: '{{ item.name }} ansible_host={{ item.rax_accessipv4 }} ansible_user=root ansible_ssh_pass={{ item.rax_adminpass}}'
+      with_items: '{{ rax.success }}'
