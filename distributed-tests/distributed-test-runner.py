@@ -27,7 +27,7 @@ CLIENT_CONNECT_TIMEOUT_S = 10
 CLIENT_TIMEOUT_S = 60
 PATCH_FILE_UID = str(uuid.uuid4())
 SSH_TIMEOUT_S = 10
-MAX_ATTEMPTS = 3
+MAX_ATTEMPTS = 2
 ADDRESS_FAMILY = 'IPv4'
 
 def socket_instance(address_family):
