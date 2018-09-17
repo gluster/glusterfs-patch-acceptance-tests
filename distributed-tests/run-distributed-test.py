@@ -23,7 +23,9 @@ def main():
     parser.add_argument("--n", help="Maximum number of machines to use")
     args = parser.parse_args()
     ip = get_ansible_host_ip()
-    failed_tests = subprocess.call(['./extras/distributed-testing/distributed-test.sh', '--hosts', '%s' % ip, '--id-rsa', 'key', '-n', '%s' % args.n, '-v'])
+    failed_tests = subprocess.call(['/opt/qa/distributed-tests/distributed-test.sh',
+                                    '--hosts', '%s' % ip, '--id-rsa', 'key', '-n',
+                                    '%s' % args.n, '-v'])
     sys.exit(failed_tests)
 
 
