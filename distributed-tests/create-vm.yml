@@ -7,7 +7,7 @@
   tasks:
     - name: Create servers
       rax:
-        name: '{{ NAME }}%03d'
+        name: '{{ NAME }}%d'
         flavor: performance1-2
         image: 8bca010c-c027-4947-b9c9-adaae6e4f020
         state: present
