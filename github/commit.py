@@ -15,7 +15,7 @@ def get_commit_message():
     current directory
     '''
     commit = subprocess.check_output(['git', 'log', '--format=%B', '-n', '1'])
-    return unicode(commit, 'utf-8')
+    return commit
 
 
 class CommitHandler(object):
@@ -24,12 +24,14 @@ class CommitHandler(object):
     parses it for use later in the code
     '''
 
-    def __init__(self, repo):
+    def __init__(self, repo, issue=True):
+        # TODO: Do not fetch this from env
         self.project = os.environ.get('GERRIT_PROJECT')
         self.branch = os.environ.get('GERRIT_BRANCH')
         self.change_id = os.environ.get('GERRIT_CHANGE_ID')
         self.revision_number = os.environ.get('GERRIT_PATCHSET_NUMBER')
         self.repo = repo
+        self.issue = issue
 
     def get_commit_message_from_gerrit(self):
         '''
@@ -66,7 +68,6 @@ class CommitHandler(object):
         * A later review added an issue number.
 
         :param list(int) issues: The issues in the latest commit revision
-        :param str repo: The repo the to look for the issue
         '''
 
         if int(self.revision_number) == 1:
@@ -86,18 +87,23 @@ class CommitHandler(object):
         :return: A list of issues
         :rtype: list(int)
         '''
-        regex = re.compile(''.join([r'(([fF][iI][xX][eE][sS])|',
-                                    r'([uU][pP][dD][aA][tT][eE]',
-                                    r'[sS])):?\s+(gluster/',
-                                    self.repo,
-                                    r')?#(\d*)']))
+        if self.issue:
+            regex = re.compile(''.join([r'(([fF][iI][xX][eE][sS])|',
+                                        r'([uU][pP][dD][aA][tT][eE]',
+                                        r'[sS])):?\s+(gluster/',
+                                        self.repo,
+                                        r')?#(\d*)']))
+            group_index = 5
+        else:
+            regex = re.compile(''.join([r'(([fF][iI][xX][eE][sS])|',
+                                        r'([uU][pP][dD][aA][tT][eE]',
+                                        r'[sS])):?\sbz#(\d*)']))
+            group_index = 4
+
         issues = []
         for line in msg.split('\n'):
             for match in regex.finditer(line):
-                issue = match.group(5)
-                if int(issue) >= 743000:
-                    continue
-                issues.append(issue)
+                issues.append(match.group(group_index))
         if issues:
             print("Issues found in the commit message: {}".format(issues))
             return issues
