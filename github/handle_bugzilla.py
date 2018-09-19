@@ -2,7 +2,8 @@
 '''
 Handle bugzilla updates via Jenkins
 '''
-from __future__ import unicode_literals
+from __future__ import unicode_literals, absolute_import, print_function
+import argparse
 import os
 import sys
 import bugzilla
@@ -10,7 +11,7 @@ import commit
 
 
 class Bug(object):
-    def __init__(self, bug_id=None, product=None):
+    def __init__(self, bug_id=None, product=None, dry_run=True):
         self.bug_id = bug_id
         self.product = product
         # There should always be a bug and product
@@ -19,6 +20,7 @@ class Bug(object):
         bz_url = 'https://bugzilla.redhat.com'
         self.bz = bugzilla.Bugzilla(bz_url)
         self.old_bugs = None
+        self.dry_run = dry_run
 
     def product_check(self):
         '''
@@ -72,8 +74,12 @@ class Bug(object):
             for old in self.old_bugs:
                 old_bug = self.bz.getbug(old)
                 if old_bug.product.lower() == self.product.lower():
-                    update = old_bug.build_update(comment=comment)
-                    self.bz.update_bugs(old, update)
+                    if dry_run:
+                        print(old_bug)
+                        print(comment)
+                    else:
+                        update = old_bug.build_update(comment=comment)
+                        self.bz.update_bugs(old, update)
                 else:
                     print("BUG {} not updated since it is not in "
                           "glusterfs product".format(old))
@@ -85,12 +91,16 @@ class Bug(object):
         comment = ("REVIEW: {} ({}) posted (#{}) for review on {} by "
                    "{}".format(change_url, change_sub, revision_number, branch,
                                uploader_name))
-        bug_bz = self.bz.getbug(self.bug_id)
-        update = bug_bz.build_update(comment=comment)
-        self.bz.update_bugs(self.bug_id, update)
+        if dry_run:
+            print(bug_id)
+            print(comment)
+        else:
+            bug_bz = self.bz.getbug(self.bug_id)
+            update = bug_bz.build_update(comment=comment)
+            self.bz.update_bugs(self.bug_id, update)
 
 
-def main():
+def main(dry_run=True):
     '''
     Main function where everything comes together
     '''
@@ -99,7 +109,7 @@ def main():
         return False
 
     # get commit message
-    commit_obj = commit.CommitHandler(repo=None)
+    commit_obj = commit.CommitHandler(repo=None, issue=False)
     commit_msg = commit.get_commit_message()
 
     # get bugs from commit message
@@ -112,6 +122,13 @@ def main():
 
     # Create a bug object from ID
     bug = Bug(bug_id=bugs[0], product='GlusterFS')
+
+    # Check that the product is correct
+    if not bug.product_check():
+        raise('More than one bug found in the commit message {}'.format(bugs))
+
+    # Create a bug object from ID
+    bug = Bug(bug_id=bugs[0], product='GlusterFS', dry_run=dry_run)
 
     # Check that the product is correct
     if not bug.product_check():
@@ -133,5 +150,12 @@ def main():
 
 
 if __name__ == '__main__':
-    if not main():
+    PARSER = argparse.ArgumentParser(description='Comment on Bugzilla bug')
+    PARSER.add_argument(
+        '--dry-run', '-d',
+        action='store_true',
+        help="Do not comment on Bugzilla. Print to stdout instead",
+    )
+    ARGS = PARSER.parse_args()
+    if not main(ARGS.dry_run):
         sys.exit(1)
