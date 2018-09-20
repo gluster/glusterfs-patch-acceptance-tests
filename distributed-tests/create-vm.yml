@@ -1,5 +1,6 @@
 - name: Create rackspace instances
   hosts: localhost
+  connection: local
   gather_facts: False
   vars:
     - COUNT: 5
@@ -7,7 +8,7 @@
   tasks:
     - name: Create servers
       rax:
-        name: '{{ NAME }}%d'
+        name: '{{ NAME }}-%d'
         flavor: performance1-2
         image: 8bca010c-c027-4947-b9c9-adaae6e4f020
         state: present
@@ -20,8 +21,9 @@
 
     - name: Create inventory file
       lineinfile:
-        path: ./hosts
+        path: '{{ PATH }}/hosts'
         state: present
         create: yes
-        line: '{{ item.name }} ansible_host={{ item.rax_accessipv4 }} ansible_user=root ansible_ssh_pass={{ item.rax_adminpass}}'
+        line: '{{ item.name }} ansible_host={{ item.rax_accessipv4 }} ansible_user=root ansible_ssh_pass={{ item.rax_adminpass }}'
       with_items: '{{ rax.success }}'
+      when: rax.action == 'create'   

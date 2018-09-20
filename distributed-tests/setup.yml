@@ -1,4 +1,15 @@
 ---
+- name: Wait for port 22 to be ready
+  hosts: all
+  gather_facts: no
+  tasks:
+    - local_action:
+        module: wait_for
+        port: 22
+        host: "{{ ansible_ssh_host }}"
+        search_regex: OpenSSH
+        delay: 10
+
 - hosts: all
   gather_facts: yes
   vars:
@@ -156,6 +167,17 @@
       key: "{{ georep_pub_key.stdout }}"
       key_options: 'from="127.0.0.1"'
     name: Add authorized_key for georep tests
+
+  - shell: cat {{ PATH }}/key.pub
+    name: Get the public key from WORKSPACE
+    register: pub_key
+    changed_when: False
+
+  - name: Add authorized key to all hosts
+    authorized_key:
+      user: root
+      state: present
+      key: "{{ pub_key.stdout }}"
 
   - name: Create directory for storing the logs
     file:
