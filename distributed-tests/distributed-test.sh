@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ./distributed-test-env
+source /opt/qa/distributed-tests/distributed-test-env
 
 N=0
 TESTS='all'
@@ -84,7 +84,7 @@ function main {
 
     cleanup
 
-    "./distributed-test-runner.py" $FLAGS --tester \
+    "/opt/qa/distributed-tests/distributed-test-runner.py" $FLAGS --tester \
         --n "$N" --hosts "$HOSTS" --tests "$TESTS" \
         --flaky_tests "$FLAKY $BROKEN" --test-timeout "$TEST_TIMEOUT_S" \
         --address_family "$ADDRESS_FAMILY"
