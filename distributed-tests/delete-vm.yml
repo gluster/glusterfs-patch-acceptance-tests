@@ -1,5 +1,5 @@
 - name: Delete rackspace instances
-  hosts: localhost
+  hosts: all
   gather_facts: False
   tasks:
     - name: Delete servers
@@ -10,4 +10,5 @@
         image: 8bca010c-c027-4947-b9c9-adaae6e4f020
         state: absent
         group: distributed-test
+        wait: no 
       with_items: "{{ groups['all'] }}"
