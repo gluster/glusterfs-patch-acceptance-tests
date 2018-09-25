@@ -1,5 +1,5 @@
 - name: Delete rackspace instances
-  hosts: all
+  hosts: localhost
   gather_facts: False
   tasks:
     - name: Delete servers

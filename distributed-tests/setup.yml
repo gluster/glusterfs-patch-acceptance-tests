@@ -172,6 +172,7 @@
     name: Get the public key from WORKSPACE
     register: pub_key
     changed_when: False
+    delegate_to: localhost
 
   - name: Add authorized key to all hosts
     authorized_key:
