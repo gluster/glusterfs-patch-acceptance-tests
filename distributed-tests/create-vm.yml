@@ -26,4 +26,4 @@
         create: yes
         line: '{{ item.name }} ansible_host={{ item.rax_accessipv4 }} ansible_user=root ansible_ssh_pass={{ item.rax_adminpass }}'
       with_items: '{{ rax.success }}'
-      when: rax.action == 'create'   
+      when: rax.action == 'create'

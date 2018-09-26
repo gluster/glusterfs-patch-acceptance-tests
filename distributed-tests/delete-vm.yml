@@ -1,5 +1,5 @@
 - name: Delete rackspace instances
-  hosts: all
+  hosts: localhost
   gather_facts: False
   tasks:
     - name: Delete servers
@@ -12,3 +12,5 @@
         group: distributed-test
         wait: False
       with_items: "{{ groups['all'] }}"
+      loop_control:
+        pause: 5
