@@ -10,7 +10,6 @@
         image: 8bca010c-c027-4947-b9c9-adaae6e4f020
         state: absent
         group: distributed-test
-        wait: False
+        wait: True
+        wait_timeout: 600
       with_items: "{{ groups['all'] }}"
-      loop_control:
-        pause: 5
