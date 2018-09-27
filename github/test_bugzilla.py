@@ -34,6 +34,20 @@ class BugParseTest(unittest.TestCase):
         self.assertEqual(bugs[0], '1234')
 
     @patch('commit.get_commit_message')
+    def test_backported_bug(self, mock):
+        '''
+        A commit with a backported bug and a new bug
+        '''
+        mock.return_value = (
+            'This is a test commit\n\n'
+            '> Fixes: bz#4567\n'
+            'Fixes: bz#1234\n')
+        commit_msg = commit.get_commit_message()
+        c = commit.CommitHandler('glusterfs', issue=False)
+        bugs = c.parse_commit_message(commit_msg)
+        self.assertEqual(bugs[0], '1234')
+
+    @patch('commit.get_commit_message')
     def test_issue_and_bug(self, mock):
         '''
         A commit with a bug and issue
@@ -71,7 +85,7 @@ class BugParseTest(unittest.TestCase):
         # Mock the commit message
         mock.return_value = (
             'This is a test commit\n\n'
-            '♥'
+            '♥\n'
             'Fixes: bz#1234\n'
             'Fixes: #4567')
         commit_msg = commit.get_commit_message()
@@ -102,7 +116,7 @@ class BugUpdateLogicTest(unittest.TestCase):
         self.assertListEqual(bugs, ['1234'])
 
         c.revision_number = 1
-        bug = handle_bugzilla.Bug(id=bugs[0], product='glusterfs')
+        bug = handle_bugzilla.Bug(bug_id=bugs[0], product='glusterfs')
         self.assertTrue(bug.needs_update(c, 'patchset-created'))
 
     @patch('bugzilla.Bugzilla')
@@ -125,7 +139,7 @@ class BugUpdateLogicTest(unittest.TestCase):
         self.assertListEqual(bugs, ['1234'])
 
         c.revision_number = 1
-        bug = handle_bugzilla.Bug(id=bugs[0], product='glusterfs')
+        bug = handle_bugzilla.Bug(bug_id=bugs[0], product='glusterfs')
         self.assertTrue(bug.needs_update(c, 'patchset-created'))
 
     @patch('commit.CommitHandler.get_commit_message_from_gerrit')
@@ -149,7 +163,7 @@ class BugUpdateLogicTest(unittest.TestCase):
         self.assertListEqual(bugs, ['1234'])
 
         c.revision_number = 2
-        bug = handle_bugzilla.Bug(id=bugs[0], product='glusterfs')
+        bug = handle_bugzilla.Bug(bug_id=bugs[0], product='glusterfs')
 
         # Mock the commit message from Gerrit
         mock3.return_value = (
@@ -178,7 +192,7 @@ class BugUpdateLogicTest(unittest.TestCase):
         self.assertListEqual(bugs, ['1234'])
 
         c.revision_number = 2
-        bug = handle_bugzilla.Bug(id=bugs[0], product='glusterfs')
+        bug = handle_bugzilla.Bug(bug_id=bugs[0], product='glusterfs')
 
         # Mock the commit message from Gerrit
         mock3.return_value = (
@@ -206,7 +220,7 @@ class BugUpdateLogicTest(unittest.TestCase):
         self.assertListEqual(bugs, ['1234'])
 
         c.revision_number = 2
-        bug = handle_bugzilla.Bug(id=bugs[0], product='glusterfs')
+        bug = handle_bugzilla.Bug(bug_id=bugs[0], product='glusterfs')
         self.assertTrue(bug.needs_update(c, 'change-merged'))
 
     @patch('commit.CommitHandler.get_commit_message_from_gerrit')
@@ -230,7 +244,7 @@ class BugUpdateLogicTest(unittest.TestCase):
         self.assertListEqual(bugs, ['1234'])
 
         c.revision_number = 2
-        bug = handle_bugzilla.Bug(id=bugs[0], product='glusterfs')
+        bug = handle_bugzilla.Bug(bug_id=bugs[0], product='glusterfs')
 
         # Mock the commit message from Gerrit
         mock3.return_value = (
@@ -259,7 +273,7 @@ class BugUpdateLogicTest(unittest.TestCase):
         self.assertListEqual(bugs, ['1234'])
 
         c.revision_number = 2
-        bug = handle_bugzilla.Bug(id=bugs[0], product='glusterfs')
+        bug = handle_bugzilla.Bug(bug_id=bugs[0], product='glusterfs')
 
         # Mock the commit message from Gerrit
         mock3.return_value = (
@@ -278,6 +292,6 @@ class BugUpdateLogicTest(unittest.TestCase):
 # class BugzillaTest(unittest.TestCase):
 
     # def test_bugzilla_api(self):
-        # bug = handle_bugzilla.Bug(id='1627620', product='glusterfs')
+        # bug = handle_bugzilla.Bug(bug_id='1627620', product='glusterfs')
         # self.assertTrue(bug.product_check('GlusterFS'), "Bugzilla login needed"
                                                         # "for this test")

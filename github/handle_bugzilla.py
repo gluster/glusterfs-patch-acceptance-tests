@@ -79,6 +79,9 @@ class Bug(object):
                           "glusterfs product".format(old))
 
         # update only current bug
+        # bz.update_external_tracker(ext_bz_bug_id='21209', ext_type_id=150,
+        # ext_description='New job for gluster-csi-containers',
+        # bug_ids='1630259', ext_status='Merged')
         comment = ("REVIEW: {} ({}) posted (#{}) for review on {} by "
                    "{}".format(change_url, change_sub, revision_number, branch,
                                uploader_name))

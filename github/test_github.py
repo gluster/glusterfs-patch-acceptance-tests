@@ -359,7 +359,7 @@ class IssueDuplicationTest(unittest.TestCase):
         '''
         mock1.return_value = (
             'This is a test commit\n\n'
-            'Updates: #1234'
+            'Updates: #1234\n'
             'Fixes: #4567')
         # Parse the commit message
         commit_msg = commit.get_commit_message()

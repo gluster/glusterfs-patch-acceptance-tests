@@ -88,14 +88,14 @@ class CommitHandler(object):
         :rtype: list(int)
         '''
         if self.issue:
-            regex = re.compile(''.join([r'(([fF][iI][xX][eE][sS])|',
+            regex = re.compile(''.join([r'^\s*(([fF][iI][xX][eE][sS])|',
                                         r'([uU][pP][dD][aA][tT][eE]',
                                         r'[sS])):?\s+(gluster/',
                                         self.repo,
                                         r')?#(\d*)']))
             group_index = 5
         else:
-            regex = re.compile(''.join([r'(([fF][iI][xX][eE][sS])|',
+            regex = re.compile(''.join([r'^\s*(([fF][iI][xX][eE][sS])|',
                                         r'([uU][pP][dD][aA][tT][eE]',
                                         r'[sS])):?\sbz#(\d*)']))
             group_index = 4
