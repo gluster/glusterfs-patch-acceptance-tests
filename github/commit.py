@@ -29,7 +29,7 @@ class CommitHandler(object):
         self.project = os.environ.get('GERRIT_PROJECT')
         self.branch = os.environ.get('GERRIT_BRANCH')
         self.change_id = os.environ.get('GERRIT_CHANGE_ID')
-        self.revision_number = os.environ.get('GERRIT_PATCHSET_NUMBER')
+        self.revision_number = int(os.environ.get('GERRIT_PATCHSET_NUMBER', 1))
         self.repo = repo
         self.issue = issue
 
@@ -46,7 +46,7 @@ class CommitHandler(object):
                              self.project,
                              self.branch,
                              self.change_id,
-                             str(int(self.revision_number) - 1)
+                             str(self.revision_number - 1)
                              )
                         )
         output = k.text
@@ -70,7 +70,7 @@ class CommitHandler(object):
         :param list(int) issues: The issues in the latest commit revision
         '''
 
-        if int(self.revision_number) == 1:
+        if self.revision_number == 1:
             return issues
 
         oldmessage = self.get_commit_message_from_gerrit()

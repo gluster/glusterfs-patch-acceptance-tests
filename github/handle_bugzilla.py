@@ -74,7 +74,7 @@ class Bug(object):
             for old in self.old_bugs:
                 old_bug = self.bz.getbug(old)
                 if old_bug.product.lower() == self.product.lower():
-                    if dry_run:
+                    if self.dry_run:
                         print(old_bug)
                         print(comment)
                     else:
@@ -91,8 +91,8 @@ class Bug(object):
         comment = ("REVIEW: {} ({}) posted (#{}) for review on {} by "
                    "{}".format(change_url, change_sub, revision_number, branch,
                                uploader_name))
-        if dry_run:
-            print(bug_id)
+        if self.dry_run:
+            print(self.bug_id)
             print(comment)
         else:
             bug_bz = self.bz.getbug(self.bug_id)
@@ -125,7 +125,7 @@ def main(dry_run=True):
 
     # Check that the product is correct
     if not bug.product_check():
-        raise('More than one bug found in the commit message {}'.format(bugs))
+        raise Exception('More than one bug found in the commit message {}'.format(bugs))
 
     # Create a bug object from ID
     bug = Bug(bug_id=bugs[0], product='GlusterFS', dry_run=dry_run)
