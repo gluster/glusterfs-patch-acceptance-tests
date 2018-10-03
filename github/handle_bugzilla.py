@@ -78,7 +78,7 @@ class Bug(object):
                         print(old_bug)
                         print(comment)
                     else:
-                        update = old_bug.build_update(comment=comment)
+                        update = self.bz.build_update(comment=comment)
                         self.bz.update_bugs(old, update)
                 else:
                     print("BUG {} not updated since it is not in "
