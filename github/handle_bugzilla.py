@@ -95,8 +95,7 @@ class Bug(object):
             print(self.bug_id)
             print(comment)
         else:
-            bug_bz = self.bz.getbug(self.bug_id)
-            update = bug_bz.build_update(comment=comment)
+            update = self.bz.build_update(comment=comment)
             self.bz.update_bugs(self.bug_id, update)
 
 
