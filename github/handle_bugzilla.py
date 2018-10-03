@@ -117,15 +117,18 @@ def main(dry_run=True):
 
     # There should only be one bug. In the event, there's more than one, it's
     # a parse error. Raise the error rather than silently ignoring it
-    if len(bugs) != 1:
+    if len(bugs) > 1:
         raise Exception('More than one bug found in the commit message {}'.format(bugs))
+    elif not bugs:
+        print("No bugs found in the commit message")
+        return True
 
     # Create a bug object from ID
     bug = Bug(bug_id=bugs[0], product='GlusterFS')
 
     # Check that the product is correct
     if not bug.product_check():
-        raise Exception('More than one bug found in the commit message {}'.format(bugs))
+        raise Exception('This bug is not filed in the {} product'.format('GlusterFS'))
 
     # Create a bug object from ID
     bug = Bug(bug_id=bugs[0], product='GlusterFS', dry_run=dry_run)
