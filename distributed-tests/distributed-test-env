@@ -12,6 +12,7 @@ KNOWN_FLAKY_TESTS="\
 "
 
 BROKEN_TESTS="\
+  tests/basic/bd.t\
   tests/features/lock_revocation.t\
   tests/features/recon.t\
   tests/features/fdl-overflow.t\
