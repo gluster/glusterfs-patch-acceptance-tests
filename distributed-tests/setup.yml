@@ -3,12 +3,12 @@
   hosts: all
   gather_facts: no
   tasks:
-    - local_action:
-        module: wait_for
+    - wait_for:
         port: 22
-        host: "{{ ansible_ssh_host }}"
+        host: '{{ ansible_host }}'
         search_regex: OpenSSH
         delay: 10
+      connection: local
 
 - hosts: all
   gather_facts: yes

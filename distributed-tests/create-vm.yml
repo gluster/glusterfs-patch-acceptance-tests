@@ -15,7 +15,7 @@
         count: '{{ COUNT }}'
         count_offset: 1
         exact_count: yes
-        group: distributed-test
+        group: '{{ NAME }}'
         wait: yes
       register: rax
 
