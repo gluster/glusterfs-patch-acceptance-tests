@@ -15,7 +15,7 @@ def get_commit_message():
     current directory
     '''
     commit = subprocess.check_output(['git', 'log', '--format=%B', '-n', '1'])
-    return commit
+    return commit.decode('utf-8')
 
 
 class CommitHandler(object):
