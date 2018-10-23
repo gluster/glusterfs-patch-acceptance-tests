@@ -73,8 +73,10 @@ class CommitHandler(object):
         if self.revision_number == 1:
             return issues
 
+        issues = [x['id'] for x in issues]
         oldmessage = self.get_commit_message_from_gerrit()
         oldissues = self.parse_commit_message(oldmessage)
+        oldissues = [x['id'] for x in oldissues]
         print("Old issues: {}".format(oldissues))
         newissues = list(set(issues) - (set(issues) & set(oldissues)))
         return newissues
@@ -103,7 +105,10 @@ class CommitHandler(object):
         issues = []
         for line in msg.split('\n'):
             for match in regex.finditer(line):
-                issues.append(match.group(group_index))
+                issues.append({
+                    'status': match.group(1),
+                    'id': match.group(group_index)
+                })
         if issues:
             print("Issues found in the commit message: {}".format(issues))
             return issues

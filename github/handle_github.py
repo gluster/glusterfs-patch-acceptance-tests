@@ -132,7 +132,7 @@ def main(repo, dry_run, comment_file=False):
 
     if issues:
         for issue in issues:
-            if not github.check_issue(issue):
+            if not github.check_issue(issue['id']):
                 issue_check_success = 1
 
             github.write_error_string()

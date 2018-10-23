@@ -11,11 +11,13 @@ import commit
 
 
 class Bug(object):
-    def __init__(self, bug_id=None, product=None, dry_run=True):
+    def __init__(self, bug_id=None, bug_status=None, product=None, dry_run=True):
         self.bug_id = bug_id
         self.product = product
+        self.bug_status = bug_status
         # There should always be a bug and product
         assert self.bug_id is not None
+        assert self.bug_status is not None
         assert self.product is not None
         bz_url = 'https://bugzilla.redhat.com'
         self.bz = bugzilla.Bugzilla(bz_url)
@@ -41,6 +43,7 @@ class Bug(object):
 
         old_commit = commit_obj.get_commit_message_from_gerrit()
         old_bugs = commit_obj.parse_commit_message(old_commit)
+        old_bugs = [x['id'] for x in old_bugs]
 
         # if there are no old bugs at all
         if not old_bugs:
@@ -123,18 +126,11 @@ def main(dry_run=True):
         return True
 
     # Create a bug object from ID
-    bug = Bug(bug_id=bugs[0], product='GlusterFS')
+    bug = Bug(bug_id=bugs[0][1], bug_status=bugs[0][0], product='GlusterFS')
 
     # Check that the product is correct
     if not bug.product_check():
         raise Exception('This bug is not filed in the {} product'.format('GlusterFS'))
-
-    # Create a bug object from ID
-    bug = Bug(bug_id=bugs[0], product='GlusterFS', dry_run=dry_run)
-
-    # Check that the product is correct
-    if not bug.product_check():
-        return True
 
     # Check that the bug needs an update based on the event and the revision
     # number

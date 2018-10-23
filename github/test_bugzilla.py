@@ -31,7 +31,7 @@ class BugParseTest(unittest.TestCase):
         commit_msg = commit.get_commit_message()
         c = commit.CommitHandler('glusterfs', issue=False)
         bugs = c.parse_commit_message(commit_msg)
-        self.assertEqual(bugs[0], '1234')
+        self.assertEqual(bugs[0]['id'], '1234')
 
     @patch('commit.get_commit_message')
     def test_backported_bug(self, mock):
@@ -45,7 +45,7 @@ class BugParseTest(unittest.TestCase):
         commit_msg = commit.get_commit_message()
         c = commit.CommitHandler('glusterfs', issue=False)
         bugs = c.parse_commit_message(commit_msg)
-        self.assertEqual(bugs[0], '1234')
+        self.assertEqual(bugs[0]['id'], '1234')
 
     @patch('commit.get_commit_message')
     def test_issue_and_bug(self, mock):
@@ -59,8 +59,9 @@ class BugParseTest(unittest.TestCase):
             'Fixes: #4567')
         commit_msg = commit.get_commit_message()
         c = commit.CommitHandler('glusterfs', issue=False)
-        issues = c.parse_commit_message(commit_msg)
-        self.assertListEqual(issues, ['1234'])
+        bugs = c.parse_commit_message(commit_msg)
+        self.assertEqual(bugs[0]['id'], '1234')
+        self.assertEqual(len(bugs), 1)
 
     @patch('commit.get_commit_message')
     def test_two_bugs(self, mock):
@@ -70,12 +71,12 @@ class BugParseTest(unittest.TestCase):
         # Mock the commit message
         mock.return_value = (
             'This is a test commit\n\n'
-            'Fixes: bz#1234\n'
+            'Updates: bz#1234\n'
             'Fixes: bz#4567')
         commit_msg = commit.get_commit_message()
         c = commit.CommitHandler('glusterfs', issue=False)
-        issues = c.parse_commit_message(commit_msg)
-        self.assertListEqual(issues, ['1234', '4567'])
+        bugs = c.parse_commit_message(commit_msg)
+        self.assertEqual(bugs, [{'status': 'Updates', 'id': '1234'}, {'status': 'Fixes', 'id': '4567'}])
 
     @patch('commit.get_commit_message')
     def test_with_unicode(self, mock):
@@ -90,8 +91,8 @@ class BugParseTest(unittest.TestCase):
             'Fixes: #4567')
         commit_msg = commit.get_commit_message()
         c = commit.CommitHandler('glusterfs', issue=False)
-        issues = c.parse_commit_message(commit_msg)
-        self.assertListEqual(issues, ['1234'])
+        bugs = c.parse_commit_message(commit_msg)
+        self.assertEqual(bugs[0]['id'], '1234')
 
 
 class BugUpdateLogicTest(unittest.TestCase):
@@ -136,10 +137,11 @@ class BugUpdateLogicTest(unittest.TestCase):
         commit_msg = commit.get_commit_message()
         c = commit.CommitHandler('glusterfs', issue=False)
         bugs = c.parse_commit_message(commit_msg)
-        self.assertListEqual(bugs, ['1234'])
+        self.assertEqual(bugs[0]['id'], '1234')
+        self.assertEqual(len(bugs), 1)
 
         c.revision_number = 1
-        bug = handle_bugzilla.Bug(bug_id=bugs[0], product='glusterfs')
+        bug = handle_bugzilla.Bug(bug_id=bugs[0]['id'], bug_status=bugs[0]['status'], product='glusterfs')
         self.assertTrue(bug.needs_update(c, 'patchset-created'))
 
     @patch('commit.CommitHandler.get_commit_message_from_gerrit')
@@ -160,10 +162,10 @@ class BugUpdateLogicTest(unittest.TestCase):
         commit_msg = commit.get_commit_message()
         c = commit.CommitHandler('glusterfs', issue=False)
         bugs = c.parse_commit_message(commit_msg)
-        self.assertListEqual(bugs, ['1234'])
+        self.assertEqual(bugs[0]['id'], '1234')
 
         c.revision_number = 2
-        bug = handle_bugzilla.Bug(bug_id=bugs[0], product='glusterfs')
+        bug = handle_bugzilla.Bug(bug_id=bugs[0]['id'], bug_status=bugs[0]['status'], product='glusterfs')
 
         # Mock the commit message from Gerrit
         mock3.return_value = (
@@ -189,10 +191,10 @@ class BugUpdateLogicTest(unittest.TestCase):
         commit_msg = commit.get_commit_message()
         c = commit.CommitHandler('glusterfs', issue=False)
         bugs = c.parse_commit_message(commit_msg)
-        self.assertListEqual(bugs, ['1234'])
+        self.assertEqual(bugs[0]['id'], '1234')
 
         c.revision_number = 2
-        bug = handle_bugzilla.Bug(bug_id=bugs[0], product='glusterfs')
+        bug = handle_bugzilla.Bug(bug_id=bugs[0]['id'], bug_status=bugs[0]['status'], product='glusterfs')
 
         # Mock the commit message from Gerrit
         mock3.return_value = (
@@ -200,9 +202,10 @@ class BugUpdateLogicTest(unittest.TestCase):
             'Updates: bz#1234')
         self.assertFalse(bug.needs_update(c, 'patchset-created'))
 
+    @patch('commit.CommitHandler.get_commit_message_from_gerrit')
     @patch('bugzilla.Bugzilla')
     @patch('commit.get_commit_message')
-    def test_patchset_patch_merged(self, mock1, mock2):
+    def test_patchset_patch_merged(self, mock1, mock2, mock3):
         '''
         Change merged event
         '''
@@ -217,10 +220,12 @@ class BugUpdateLogicTest(unittest.TestCase):
         commit_msg = commit.get_commit_message()
         c = commit.CommitHandler('glusterfs', issue=False)
         bugs = c.parse_commit_message(commit_msg)
-        self.assertListEqual(bugs, ['1234'])
+        self.assertEqual(bugs[0]['id'], '1234')
+        self.assertEqual(len(bugs), 1)
 
         c.revision_number = 2
-        bug = handle_bugzilla.Bug(bug_id=bugs[0], product='glusterfs')
+        mock3.return_value = mock1.return_value
+        bug = handle_bugzilla.Bug(bug_id=bugs[0]['id'], bug_status=bugs[0]['status'], product='glusterfs')
         self.assertTrue(bug.needs_update(c, 'change-merged'))
 
     @patch('commit.CommitHandler.get_commit_message_from_gerrit')
@@ -241,10 +246,10 @@ class BugUpdateLogicTest(unittest.TestCase):
         commit_msg = commit.get_commit_message()
         c = commit.CommitHandler('glusterfs', issue=False)
         bugs = c.parse_commit_message(commit_msg)
-        self.assertListEqual(bugs, ['1234'])
+        self.assertEqual(bugs[0]['id'], '1234')
 
         c.revision_number = 2
-        bug = handle_bugzilla.Bug(bug_id=bugs[0], product='glusterfs')
+        bug = handle_bugzilla.Bug(bug_id=bugs[0]['id'], bug_status=bugs[0]['status'], product='glusterfs')
 
         # Mock the commit message from Gerrit
         mock3.return_value = (
@@ -270,10 +275,10 @@ class BugUpdateLogicTest(unittest.TestCase):
         commit_msg = commit.get_commit_message()
         c = commit.CommitHandler('glusterfs', issue=False)
         bugs = c.parse_commit_message(commit_msg)
-        self.assertListEqual(bugs, ['1234'])
+        self.assertEqual(bugs[0]['id'], '1234')
 
         c.revision_number = 2
-        bug = handle_bugzilla.Bug(bug_id=bugs[0], product='glusterfs')
+        bug = handle_bugzilla.Bug(bug_id=bugs[0]['id'], bug_status=bugs[0]['status'], product='glusterfs')
 
         # Mock the commit message from Gerrit
         mock3.return_value = (
