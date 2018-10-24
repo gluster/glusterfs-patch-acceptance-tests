@@ -78,6 +78,7 @@ class GitHubHandler(object):
                 print(error)
                 self.error_string.append(error)
                 return True
+
             spec_approved = False
             doc_approved = False
             for label in issue.labels:

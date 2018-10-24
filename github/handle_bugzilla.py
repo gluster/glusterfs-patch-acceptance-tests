@@ -9,6 +9,12 @@ import sys
 import bugzilla
 import commit
 
+# Add external tracker for new bugs
+# Update external external tracker when review merged
+# Remove external tracker when bug no longer associated with review
+# Handle abandon job - change status of external tracker
+BUG_STATUS = ('POST', 'MODIFIED')
+REVIEW_STATUS = ('Open', 'Merged', 'Abandoned')
 
 class Bug(object):
     def __init__(self, bug_id=None, bug_status=None, product=None, dry_run=True):
@@ -65,7 +71,8 @@ class Bug(object):
         raise Exception('Unexpected scenario occured. Please highlight this '
                         'to the infra team')
 
-    def post_update(self, change_url, change_sub, revision_number, branch, uploader_name):
+    def post_update(self, change_url, change_sub, revision_number, branch,
+                    uploader_name, event, change_number):
         '''
         Post an update to Bugzilla
         '''
@@ -88,18 +95,32 @@ class Bug(object):
                           "glusterfs product".format(old))
 
         # update only current bug
-        # bz.update_external_tracker(ext_bz_bug_id='21209', ext_type_id=150,
-        # ext_description='New job for gluster-csi-containers',
-        # bug_ids='1630259', ext_status='Merged')
         comment = ("REVIEW: {} ({}) posted (#{}) for review on {} by "
                    "{}".format(change_url, change_sub, revision_number, branch,
                                uploader_name))
+        # The bug status is changed to MODIFIED only when "Fixes" is in the
+        # commit message associated with this bug, otherwise, it will be
+        # "POST".
+        bug_state = 0
+        review_state = 0
+        if 'fixes' in self.bug_status.lower() and event == 'change-merged':
+            bug_state = 1
+            review_state = 1
+
         if self.dry_run:
             print(self.bug_id)
             print(comment)
+            print(BUG_STATUS[bug_state])
+            print(REVIEW_STATUS[review_state])
         else:
-            update = self.bz.build_update(comment=comment)
+            update = self.bz.build_update(comment=comment,
+                                          status=BUG_STATUS[bug_state])
             self.bz.update_bugs(self.bug_id, update)
+            bz.update_external_tracker(
+                ext_bz_bug_id=change_number, ext_type_id=150,
+                ext_description=change_sub, bug_ids=self.bug_id,
+                ext_status=REVIEW_STATUS[review_state],
+            )
 
 
 def main(dry_run=True):
@@ -126,11 +147,17 @@ def main(dry_run=True):
         return True
 
     # Create a bug object from ID
-    bug = Bug(bug_id=bugs[0][1], bug_status=bugs[0][0], product='GlusterFS')
+    bug = Bug(bug_id=bugs[0][1], bug_status=bugs[0][0], product='GlusterFS',
+              dry_run=dry_run)
 
     # Check that the product is correct
     if not bug.product_check():
         raise Exception('This bug is not filed in the {} product'.format('GlusterFS'))
+
+    # TODO: Check that the external bug needs to be created or updated based on
+    # patchset number, event, and whether an external bug exists for the
+    # current bug
+
 
     # Check that the bug needs an update based on the event and the revision
     # number
@@ -143,6 +170,8 @@ def main(dry_run=True):
         revision_number=os.getenv('GERRIT_PATCHSET_NUMBER'),
         branch=os.getenv('GERRIT_BRANCH'),
         uploader_name=os.getenv('GERRIT_PATCHSET_UPLOADER_NAME'),
+        event=os.getenv('GERRIT_EVENT_TYPE'),
+        change_number=os.getenv('GERRIT_CHANGE_NUMBER'),
     )
     return True
 

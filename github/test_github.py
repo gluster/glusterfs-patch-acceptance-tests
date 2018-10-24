@@ -141,13 +141,14 @@ class IssueCheckTest(unittest.TestCase):
         c = commit.CommitHandler('glusterfs')
         issues = c.parse_commit_message(commit_msg)
         self.assertEqual(issues,
-                [{
-                    'id': '1234',
-                    'status': 'Fixes'
-                }, {
-                    'id': '4567',
-                    'status': 'Updates'
-        }])
+                         [{
+                             'id': '1234',
+                             'status': 'Fixes'
+                         }, {
+                             'id': '4567',
+                             'status': 'Updates'
+                         }]
+                        )
 
         # Handle a valid issue
         mock2.side_effect = None
@@ -176,13 +177,14 @@ class IssueCheckTest(unittest.TestCase):
         c = commit.CommitHandler('glusterfs')
         issues = c.parse_commit_message(commit_msg)
         self.assertEqual(issues,
-                [{
-                    'id': '1234',
-                    'status': 'Fixes'
-                 }, {
-                    'id': '4567',
-                    'status': 'Updates'
-        }])
+                         [{
+                             'id': '1234',
+                             'status': 'Fixes'
+                         }, {
+                             'id': '4567',
+                             'status': 'Updates'
+                         }]
+                        )
 
         # Handle a valid issue
         mock2.side_effect = None
@@ -218,13 +220,14 @@ class IssueCheckTest(unittest.TestCase):
         c = commit.CommitHandler('glusterfs')
         issues = c.parse_commit_message(commit_msg)
         self.assertEqual(issues,
-                [{
-                    'id': '1234',
-                    'status': 'Fixes'
-                 }, {
-                     'id': '4567',
-                     'status': 'Updates'
-        }])
+                         [{
+                             'id': '1234',
+                             'status': 'Fixes'
+                         }, {
+                             'id': '4567',
+                             'status': 'Updates'
+                         }]
+                        )
 
         # Handle a valid issue
         mock2.side_effect = None
