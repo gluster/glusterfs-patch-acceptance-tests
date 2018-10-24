@@ -43,7 +43,7 @@ class GitHubHandler(object):
         comment = ("A patch {} has been posted that references this issue.\n\n"
                    "{}".format(self.link, commit))
         for issue in issues:
-            self._comment_on_issue(issue, comment)
+            self._comment_on_issue(issue['id'], comment)
 
     def _comment_on_issue(self, num, comment):
         '''
