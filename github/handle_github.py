@@ -80,6 +80,14 @@ class GitHubHandler(object):
                 return True
             spec_approved = False
             doc_approved = False
+            issue_closed = False
+            if issue.is_closed() == True:
+                issue_closed = True
+            if issue_closed:
+                error = "Issue #{} has been closed".format(num)
+                print(error)
+                self.error_string.append(error)
+                return False
             for label in issue.labels:
                 if label.name == "SpecApproved":
                     spec_approved = True
