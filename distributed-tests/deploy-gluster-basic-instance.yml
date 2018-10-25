@@ -37,6 +37,9 @@
       - redhat-rpm-config
       - nfs-utils
       - git
+      - dbench
+      - libcurl-devel
+      - psmisc
 
   - name: Remove package that cause trouble with the regression suite
     package:
@@ -92,6 +95,15 @@
     - /var/log/glusterfs
     - /var/lib/glusterd
     - /var/run/gluster
+    - /d
+    - /archives
+    - /d/archived_builds
+    - /d/backends
+    - /d/build
+    - /d/logs
+    - /archives/archived_builds
+    - /archives/log
+    - /archives/logs
 
   - name: Make sure that root can use password
     lineinfile:
