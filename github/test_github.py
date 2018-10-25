@@ -416,7 +416,7 @@ class PatchsetIssueLabelTest(unittest.TestCase):
         the required flags
 
         '''
-        issues.return_value = ['4567']
+        issues.return_value = [{'id': '4567', 'status': 'Updates'}]
         mock2.return_value = False
 
         # Handle a valid issue
@@ -436,10 +436,10 @@ class PatchsetIssueLabelTest(unittest.TestCase):
         '''
         Test that there is a comment on the issue whatever the case
         '''
-        issues.return_value = ['4567']
+        issues.return_value = [{'id': '4567', 'status': 'Updates'}]
         mock2.return_value = False
 
-        mock3.return_value = ['4567']
+        mock3.return_value = {'id': '4567', 'status': 'Updates'}
         mock5.side_effect = None
         with patch('sys.exit') as exit_mock:
             handle_github.main('glusterfs', True)
@@ -447,4 +447,4 @@ class PatchsetIssueLabelTest(unittest.TestCase):
             self.assertEqual(exit_mock.call_args, ((1,),))
 
         self.assertEqual(mock4.called, True)
-        self.assertEqual(mock4.call_args[0][0], ['4567'])
+        self.assertEqual(mock4.call_args[0][0], {'id': '4567', 'status': 'Updates'})
