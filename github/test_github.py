@@ -56,6 +56,59 @@ class IssueCheckTest(unittest.TestCase):
 
     @patch('handle_github.GitHubHandler._github_login')
     @patch('commit.get_commit_message')
+    def test_with_closed_issue(self, mock1, mock2):
+        '''
+        A commit with closed issue
+        '''
+        # Mock the commit message
+        mock1.return_value = (
+            'This is a test commit\n\n'
+            'Fixes: #1234\n')
+        commit_msg = commit.get_commit_message()
+        c = commit.CommitHandler('glusterfs')
+        issues = c.parse_commit_message(commit_msg)
+        self.assertEqual(issues[0]['id'], '1234')
+
+        # Handle a valid issue
+        mock2.side_effect = None
+        ghub = handle_github.GitHubHandler('glusterfs', True)
+        ghub.ghub = Mock(name='mockedgithub')
+        ghub.ghub.issue.return_value.is_closed.return_value = True
+        self.assertFalse(ghub.check_issue(issues[0]['id']))
+
+    @patch('handle_github.GitHubHandler._github_login')
+    @patch('commit.get_commit_message')
+    def test_with_two_closed_issues(self, mock1, mock2):
+        '''
+        A commit with two closed issues
+        '''
+        # Mock the commit message
+        mock1.return_value = (
+            'This is a test commit\n\n'
+            'Fixes: #1234\n'
+            'Updates: #4567')
+        commit_msg = commit.get_commit_message()
+        c = commit.CommitHandler('glusterfs')
+        issues = c.parse_commit_message(commit_msg)
+        self.assertEqual(issues,
+                [{
+                    'id': '1234',
+                    'status': 'Fixes'
+                }, {
+                    'id': '4567',
+                    'status': 'Updates'
+        }])
+
+        # Handle a valid issue
+        mock2.side_effect = None
+        ghub = handle_github.GitHubHandler('glusterfs', True)
+        ghub.ghub = Mock(name='mockedgithub')
+        ghub.ghub.issue.return_value.is_closed.return_value = True
+        for issue in issues:
+            self.assertFalse(ghub.check_issue(issue['id']))
+
+    @patch('handle_github.GitHubHandler._github_login')
+    @patch('commit.get_commit_message')
     def test_with_valid_issue(self, mock1, mock2):
         '''
         A commit with an existing issue with correct labels
