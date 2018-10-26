@@ -9,10 +9,7 @@ import sys
 import bugzilla
 import commit
 
-# Add external tracker for new bugs
-# Update external external tracker when review merged
-# Remove external tracker when bug no longer associated with review
-# Handle abandon job - change status of external tracker
+# TODO: Handle abandon job - change status of external tracker
 BUG_STATUS = ('POST', 'MODIFIED')
 REVIEW_STATUS = ('Open', 'Merged', 'Abandoned')
 
@@ -84,12 +81,26 @@ class Bug(object):
             for old in self.old_bugs:
                 old_bug = self.bz.getbug(old)
                 if old_bug.product.lower() == self.product.lower():
+                    # Look for old external tracker for this bug
+                    bug_obj = self.bz.getbug(old)
+                    remove_old_bug = False
+                    for ext_bug in bug_obj.external_bugs:
+                        if ext_bug['ext_bz_id'] == 150 and ext_bug['ext_bz_bug_id'] == change_number:
+                            remove_old_bug = True
                     if self.dry_run:
                         print(old_bug)
                         print(comment)
+                        print('Remove old external tracker: {}'.format(remove_old_bug)
                     else:
                         update = self.bz.build_update(comment=comment)
                         self.bz.update_bugs(old, update)
+                        # Remove any old external bug tracker reference with
+                        # this change
+                        if remove_old_bug:
+                            bz.remove_external_tracker(
+                                ext_bz_bug_id=change_number, ext_type_id=150,
+                                bug_ids=old,
+                            )
                 else:
                     print("BUG {} not updated since it is not in "
                           "glusterfs product".format(old))
@@ -107,20 +118,38 @@ class Bug(object):
             bug_state = 1
             review_state = 1
 
+        # check if there an external tracker already if not create it
+        create_ext_bug = True
+        bug_obj = self.bz.getbug(self.bug_id)
+        for ext_bug in bug_obj.external_bugs:
+            if ext_bug['ext_bz_id'] == 150 and ext_bug['ext_bz_bug_id'] == change_number:
+                create_ext_bug = False
+                break
+
         if self.dry_run:
             print(self.bug_id)
             print(comment)
             print(BUG_STATUS[bug_state])
             print(REVIEW_STATUS[review_state])
-        else:
-            update = self.bz.build_update(comment=comment,
-                                          status=BUG_STATUS[bug_state])
-            self.bz.update_bugs(self.bug_id, update)
+            print('Create external bug reference: {}'.format(create_ext_bug))
+            return
+
+        update = self.bz.build_update(comment=comment,
+                                      status=BUG_STATUS[bug_state])
+        self.bz.update_bugs(self.bug_id, update)
+
+        if create_ext_bug:
             bz.update_external_tracker(
                 ext_bz_bug_id=change_number, ext_type_id=150,
                 ext_description=change_sub, bug_ids=self.bug_id,
                 ext_status=REVIEW_STATUS[review_state],
             )
+            return
+        bz.update_external_tracker(
+            ext_bz_bug_id=change_number, ext_type_id=150,
+            ext_description=change_sub, bug_ids=self.bug_id,
+            ext_status=REVIEW_STATUS[review_state],
+        )
 
 
 def main(dry_run=True):
