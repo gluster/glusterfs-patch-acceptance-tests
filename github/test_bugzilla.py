@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 import unittest
 import handle_bugzilla
 import commit
-from mock import patch, Mock, MagicMock
+from mock import patch
 
 class BugParseTest(unittest.TestCase):
 
