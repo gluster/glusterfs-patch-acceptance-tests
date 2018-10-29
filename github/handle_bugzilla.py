@@ -85,7 +85,8 @@ class Bug(object):
                     bug_obj = self.bz.getbug(old)
                     remove_old_bug = False
                     for ext_bug in bug_obj.external_bugs:
-                        if ext_bug['ext_bz_id'] == 150 and ext_bug['ext_bz_bug_id'] == change_number:
+                        if (ext_bug['ext_bz_id'] == 150 and
+                                ext_bug['ext_bz_bug_id'] == change_number):
                             remove_old_bug = True
                     if self.dry_run:
                         print(old_bug)
@@ -97,7 +98,7 @@ class Bug(object):
                         # Remove any old external bug tracker reference with
                         # this change
                         if remove_old_bug:
-                            bz.remove_external_tracker(
+                            self.bz.remove_external_tracker(
                                 ext_bz_bug_id=change_number, ext_type_id=150,
                                 bug_ids=old,
                             )
@@ -139,13 +140,13 @@ class Bug(object):
         self.bz.update_bugs(self.bug_id, update)
 
         if create_ext_bug:
-            bz.add_external_tracker(
+            self.bz.add_external_tracker(
                 ext_bz_bug_id=change_number, ext_type_id=150,
                 ext_description=change_sub, bug_ids=self.bug_id,
                 ext_status=REVIEW_STATUS[review_state],
             )
             return
-        bz.update_external_tracker(
+        self.bz.update_external_tracker(
             ext_bz_bug_id=change_number, ext_type_id=150,
             ext_description=change_sub, bug_ids=self.bug_id,
             ext_status=REVIEW_STATUS[review_state],
