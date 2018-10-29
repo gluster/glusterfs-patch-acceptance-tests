@@ -90,7 +90,7 @@ class Bug(object):
                     if self.dry_run:
                         print(old_bug)
                         print(comment)
-                        print('Remove old external tracker: {}'.format(remove_old_bug)
+                        print('Remove old external tracker: {}'.format(remove_old_bug))
                     else:
                         update = self.bz.build_update(comment=comment)
                         self.bz.update_bugs(old, update)
@@ -139,7 +139,7 @@ class Bug(object):
         self.bz.update_bugs(self.bug_id, update)
 
         if create_ext_bug:
-            bz.update_external_tracker(
+            bz.add_external_tracker(
                 ext_bz_bug_id=change_number, ext_type_id=150,
                 ext_description=change_sub, bug_ids=self.bug_id,
                 ext_status=REVIEW_STATUS[review_state],
@@ -176,12 +176,15 @@ def main(dry_run=True):
         return True
 
     # Create a bug object from ID
-    bug = Bug(bug_id=bugs[0][1], bug_status=bugs[0][0], product='GlusterFS',
+    print("Creating bug object")
+    bug = Bug(bug_id=bugs[0]['id'], bug_status=bugs[0]['status'], product='GlusterFS',
               dry_run=dry_run)
 
+    print("Product check")
     # Check that the product is correct
     if not bug.product_check():
         raise Exception('This bug is not filed in the {} product'.format('GlusterFS'))
+
 
     # TODO: Check that the external bug needs to be created or updated based on
     # patchset number, event, and whether an external bug exists for the
@@ -193,6 +196,7 @@ def main(dry_run=True):
     if not bug.needs_update(commit_obj,
                             os.getenv('GERRIT_EVENT_TYPE')):
         return True
+    print("Posting update")
     bug.post_update(
         change_url=os.getenv('GERRIT_CHANGE_URL'),
         change_sub=os.getenv('GERRIT_CHANGE_SUBJECT'),
