@@ -25,13 +25,13 @@ if ! git log -n1 --format='%B' | head -n 2 | tail -n 1 | grep -E '^$' >/dev/null
 fi
 
 # Check for github issue first
-REF=$(git log -n1 --format='%b' | grep -ow -E "(^[fF][iI][xX][eE][sS]|[uU][pP][dD][aA][tT][eE][sS])(:)?[[:space:]]+#[[:digit:]]+" | awk -F '#' '{print $2}');
+REF=$(git log -n1 --format='%b' | grep -ow -E "^([fF][iI][xX][eE][sS]|[uU][pP][dD][aA][tT][eE][sS])(:)?[[:space:]]+#[[:digit:]]+" | awk -F '#' '{print $2}');
 
 # Check for bugzilla ID
-BUG=$( git log -n1 --format='%b' | grep -ow -E "(^[fF][iI][xX][eE][sS]|[uU][pP][dD][aA][tT][eE][sS])(:)?[[:space:]]+bz#[[:digit:]]+" | awk -F '#' '{print $2}');
+BUG=$(git log -n1 --format='%b' | grep -ow -E "^([fF][iI][xX][eE][sS]|[uU][pP][dD][aA][tT][eE][sS])(:)?[[:space:]]+bz#[[:digit:]]+" | awk -F '#' '{print $2}');
 if [ -z "${BUG}" -a -z "${REF}" ] ; then
     # Backward compatibility with earlier model.
-    BUG=$( git log -n1 --format='%b' | awk '{IGNORECASE=1} /^bug: /{print $2}' | tail -1)
+    BUG=$(git log -n1 --format='%b' | awk '{IGNORECASE=1} /^bug: /{print $2}' | tail -1)
 fi
 if [ -z "${BUG}" -a -z "${REF}" ]; then
     cat <<EOF >> "${OUTPUT_FILE}"
