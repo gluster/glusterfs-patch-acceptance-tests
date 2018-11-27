@@ -2,12 +2,11 @@
 '''
 This code will handle the backporting command on Gerrit
 '''
-import bugzilla
 import sys
 import os
 import argparse
 import requests
-from commit import CommitHandler, get_commit_message
+import commit
 from handle_bugzilla import Bug
 
 def clone_bug(bug_obj, component=None, version=None):
@@ -17,7 +16,6 @@ def clone_bug(bug_obj, component=None, version=None):
     old_bug = bug_obj.bz.getbug(bugid)
     cc = old_bug.cc
     cc.append(str(old_bug.reporter))
-    ids = old_bug.depends_on.append(bugid)
     depends_on = str(old_bug.bug_id) + ' '
     depends_on += ' '.join([str(i) for i in old_bug.dependson])
     # assign old bug's product
@@ -31,54 +29,61 @@ def clone_bug(bug_obj, component=None, version=None):
         new_version = old_bug.version
 
     createinfo = bug_obj.bz.build_createbug(
-        product = new_product,
-        component = new_component,
-        version = new_version,
-        summary = old_bug.summary,
-        description = old_bug.description,
-        depends_on = depends_on,
-        blocks = old_bug.blocked,
-        cc = cc,
-        cf_clone_of = str(old_bug.id)
+        product=new_product,
+        component=new_component,
+        version=new_version,
+        summary=old_bug.summary,
+        description=old_bug.description,
+        depends_on=depends_on,
+        blocks=old_bug.blocked,
+        cc=cc,
+        cf_clone_of=str(old_bug.id)
         )
 
     new_bug = bug_obj.bz.createbug(createinfo)
     print("Created clone bug id=%s url=%s" % (new_bug.id, new_bug.weburl))
     # Update Blocks, Clones, comment section on the bug
-    update = bug_obj.bz.build_update(blocks=new_bug.id, clones=new_bug.id, comment=("Blocks: {}".format(new_bug.id)))
+    update = bug_obj.bz.build_update(blocks=new_bug.id, clones=new_bug.id,
+                                     comment=("Blocks: {}".format(new_bug.id)))
     bug_obj.bz.update_bugs(old_bug.id, update)
     return new_bug
 
 
-def gerrit_update(bugid, version, change-id, main_branch, project, patchset_number, commit_message, username, password):
+def gerrit_update(bugid, version, change_id, main_branch, project,
+                  patchset_number, commit_message, username, password):
     # cherrypick to the specified version
     # should return with gerrit URL to new commit
-    url = ('https://review.gluster.org/a/changes/{}~{}~{}/revisions/{}/cherrypick'.format(project, main_branch, change-id, patchset_number))
+    url = ('https://review.gluster.org/a/changes/{}~{}~{}/revisions/{}'
+           '/cherrypick'.format(project, main_branch, change_id, patchset_number))
     data = {
-            'message' : commit_message,
-            'destination' : version
-    }
+        'message' : commit_message,
+        'destination' : version
+        }
     response = requests.post(url, auth=(username, password), json=data)
     try:
-            response.raise_for_status()
+        response.raise_for_status()
     except requests.exceptions.HTTPError:
-            print(response.text)
-            sys.exit(1)
+        print(response.text)
+        sys.exit(1)
 
     # update the topic on gerrit
-    url = ('https://review.gluster.org/a/changes/{}~{}~{}/topic'.format(project, version, change-id))
+    url = ('https://review.gluster.org/a/changes/{}~{}~{}'
+           '/topic'.format(project, version, change_id))
     data = {
-            'topic' : 'ref-{}'.format(bugid)
-    }
+        'topic' : 'ref-{}'.format(bugid)
+        }
     response = requests.put(url, auth=(username, password), json=data)
     try:
-            response.raise_for_status()
+        response.raise_for_status()
     except requests.exceptions.HTTPError:
-            print(response.text)
-            sys.exit(1)
+        print(response.text)
+        sys.exit(1)
 
 
 def main():
+    '''
+    Main function where function call and variables are initiated
+    '''
     # check if the project is GlusterFS
     if os.getenv('GERRIT_PROJECT') != 'glusterfs':
         return False
@@ -100,25 +105,26 @@ def main():
         return False
 
     # Create a bug object from ID
-    bug = Bug(bug_id=bugs[0]['id'], bug_status=bugs[0]['status'], product='GlusterFS',
-              dry_run=dry_run)
+    bug = Bug(bug_id=bugs[0]['id'], bug_status=bugs[0]['status'], product='GlusterFS')
 
     # Check that the product is correct
     if not bug.product_check():
         raise Exception('This bug is not filed in the {} product'.format('GlusterFS'))
 
     # get all the values from Jenkins environment variables
-    change-id  = os.environ.get('GERRIT_CHANGE_ID')
+    change_id = os.environ.get('GERRIT_CHANGE_ID')
     branch = os.environ.get('GERRIT_BRANCH')
     project = os.environ.get('GERRIT_PROJECT')
     patchset_number = os.environ.get('GERRIT_PATCHSET_NUMBER')
     bz_username = os.environ.get('HTTP_USERNAME')
     bz_password = os.environ.get('HTTP_PASSWORD')
     # todo: Get proper commit message with new bug id
-    commit_message = os.environ.get('GERRIT_CHANGE_COMMIT_MESSAGE')
+    message = os.environ.get('GERRIT_CHANGE_COMMIT_MESSAGE')
+    commit_message = '{}\n\nChange-Id: {}'.format(message, change_id)
 
     cloned_bug = clone_bug(bug, component=component, version=version)
-    gerrit_update(cloned_bug.id, version, change-id, branch, project, patchset_number, commit_message, username, password)
+    gerrit_update(cloned_bug.id, version, change_id, branch, project,
+                  patchset_number, commit_message, bz_username, bz_password)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='backport commit to a specific branch')
