@@ -25,7 +25,8 @@ class GitHubHandler(object):
         self.branch = os.environ.get('GERRIT_BRANCH')
         self.comment_file = comment_file
         self.error_string = []
-        self._github_login()
+        if not dry_run:
+            self._github_login()
 
     def _github_login(self):
         gh_user = os.environ.get('GITHUB_USER')
