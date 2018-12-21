@@ -99,6 +99,11 @@ if [ "${BUG_PRODUCT}" != "GlusterFS" ]; then
     exit 1
 fi
 
+if [ "${BUG} = "1193929" ]; then
+    echo "This commit is for BUG id 1193929."
+    exit 0
+fi
+
 if [ "${BUG_STATUS}" != "NEW" ] && [ "${BUG_STATUS}" != "POST" ] && [ "${BUG_STATUS}" != "ASSIGNED" ] && [ "${BUG_STATUS}" != "MODIFIED" ]; then
     echo "BUG id ${BUG} has an invalid status as ${BUG_STATUS}. Acceptable status values are NEW, ASSIGNED, POST or MODIFIED" >> "${OUTPUT_FILE}"
     cat "${OUTPUT_FILE}"
