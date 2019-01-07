@@ -106,10 +106,19 @@ class Bug(object):
                           "glusterfs product".format(old))
 
         # update only current bug
-        comment = ("REVIEW: {} ({}) posted (#{}) for review on {} by "
-                   "by {}".format(change['url'], change['sub'],
+        comment_template = [
+                "REVIEW: {} ({}) posted (#{}) for review on {} by {}",
+                "REVIEW: {} ({}) merged (#{}) on {} by {}",
+                ]
+        if change['event'] == 'change-merged']:
+            comment = comment_template[1].format(change['url'], change['sub'],
                                   change['revision_number'], change['branch'],
                                   change['uploader_name']))
+        else:
+            comment = comment_template[0].format(change['url'], change['sub'],
+                                  change['revision_number'], change['branch'],
+                                  change['uploader_name']))
+
         # The bug status is changed to MODIFIED only when "Fixes" is in the
         # commit message associated with this bug, otherwise, it will be
         # "POST".
