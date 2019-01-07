@@ -29,10 +29,13 @@ def create_comment(template_id, change):
         change["revision_number"],
         change["branch"],
         change["uploader_name"],
-        )
+    )
 
 
 class Bug(object):
+    """"
+    Class which handles all the bugzilla interactions
+    """
     def __init__(self, bug_id=None, bug_status=None, product=None, dry_run=True):
         self.bug_id = bug_id
         self.product = product
@@ -85,8 +88,7 @@ class Bug(object):
             return False
 
         raise Exception(
-            "Unexpected scenario occured. Please highlight this to the "
-            "infra team"
+            "Unexpected scenario occured. Please highlight this to the infra team"
         )
 
     def post_update(self, change):
@@ -112,7 +114,7 @@ class Bug(object):
         if "fixes" in self.bug_status.lower() and change["event"] == "change-merged":
             bug_state = 1
             review_state = 1
-            resolution = 'NEXTRELEASE'
+            resolution = "NEXTRELEASE"
 
         self.create_update_ext_bug(
             change["number"], change["sub"], REVIEW_STATUS[review_state]
@@ -125,7 +127,9 @@ class Bug(object):
             print(REVIEW_STATUS[review_state])
             return
 
-        update = self.bz.build_update(comment=comment, status=BUG_STATUS[bug_state], resolution=resolution)
+        update = self.bz.build_update(
+            comment=comment, status=BUG_STATUS[bug_state], resolution=resolution
+        )
         self.bz.update_bugs(self.bug_id, update)
 
     def update_old_bug(self, change, comment):
@@ -140,8 +144,8 @@ class Bug(object):
                 remove_old_bug = False
                 for ext_bug in bug_obj.external_bugs:
                     if (
-                            ext_bug["ext_bz_id"] == 150
-                            and ext_bug["ext_bz_bug_id"] == change["number"]
+                        ext_bug["ext_bz_id"] == 150
+                        and ext_bug["ext_bz_bug_id"] == change["number"]
                     ):
                         remove_old_bug = True
                 if self.dry_run:
@@ -155,9 +159,7 @@ class Bug(object):
                     # this change
                     if remove_old_bug:
                         self.bz.remove_external_tracker(
-                            ext_bz_bug_id=change["number"],
-                            ext_type_id=150,
-                            bug_ids=old,
+                            ext_bz_bug_id=change["number"], ext_type_id=150, bug_ids=old
                         )
             else:
                 print(
@@ -173,8 +175,8 @@ class Bug(object):
         bug_obj = self.bz.getbug(self.bug_id)
         for ext_bug in bug_obj.external_bugs:
             if (
-                    ext_bug["ext_bz_id"] == 150
-                    and ext_bug["ext_bz_bug_id"] == change_number
+                ext_bug["ext_bz_id"] == 150
+                and ext_bug["ext_bz_bug_id"] == change_number
             ):
                 create_ext_bug = False
 
