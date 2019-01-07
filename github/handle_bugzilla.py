@@ -9,7 +9,6 @@ import sys
 import bugzilla
 import commit
 
-# TODO: Handle abandon job - change status of external tracker
 BUG_STATUS = ('POST', 'MODIFIED')
 REVIEW_STATUS = ('Open', 'Merged', 'Abandoned')
 
@@ -68,14 +67,14 @@ class Bug(object):
         raise Exception('Unexpected scenario occured. Please highlight this '
                         'to the infra team')
 
-    def post_update(self, change_url, change_sub, revision_number, branch,
-                    uploader_name, event, change_number):
+    def post_update(self, change):
         '''
         Post an update to Bugzilla
         '''
         comment = ("REVISION POSTED: {} ({}) posted (#{}) for review on {} "
-                   "by {}".format(change_url, change_sub, revision_number,
-                                  branch, uploader_name))
+                   "by {}".format(change['url'], change['sub'],
+                                  change['revision_number'], change['branch'],
+                                  change['uploader_name']))
         # post an update to old bugs only
         if self.old_bugs:
             for old in self.old_bugs:
@@ -86,7 +85,7 @@ class Bug(object):
                     remove_old_bug = False
                     for ext_bug in bug_obj.external_bugs:
                         if (ext_bug['ext_bz_id'] == 150 and
-                                ext_bug['ext_bz_bug_id'] == change_number):
+                                ext_bug['ext_bz_bug_id'] == change['number']):
                             remove_old_bug = True
                     if self.dry_run:
                         print(old_bug)
@@ -99,7 +98,7 @@ class Bug(object):
                         # this change
                         if remove_old_bug:
                             self.bz.remove_external_tracker(
-                                ext_bz_bug_id=change_number, ext_type_id=150,
+                                ext_bz_bug_id=change['number'], ext_type_id=150,
                                 bug_ids=old,
                             )
                 else:
@@ -108,58 +107,91 @@ class Bug(object):
 
         # update only current bug
         comment = ("REVIEW: {} ({}) posted (#{}) for review on {} by "
-                   "{}".format(change_url, change_sub, revision_number, branch,
-                               uploader_name))
+                   "by {}".format(change['url'], change['sub'],
+                                  change['revision_number'], change['branch'],
+                                  change['uploader_name']))
         # The bug status is changed to MODIFIED only when "Fixes" is in the
         # commit message associated with this bug, otherwise, it will be
         # "POST".
         bug_state = 0
         review_state = 0
-        if 'fixes' in self.bug_status.lower() and event == 'change-merged':
+        if 'fixes' in self.bug_status.lower() and change['event'] == 'change-merged':
             bug_state = 1
             review_state = 1
 
-        # check if there an external tracker already if not create it
-        create_ext_bug = True
-        bug_obj = self.bz.getbug(self.bug_id)
-        for ext_bug in bug_obj.external_bugs:
-            if ext_bug['ext_bz_id'] == 150 and ext_bug['ext_bz_bug_id'] == change_number:
-                create_ext_bug = False
-                break
+        self.create_update_ext_bug(change['number'], change['sub'],
+                                   REVIEW_STATUS[review_state])
 
         if self.dry_run:
             print(self.bug_id)
             print(comment)
             print(BUG_STATUS[bug_state])
             print(REVIEW_STATUS[review_state])
-            print('Create external bug reference: {}'.format(create_ext_bug))
             return
 
         update = self.bz.build_update(comment=comment,
                                       status=BUG_STATUS[bug_state])
         self.bz.update_bugs(self.bug_id, update)
 
+    def create_update_ext_bug(self, change_number, change_sub, review_state):
+        '''
+        check if there an external tracker already
+        '''
+        create_ext_bug = True
+        bug_obj = self.bz.getbug(self.bug_id)
+        for ext_bug in bug_obj.external_bugs:
+            if ext_bug['ext_bz_id'] == 150 and ext_bug['ext_bz_bug_id'] == change_number:
+                create_ext_bug = False
+
         if create_ext_bug:
             self.bz.add_external_tracker(
                 ext_bz_bug_id=change_number, ext_type_id=150,
                 ext_description=change_sub, bug_ids=self.bug_id,
-                ext_status=REVIEW_STATUS[review_state],
+                ext_status=review_state,
             )
             return
         self.bz.update_external_tracker(
             ext_bz_bug_id=change_number, ext_type_id=150,
             ext_description=change_sub, bug_ids=self.bug_id,
-            ext_status=REVIEW_STATUS[review_state],
+            ext_status=review_state,
         )
 
+    def abandon(self, change):
+        '''
+        Update bugzilla when a change in abandoned
+        '''
+        self.create_update_ext_bug(change['number'], change['sub'],
+                                   REVIEW_STATUS[2])
+        # Update external bug status to "Abandoned"
+        # Post an update stating the bug was closed.
 
-def main(dry_run=True):
+    def restore(self, change):
+        '''
+        Update bugzilla when a change is restored
+        '''
+        # Update external bug status to "Open"
+        self.create_update_ext_bug(change['number'], change['sub'],
+                                   REVIEW_STATUS[0])
+        # Post an update stating the bug was re-opened
+
+
+def main(dry_run=True, abandon=False, restore=False):
     '''
     Main function where everything comes together
     '''
-    # check if the project is glusterfs
     if os.getenv('GERRIT_PROJECT') != 'glusterfs':
         return False
+
+    # Dict of change-related info
+    change = {
+        'url': os.getenv('GERRIT_CHANGE_URL'),
+        'sub': os.getenv('GERRIT_CHANGE_SUBJECT'),
+        'revision_number': os.getenv('GERRIT_PATCHSET_NUMBER'),
+        'branch': os.getenv('GERRIT_BRANCH'),
+        'uploader_name': os.getenv('GERRIT_PATCHSET_UPLOADER_NAME'),
+        'event': os.getenv('GERRIT_EVENT_TYPE'),
+        'number': os.getenv('GERRIT_CHANGE_NUMBER'),
+    }
 
     # get commit message
     commit_obj = commit.CommitHandler(repo=None, issue=False)
@@ -186,27 +218,18 @@ def main(dry_run=True):
     if not bug.product_check():
         raise Exception('This bug is not filed in the {} product'.format('GlusterFS'))
 
-
-    # TODO: Check that the external bug needs to be created or updated based on
-    # patchset number, event, and whether an external bug exists for the
-    # current bug
-
-
+    if abandon:
+        bug.abandon_bug(change)
+        return True
+    if restore:
+        bug.restore_bug(change)
+        return True
     # Check that the bug needs an update based on the event and the revision
     # number
-    if not bug.needs_update(commit_obj,
-                            os.getenv('GERRIT_EVENT_TYPE')):
+    if not bug.needs_update(commit_obj, change['event']):
         return True
     print("Posting update")
-    bug.post_update(
-        change_url=os.getenv('GERRIT_CHANGE_URL'),
-        change_sub=os.getenv('GERRIT_CHANGE_SUBJECT'),
-        revision_number=os.getenv('GERRIT_PATCHSET_NUMBER'),
-        branch=os.getenv('GERRIT_BRANCH'),
-        uploader_name=os.getenv('GERRIT_PATCHSET_UPLOADER_NAME'),
-        event=os.getenv('GERRIT_EVENT_TYPE'),
-        change_number=os.getenv('GERRIT_CHANGE_NUMBER'),
-    )
+    bug.post_update(change)
     return True
 
 
@@ -217,6 +240,16 @@ if __name__ == '__main__':
         action='store_true',
         help="Do not comment on Bugzilla. Print to stdout instead",
     )
+    PARSER.add_argument(
+        "--abandon",
+        action="store_true",
+        help="This change is abandoned"
+    )
+    PARSER.add_argument(
+        "--restore",
+        action="store_true",
+        help="This change is being restored"
+    )
     ARGS = PARSER.parse_args()
-    if not main(ARGS.dry_run):
+    if not main(ARGS.dry_run, abandon=ARGS.abandon, restore=ARGS.restore):
         sys.exit(1)
