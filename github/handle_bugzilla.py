@@ -10,7 +10,7 @@ import bugzilla
 import commit
 
 
-BUG_STATUS = ("POST", "MODIFIED")
+BUG_STATUS = ("POST", "CLOSED")
 REVIEW_STATUS = ("Open", "Merged", "Abandoned")
 
 
@@ -30,7 +30,6 @@ def create_comment(template_id, change):
         change["branch"],
         change["uploader_name"],
         )
-
 
 
 class Bug(object):
@@ -109,9 +108,11 @@ class Bug(object):
         # "POST".
         bug_state = 0
         review_state = 0
+        resolution = None
         if "fixes" in self.bug_status.lower() and change["event"] == "change-merged":
             bug_state = 1
             review_state = 1
+            resolution = 'NEXTRELEASE'
 
         self.create_update_ext_bug(
             change["number"], change["sub"], REVIEW_STATUS[review_state]
@@ -124,7 +125,7 @@ class Bug(object):
             print(REVIEW_STATUS[review_state])
             return
 
-        update = self.bz.build_update(comment=comment, status=BUG_STATUS[bug_state])
+        update = self.bz.build_update(comment=comment, status=BUG_STATUS[bug_state], resolution=resolution)
         self.bz.update_bugs(self.bug_id, update)
 
     def update_old_bug(self, change, comment):
