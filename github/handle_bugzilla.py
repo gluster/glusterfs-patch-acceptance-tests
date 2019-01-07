@@ -9,8 +9,28 @@ import sys
 import bugzilla
 import commit
 
+
 BUG_STATUS = ("POST", "MODIFIED")
 REVIEW_STATUS = ("Open", "Merged", "Abandoned")
+
+
+def create_comment(template_id, change):
+    """
+    Create the comment from the template
+    """
+    comment_template = [
+        "REVISION POSTED: {} ({}) posted (#{}) for review on {} by {}",
+        "REVIEW: {} ({}) posted (#{}) for review on {} by {}",
+        "REVIEW: {} ({}) merged (#{}) on {} by {}",
+    ]
+    return comment_template[template_id].format(
+        change["url"],
+        change["sub"],
+        change["revision_number"],
+        change["branch"],
+        change["uploader_name"],
+        )
+
 
 
 class Bug(object):
@@ -76,13 +96,13 @@ class Bug(object):
         """
         # post an update to old bugs only
         if self.old_bugs:
-            self.update_old_bug(change, self.create_comment(0, change))
+            self.update_old_bug(change, create_comment(0, change))
 
         # update only current bug
         if change["event"] == "change-merged":
-            comment = self.create_comment(2, change)
+            comment = create_comment(2, change)
         else:
-            comment = self.create_comment(1, change)
+            comment = create_comment(1, change)
 
         # The bug status is changed to MODIFIED only when "Fixes" is in the
         # commit message associated with this bug, otherwise, it will be
@@ -106,24 +126,6 @@ class Bug(object):
 
         update = self.bz.build_update(comment=comment, status=BUG_STATUS[bug_state])
         self.bz.update_bugs(self.bug_id, update)
-
-    def create_comment(self, template_id, change):
-        """
-        Create the comment from the template
-        """
-        comment_template = [
-            "REVISION POSTED: {} ({}) posted (#{}) for review on {} by {}",
-            "REVIEW: {} ({}) posted (#{}) for review on {} by {}",
-            "REVIEW: {} ({}) merged (#{}) on {} by {}",
-        ]
-        return comment_template[template_id].format(
-                change["url"],
-                change["sub"],
-                change["revision_number"],
-                change["branch"],
-                change["uploader_name"],
-            )
-
 
     def update_old_bug(self, change, comment):
         """
