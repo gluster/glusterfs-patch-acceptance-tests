@@ -113,11 +113,6 @@ if [ "${BUG_OWNER}" = "bugs@gluster.org" ]; then
 fi
 
 if [ "${BUG_GROUPS}" != '[]' ]; then
-    echo "BUG id ${BUG} is marked private, please remove the groups."
-    exit 1
-fi
-
-if [ "${BUG_GROUPS}" != '[]' ]; then
     echo "BUG id ${BUG} is marked private, please remove the groups." >> "${OUTPUT_FILE}"
     cat "${OUTPUT_FILE}"
     exit 1
