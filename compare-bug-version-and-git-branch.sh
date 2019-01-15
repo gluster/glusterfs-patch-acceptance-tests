@@ -86,12 +86,11 @@ EOF
         echo 1
     fi
 
-    BZQOUT=$(bugzilla ${BZQOPTS} query -b ${BUG} --outputformat='%{product}:%{version}:%{groups}:%{status}:%{assigned_to}')
+    BZQOUT=$(bugzilla ${BZQOPTS} query -b "${BUG}" --outputformat='%{product}:%{version}:%{groups}:%{status}')
     BUG_PRODUCT=$(cut -d: -f1 <<< "${BZQOUT}")
     BUG_VERSION=$(cut -d: -f2 <<< "${BZQOUT}")
     BUG_GROUPS=$(cut -d: -f3 <<< "${BZQOUT}")
     BUG_STATUS=$(cut -d: -f4 <<< "${BZQOUT}")
-    BUG_OWNER=$(cut -d: -f5 <<< "${BZQOUT}")
 done
 
 if [ "${BUG_PRODUCT}" != "GlusterFS" ]; then
@@ -101,13 +100,7 @@ if [ "${BUG_PRODUCT}" != "GlusterFS" ]; then
 fi
 
 if [ "${BUG_STATUS}" != "NEW" ] && [ "${BUG_STATUS}" != "POST" ] && [ "${BUG_STATUS}" != "ASSIGNED" ] && [ "${BUG_STATUS}" != "MODIFIED" ]; then
-    echo "BUG id ${BUG} has an invalid status as ${BUG_STATUS}. Acceptable status values are NEW, ASSIGNED, POST or MODIFIED." >> "${OUTPUT_FILE}"
-    cat "${OUTPUT_FILE}"
-    exit 1
-fi
-
-if [ "${BUG_OWNER}" = "bugs@gluster.org" ]; then
-    echo "BUG id ${BUG} is owned by bugs@gluster.org. Please assign it to yourself. If you do not have the right permissions, please ask the component owner for help." >> "${OUTPUT_FILE}"
+    echo "BUG id ${BUG} has an invalid status as ${BUG_STATUS}. Acceptable status values are NEW, ASSIGNED, POST or MODIFIED" >> "${OUTPUT_FILE}"
     cat "${OUTPUT_FILE}"
     exit 1
 fi
