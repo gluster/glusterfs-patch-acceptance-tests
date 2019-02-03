@@ -165,7 +165,11 @@ if [ ${cur_count} != ${core_count} ]; then
     # build if it's too large
     find ${ARCHIVE_BASE} -size +1G -delete -type f
 
-    echo "Cores and build archived in http://${SERVER}/${filename}.bz2"
+    if [[ $string == *"aws"* ]]; then
+        echo "Cores and builds archived in https://logs.aws.gluster.org/build-install-${UNIQUE_ID}.tar.bz"
+    else
+        echo "Cores and build archived in http://${SERVER}/${filename}.bz2"
+    fi
     echo "Open core using the following command to get a proper stack"
     echo "Example: From root of extracted tarball"
     echo "\t\tgdb -ex 'set sysroot ./' -ex 'core-file ./build/install/cores/xxx.core' <target, say ./build/install/sbin/glusterd>"
