@@ -177,6 +177,10 @@ if [ ${cur_count} != ${core_count} ]; then
     RET=1
 fi
 
+if [ ${RET} -ne 0 ]; then
+    tar -czf $WORKSPACE/glusterfs-logs.tgz /var/log/glusterfs /var/log/messages*;
+fi
+
 # reset core_patterns
 case $(uname -s) in
     'Linux')
