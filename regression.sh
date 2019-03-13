@@ -165,7 +165,7 @@ if [ ${cur_count} != ${core_count} ]; then
     # build if it's too large
     find ${ARCHIVE_BASE} -size +1G -delete -type f
 
-    if [[ $string == *"aws"* ]]; then
+    if [[ ${SERVER} == *"aws"* ]]; then
         echo "Cores and builds archived in https://logs.aws.gluster.org/build-install-${UNIQUE_ID}.tar.bz"
     else
         echo "Cores and build archived in http://${SERVER}/${filename}.bz2"
