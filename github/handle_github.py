@@ -90,7 +90,13 @@ class GitHubHandler(object):
                 print(error)
                 self.error_string.append(error)
                 return False
-            for label in issue.labels:
+            # compatibility between 1.20 and 0.9.6
+            if type(issue.labels) == type([]):
+                l = issue.labels
+            else:
+                l = issue.labels()
+
+            for label in l:
                 if label.name == "SpecApproved":
                     spec_approved = True
                 if label.name == "DocApproved":
