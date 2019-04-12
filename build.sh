@@ -36,6 +36,6 @@ cd $P/scratch;
 rm -rf $P/install;
 $SRC/configure --prefix=$P/install --with-mountutildir=$P/install/sbin \
                --with-initdir=$P/install/etc --localstatedir=/var \
-               --enable-debug --enable-gnfs --silent
+               --enable-debug --enable-gnfs --without-libtirpc --silent
 make install CFLAGS="-Wall ${werror} -Wno-cpp" -j ${nproc}
 cd $SRC;
