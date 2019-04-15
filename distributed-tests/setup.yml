@@ -138,7 +138,7 @@
   - name: Build glusterfs
     shell: |
       ./autogen.sh
-      ./configure --disable-bd-xlator --enable-debug --enable-gnfs --silent
+      ./configure --enable-debug --enable-gnfs --silent
       make install
     args:
       chdir: '{{ scratchdir }}/glusterfs'
