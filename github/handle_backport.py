@@ -121,6 +121,9 @@ def main():
     # todo: Get proper commit message with new bug id
     message = os.environ.get('GERRIT_CHANGE_COMMIT_MESSAGE')
     commit_message = '{}\n\nChange-Id: {}'.format(message, change_id)
+    comment_added = os.environ.get('GERRIT_CHANGE_COMMENT_TEXT')
+    version = comment_added.split(' ')[1]
+    component = comment_added.split(' ')[2]
 
     cloned_bug = clone_bug(bug, component=component, version=version)
     gerrit_update(cloned_bug.id, version, change_id, branch, project,
@@ -128,12 +131,14 @@ def main():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='backport commit to a specific branch')
-    parser.add_argument('--version', '-v', help='where to backport the commit')
-    parser.add_argument('--component', help='component of the product')
-    parser.add_argument('--product', help='name of the product')
+    #parser.add_argument('--version', '-v', help='where to backport the commit')
+    #parser.add_argument('--component', help='component of the product')
+    parser.add_argument('--product', help='name of the product', default='GlusterFS')
     args = parser.parse_args()
     version = args.version
     component = args.component
     product = args.product
     if not main():
         sys.exit(1)
+    else:
+        print('Backporting is done')
