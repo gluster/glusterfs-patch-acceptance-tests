@@ -73,12 +73,19 @@ class CommitHandler(object):
         if self.revision_number == 1:
             return issues
 
-        issues = [x['id'] for x in issues]
+        current_issues = [x['id'] for x in issues]
         oldmessage = self.get_commit_message_from_gerrit()
         oldissues = self.parse_commit_message(oldmessage)
         oldissues = [x['id'] for x in oldissues]
         print("Old issues: {}".format(oldissues))
-        newissues = list(set(issues) - (set(issues) & set(oldissues)))
+        newissues_list = list(set(current_issues) - (set(current_issues) & set(oldissues)))
+        print("New issues: {}".format(newissues_list))
+        newissues = []
+        # We need to return a list of 'github objects', not a list of integers
+        for issue in newissues_list:
+            for i in issues:
+                if i['id'] == issue:
+                    newissues.append(i)
         return newissues
 
     def parse_commit_message(self, msg):
