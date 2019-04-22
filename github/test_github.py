@@ -504,27 +504,3 @@ class PatchsetIssueLabelTest(unittest.TestCase):
 
         self.assertEqual(mock4.called, True)
         self.assertEqual(mock4.call_args[0][0], {'id': '4567', 'status': 'Updates'})
-
-    @patch('handle_github.GitHubHandler._github_login')
-    @patch('commit.get_commit_message')
-    def test_with_valid_bug_fix_issue(self, mock1, mock2):
-        '''
-        A commit with an existing issue with correct labels
-        '''
-        # Mock the commit message
-        mock1.return_value = (
-            'This is a test commit\n\n'
-            'Fixes: #1234\n')
-        commit_msg = commit.get_commit_message()
-        c = commit.CommitHandler('glusterfs')
-        issues = c.parse_commit_message(commit_msg)
-        self.assertEqual(issues[0]['id'], '1234')
-
-        # Handle a valid issue
-        mock2.side_effect = None
-        ghub = handle_github.GitHubHandler('glusterfs', True)
-        ghub.ghub = Mock(name='mockedgithub')
-        label1 = Mock(name='mockedlabel')
-        label1.name = 'Type:Bug'
-        ghub.ghub.issue.return_value.labels = [label1]
-        self.assertTrue(ghub.check_issue(issues[0]['id']))

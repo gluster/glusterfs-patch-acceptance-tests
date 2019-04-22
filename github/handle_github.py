@@ -101,13 +101,6 @@ class GitHubHandler(object):
                     spec_approved = True
                 if label.name == "DocApproved":
                     doc_approved = True
-                if label.name == "Type:Bug":
-                    bug_fix = True
-            if bug_fix:
-                error = "Bug fix, no extra flags required"
-                print(error)
-                self.error_string.append(error)
-                return True
             if not spec_approved:
                 error = "Missing SpecApproved flag on Issue {}".format(num)
                 print(error)
