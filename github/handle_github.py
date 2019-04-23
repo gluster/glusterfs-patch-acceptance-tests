@@ -83,6 +83,7 @@ class GitHubHandler(object):
             spec_approved = False
             doc_approved = False
             issue_closed = False
+            bug_fix = False
             if issue.is_closed() == True:
                 issue_closed = True
             if issue_closed:
