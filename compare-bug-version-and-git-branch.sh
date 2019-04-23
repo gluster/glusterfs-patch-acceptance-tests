@@ -113,13 +113,10 @@ fi
 
 if [ "${GERRIT_BRANCH}" = "master" ]; then
     if [ "${BUG_VERSION}" != 'mainline' ]; then
-        # This is Treated fine, because any user files a bug on release branch,
-        # but developers fix the issue on master first. Why bring one more step.
-        # Handle it properly in scripts.
         echo "Change filed against the '${GERRIT_BRANCH} branch, but the BUG id is for '${BUG_VERSION}'"
-    else
-        echo "BUG was filed against mainline/pre-release, change is for master. All good!!"
+        exit 1
     fi
+    echo "BUG was filed against mainline, change is for master. All good!!"
     exit 0
 fi
 
