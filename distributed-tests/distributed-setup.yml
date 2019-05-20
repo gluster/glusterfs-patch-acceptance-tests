@@ -1,0 +1,253 @@
+- name: Create aws instances
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars:
+    - COUNT: 2
+    - NAME: 'testing'
+  tasks:
+    - name: Create key pair using key_material obtained using 'file' lookup plugin
+      ec2_key:
+        name: '{{ NAME }}'
+        key_material: "{{ lookup('file', '../key.pub') }}"
+
+    - name: Create servers
+      ec2:
+        key_name: distributed-key
+        instance_type: t3.small
+        image: ami-02e77e99e82697fbd
+        wait: yes
+        group: regression
+        count: '{{ COUNT }}'
+        instance_tags:
+          Name: '{{ NAME }}'
+        vpc_subnet_id: subnet-73d4013f
+        assign_public_ip: yes
+        region: us-east-2
+      register: ec2
+
+    - name: Add new instance to host group
+      add_host:
+        hostname: "{{ item.public_ip }}"
+        groupname: '{{ NAME }}'
+      with_items: "{{ ec2.instances }}"
+
+    - name: Wait for SSH to come up
+      wait_for:
+        host: "{{ item.public_ip }}"
+        port: 22
+        state: started
+      with_items: "{{ ec2.instances }}"
+
+
+- name: Configure instance(s)
+  hosts: '{{ NAME }}'
+  become: True
+  gather_facts: True
+  vars:
+    - scratchdir: /tmp/gluster-test
+    - version: HEAD
+  tasks:
+  - lineinfile:
+      dest: "/etc/sysconfig/network-scripts/ifcfg-{{ ansible_default_ipv4.interface }}"
+      regexp: ^IPV6INIT=
+      line: IPV6INIT=no
+    name: Disable ipv6 in eth0 config
+
+  - lineinfile:
+      dest: /etc/sysconfig/network
+      regexp: ^NETWORKING_IPV6=
+      line: NETWORKING_IPV6=no
+    name: Disable ipv6 in network config
+
+  - name: Disable ipv6 in sysctl
+    sysctl:
+      name: "{{ item }}"
+      value: 1
+      state: present
+      reload: yes
+    with_items:
+    - net.ipv6.conf.all.disable_ipv6
+    - net.ipv6.conf.default.disable_ipv6
+
+  - name: Load kernel parameters
+    command: sysctl -p
+
+  # use "install ipv6 /bin/true", since that's what ip6tables check to see if
+  # ipv6 is disabled. See reload function on /etc/init.d/ip6tables on RHEL 6.
+  - copy:
+      dest: /etc/modprobe.d/ipv6.conf
+      content: "options ipv6 disable=1\ninstall ipv6 /bin/true"
+    name: Disable ipv6 module
+
+  - name: Clean hosts
+    lineinfile:
+      state: absent
+      dest: /etc/hosts
+      regexp: "^(10\\.|2001:|::1)"
+
+  - name: Setup hosts file so that IP is in /etc/hosts
+    lineinfile:
+      state: present
+      dest: /etc/hosts
+      line: "{{ ansible_eth0['ipv4']['address'] }} {{ ansible_nodename }}"
+      regexp: "^{{ ansible_eth0['ipv4']['address'] }}.*"
+
+  - name: Make sure firewalld allows traffic from the machine to itself
+    firewalld:
+      rich_rule: "rule family='ipv4' source address='{{ansible_eth0['ipv4']['address']}}' accept"
+      permanent: true
+      state: enabled
+
+  - name: Make sure eth0 is enabled
+    lineinfile:
+      state: present
+      dest: "/etc/sysconfig/network-scripts/ifcfg-{{ ansible_default_ipv4.interface }}"
+      regexp: ^ONBOOT=
+      line: ONBOOT=yes
+
+  - name: Make sure eth1 is disabled
+    lineinfile:
+      state: present
+      dest: /etc/sysconfig/network-scripts/ifcfg-eth1
+      regexp: ^ONBOOT=
+      line: ONBOOT=no
+    when: ansible_eth1 is defined
+
+  - name: Create the data file
+    command: fallocate -l 10G /var/data
+    args:
+      creates: /var/data
+
+  - name: Format data file to xfs
+    filesystem:
+      fstype: xfs
+      dev: /var/data
+
+  - name: Mount /d
+    mount:
+      path: /d
+      src: /var/data
+      fstype: xfs
+      state: mounted
+
+  - name: Start and enable rpc-statd
+    service:
+      name: rpc-statd
+      enabled: true
+      state: started
+
+  - name: Create the file to be used for swap
+    command: dd if=/dev/zero of=/root/swapfile bs=1024 count=2097152
+
+  - name: Format the file for swap
+    command: mkswap /root/swapfile
+
+  - name: Change swap file permissions
+    file: path=/root/swapfile owner=root group=root mode=0600
+
+  - name: Add the file to the system as a swap file
+    command: swapon  /root/swapfile
+
+  - name: Write swap entry in fstab
+    mount: name=none src=/root/swapfile fstype=swap opts=sw passno=0 dump=0 state=present
+
+  - name: Open a port for XMLRPC connection
+    firewalld:
+      rich_rule: "rule family='ipv4' source address='8.43.85.181' port port=9999 protocol='tcp' accept"
+      state: enabled
+      immediate: yes
+      permanent: true
+
+  - name: Clone the glusterfs code
+    git:
+      repo: 'git://review.gluster.org/glusterfs'
+      dest: '{{ scratchdir }}/glusterfs'
+      version: '{{ version }}'
+      update: yes
+      force: yes
+
+  - name: Build glusterfs
+    shell: |
+      ./autogen.sh
+      ./configure --disable-bd-xlator --enable-debug --enable-gnfs --silent
+      make install
+    args:
+      chdir: '{{ scratchdir }}/glusterfs'
+
+  - shell: ssh-keygen -q -P '' -C "key for georep test" -f /root/.ssh/id_georep
+    name: Generate a key for georep
+    args:
+      creates: /root/.ssh/id_georep
+
+  - shell: cat /root/.ssh/id_georep.pub
+    name: Get the public key
+    register: georep_pub_key
+    changed_when: False
+
+  - name: Link the key to the default key
+    file:
+      state: link
+      src: /root/.ssh/id_georep{{ item }}
+      dest: /root/.ssh/id_rsa{{ item }}
+    with_items:
+    - ''
+    - '.pub'
+
+  - authorized_key:
+      user: root
+      key: "{{ georep_pub_key.stdout }}"
+      key_options: 'from="127.0.0.1"'
+    name: Add authorized_key for georep tests
+
+  - shell: cat {{ PATH }}/key.pub
+    name: Get the public key from WORKSPACE
+    register: pub_key
+    changed_when: False
+    delegate_to: localhost
+
+  - name: Add authorized key to all hosts
+    authorized_key:
+      user: root
+      state: present
+      key: "{{ pub_key.stdout }}"
+
+  - name: Create inventory file
+    lineinfile:
+      path: '{{ PATH }}/hosts'
+      state: present
+      create: yes
+      line: '{{ item.public_dns_name }} ansible_host={{ item.public_ip }}'
+    with_items: '{{ ec2.instances }}'
+
+  - name: Create directory for storing the logs
+    file:
+      path: '/tmp/failed-tests'
+      state: directory
+    delegate_to: localhost
+    tags:
+      - copy_logs
+
+  - name:  Copy glusterfs logs
+    synchronize:
+      src: '/var/log/glusterfs'
+      dest: '/tmp/failed-tests/{{ ansible_nodename }}'
+      mode: pull
+    tags:
+      - copy_logs
+
+- name: Terminate instances
+  hosts: localhost
+  tags:
+    - terminate
+  connection: local
+  tasks:
+    - name: Terminate instances that were previously launched
+      ec2:
+        state: 'absent'
+        instance_ids: '{{ ec2.instance_ids }}'
+
+    - name: Remove key pair by name
+      ec2_key:
+        name: '{{ NAME }}'
+        state: absent
