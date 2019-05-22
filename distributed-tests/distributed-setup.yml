@@ -9,7 +9,7 @@
     - name: Create key pair using key_material obtained using 'file' lookup plugin
       ec2_key:
         name: '{{ NAME }}'
-        key_material: "{{ lookup('file', '../key.pub') }}"
+        key_material: "{{ lookup('file', '{{ PATH }}/key.pub') }}"
 
     - name: Create servers
       ec2:
