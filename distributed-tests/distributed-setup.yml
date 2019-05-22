@@ -13,7 +13,7 @@
 
     - name: Create servers
       ec2:
-        key_name: distributed-key
+        key_name: '{{ NAME }}'
         instance_type: t3.small
         image: ami-02e77e99e82697fbd
         wait: yes
