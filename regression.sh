@@ -166,8 +166,8 @@ if [ ${cur_count} != ${core_count} ]; then
     find ${ARCHIVE_BASE} -size +1G -delete -type f
 
     if [[ ${SERVER} == *"aws"* ]]; then
-        scp -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i "$LOG_KEY" /archives/archived_builds/build-install-${UNIQUE_ID}.tar.bz2 "_logs-collector@logs.aws.gluster.org:/var/www/glusterfs-logs/$JOB_NAME-$BUILD_ID.tgz" || true
-        echo "Cores and builds archived in https://logs.aws.gluster.org/$JOB_NAME-$BUILD_ID.tgz"
+        scp -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i "$LOG_KEY" /archives/archived_builds/build-install-${UNIQUE_ID}.tar.bz2 "_logs-collector@logs.aws.gluster.org:/var/www/glusterfs-logs/$JOB_NAME-$BUILD_ID.bz2" || true
+        echo "Cores and builds archived in https://logs.aws.gluster.org/$JOB_NAME-$BUILD_ID.bz2"
     else
         echo "Cores and build archived in http://${SERVER}/${filename}.bz2"
     fi
