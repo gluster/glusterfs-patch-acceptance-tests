@@ -9,7 +9,7 @@
     - name: Create key pair using key_material obtained using 'file' lookup plugin
       ec2_key:
         name: '{{ NAME }}'
-        key_material: "{{ lookup('file', '{{ PATH }}/key.pub') }}"
+        key_material: "{{ lookup('file', '../key.pub') }}"
 
     - name: Create servers
       ec2:
@@ -38,6 +38,13 @@
         port: 22
         state: started
       with_items: "{{ ec2.instances }}"
+
+    - lineinfile:
+        path: '{{ PATH }}/hosts'
+        state: present
+        create: yes
+        line: '{{ item.public_dns_name }} ansible_host={{ item.public_ip }}'
+      with_items: "{{ hostvars['localhost']['ec2']['instances'] }}"
 
 
 - name: Configure instance(s)
@@ -200,6 +207,7 @@
       key_options: 'from="127.0.0.1"'
     name: Add authorized_key for georep tests
 
+
   - shell: cat {{ PATH }}/key.pub
     name: Get the public key from WORKSPACE
     register: pub_key
@@ -211,14 +219,6 @@
       user: root
       state: present
       key: "{{ pub_key.stdout }}"
-
-  - name: Create inventory file
-    lineinfile:
-      path: '{{ PATH }}/hosts'
-      state: present
-      create: yes
-      line: '{{ item.public_dns_name }} ansible_host={{ item.public_ip }}'
-    with_items: '{{ ec2.instances }}'
 
   - name: Create directory for storing the logs
     file:
@@ -245,7 +245,7 @@
     - name: Terminate instances that were previously launched
       ec2:
         state: 'absent'
-        instance_ids: '{{ ec2.instance_ids }}'
+        instance_ids: '{{ hostvars['localhost']['ec2']['instance_ids'] }}'
 
     - name: Remove key pair by name
       ec2_key:
