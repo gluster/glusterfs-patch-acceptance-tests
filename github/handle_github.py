@@ -109,6 +109,10 @@ class GitHubHandler(object):
                 print(error)
                 self.error_string.append(error)
                 return True
+            if not bug_fix:
+                error = "Missing 'Type:Bug' label on Issue {}".format(num)
+                print(error)
+                self.error_string.append(error)
             if not spec_approved:
                 error = "Missing SpecApproved flag on Issue {}".format(num)
                 print(error)
