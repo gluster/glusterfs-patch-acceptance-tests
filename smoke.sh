@@ -5,7 +5,7 @@ set -e;
 M=/mnt;
 P=/build;
 H=$(hostname);
-T=200;
+T=300;
 V=patchy;
 export PATH=$PATH:$P/install/sbin
 
