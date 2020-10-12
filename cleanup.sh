@@ -18,7 +18,8 @@ function cleanup()
     rm -rf /var/lib/glusterd/* /var/log/glusterfs/.cmd_log_history /etc/glusterd/* /var/log/glusterfs/* $P/export;
 
     rm -f /var/run/glusterd.socket
-    rm -rf /var/run/gluster/ 
+    rm -rf /var/run/gluster/
+    rm -rf $WORKSPACE
 }
 
 
