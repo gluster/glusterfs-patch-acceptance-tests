@@ -25,6 +25,7 @@ function cleanup()
 
 function main ()
 {
+    set -x
     cleanup;
 }
 
