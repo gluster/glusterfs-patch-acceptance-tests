@@ -18,7 +18,6 @@ function cleanup()
 
     rm -f /var/run/glusterd.socket
     rm -rf /var/run/gluster/
-    rm -rf $WORKSPACE
     pkill /opt/qa/regression.sh 2>&1
 }
 
