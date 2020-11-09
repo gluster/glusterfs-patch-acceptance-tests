@@ -25,6 +25,14 @@ case $(uname -s) in
         werror=""
 esac
 
+case $JOB_NAME in
+    'gh_regression-test-with-multiplex'|'gh_regression-on-demand-multiplex')
+        brickmux="--enable-brickmux"
+        ;;
+    *)
+        brick-multiplex=""
+esac
+
 if type rpm >/dev/null 2>&1; then
     rpm -qa | grep glusterfs | xargs --no-run-if-empty rpm -e
 fi
@@ -36,6 +44,6 @@ cd $P/scratch;
 rm -rf $P/install;
 $SRC/configure --prefix=$P/install --with-mountutildir=$P/install/sbin \
                --with-initdir=$P/install/etc --localstatedir=/var \
-               --enable-debug --enable-gnfs --silent
+               --enable-debug --enable-gnfs --silent ${brickmux}
 make install CFLAGS="-Wall ${werror} -Wno-cpp" -j ${nproc}
 cd $SRC;
