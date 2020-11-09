@@ -30,7 +30,7 @@ case $JOB_NAME in
         brickmux="--enable-brickmux"
         ;;
     *)
-        brick-multiplex=""
+        brickmux=""
 esac
 
 if type rpm >/dev/null 2>&1; then
