@@ -27,7 +27,6 @@ getliblistfromcore() {
     # For each line start extracting the sharelibrary paths once we see
     # the text line "Shared Object Path" in the raw gdb output. Append this
     # in the an output file.
-    set +x
     local STARTPR=0
     while IFS=' ' read -r f1 f2 f3 f4 f5 f6 f7 fdiscard; do
         if [[ $STARTPR == 1 && "$f4" != "" ]]; then
@@ -37,7 +36,6 @@ getliblistfromcore() {
                 STARTPR=1
         fi
     done < "${BASE}/cores/gdbout.txt"
-    set -x
 
     # Cleanup the tmp file for gdb output
     rm -f ${BASE}/cores/gdbout.txt
