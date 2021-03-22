@@ -25,12 +25,15 @@ case $(uname -s) in
         werror=""
 esac
 
+io_uring=""
+brickmux=""
 case $JOB_NAME in
     'gh_regression-test-with-multiplex'|'gh_regression-on-demand-multiplex')
         brickmux="--enable-brickmux"
         ;;
-    *)
-        brickmux=""
+    'gh_smoke-centos7'|'gh_devrpm-el7')
+        io_uring="--disable-linux-io_uring"
+        ;;
 esac
 
 if type rpm >/dev/null 2>&1; then
@@ -44,6 +47,6 @@ cd $P/scratch;
 rm -rf $P/install;
 $SRC/configure --prefix=$P/install --with-mountutildir=$P/install/sbin \
                --with-initdir=$P/install/etc --localstatedir=/var \
-               --enable-debug --enable-gnfs --silent ${brickmux}
+               --enable-debug --enable-gnfs --silent ${brickmux} ${io_uring}
 make install CFLAGS="-Wall ${werror} -Wno-cpp" -j ${nproc}
 cd $SRC;
