@@ -47,10 +47,10 @@ getliblistfromcore() {
 PY_VER=$(python -c "import sys; print sys.version[:3]")
 
 # Point to the build we're testing
-export PATH="${BASE}/sbin:${PATH}"
-export PYTHONPATH="${BASE}/lib/python${PY_VER}/site-packages:${PYTHONPATH}"
-export LIBRARY_PATH="${BASE}/lib:${LIBRARY_PATH}"
-export LD_LIBRARY_PATH="${BASE}/lib:${LD_LIBRARY_PATH}"
+export PATH="${BASE}/sbin${PATH:+:${PATH}}"
+export PYTHONPATH="${BASE}/lib/python${PY_VER}/site-packages${PYTHONPATH:+:${PYTHONPATH}}"
+export LIBRARY_PATH="${BASE}/lib${LIBRARY_PATH:+:${LIBRARY_PATH}}"
+export LD_LIBRARY_PATH="${BASE}/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 
 # save core_patterns
 case $(uname -s) in
