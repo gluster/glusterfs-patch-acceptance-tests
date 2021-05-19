@@ -31,7 +31,7 @@ case $JOB_NAME in
     'gh_regression-test-with-multiplex'|'gh_regression-on-demand-multiplex')
         brickmux="--enable-brickmux"
         ;;
-    'gh_smoke-centos7'|'gh_devrpm-el7'|'gh_centos7-regression'|'gh_regression-on-demand-full-run')
+    'gh_smoke-centos7'|'gh_devrpm-el7'|'gh_centos7-regression'|'gh_regression-on-demand-full-run'|'gh_regression-test-with-multiplex'|'gh_regression-test-burn-in')
         io_uring="--disable-linux-io_uring"
         ;;
 esac
