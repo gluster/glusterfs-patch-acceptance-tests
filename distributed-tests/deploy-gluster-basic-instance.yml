@@ -1,0 +1,114 @@
+---
+- name: Deploy basic instance for gluster-test
+  hosts: all
+  gather_facts: yes
+  handlers:
+  - name: run dracut
+    command: dracut -v -f
+  - name: restart sshd
+    service: name=sshd state=restarted
+  roles:
+    - openssh
+    - selinux
+  tasks:
+  - name: Install basic packages
+    package:
+      state: present
+      name:
+      - automake
+      - autoconf
+      - libtool
+      - flex
+      - bison
+      - openssl-devel
+      - libxml2-devel
+      - python-devel
+      - libaio-devel
+      - libibverbs-devel
+      - librdmacm-devel
+      - readline-devel
+      - lvm2-devel
+      - glib2-devel
+      - userspace-rcu-devel
+      - libcmocka-devel
+      - libacl-devel
+      - sqlite-devel
+      - fuse-devel
+      - redhat-rpm-config
+      - nfs-utils
+      - git
+      - dbench
+      - libcurl-devel
+      - psmisc
+
+  - name: Remove package that cause trouble with the regression suite
+    package:
+      state: absent
+      name:
+      - qemu-img
+      - glusterfs-libs
+      - glusterfs
+      - glusterfs-api
+      - glusterfs-client-xlators
+
+  # current regression test suite do not support ipv6, so we have to disable
+  # it
+  - lineinfile:
+      dest: /etc/sysconfig/network-scripts/ifcfg-eth0
+      regexp: ^IPV6INIT=
+      line: IPV6INIT=no
+    name: Disable ipv6 in eth0 config
+
+  - lineinfile:
+      dest: /etc/sysconfig/network
+      regexp: ^NETWORKING_IPV6=
+      line: NETWORKING_IPV6=no
+    name: Disable ipv6 in network config
+
+  - sysctl:
+      name: "{{ item }}"
+      value: 1
+      state: present
+      reload: yes
+    with_items:
+    - net.ipv6.conf.all.disable_ipv6
+    - net.ipv6.conf.default.disable_ipv6
+    name: Disable ipv6 in sysctl
+    notify:
+    - run dracut
+
+  # use "install ipv6 /bin/true", since that's what ip6tables check to see if
+  # ipv6 is disabled. See reload function on /etc/init.d/ip6tables on RHEL 6.
+  - copy:
+      dest: /etc/modprobe.d/ipv6.conf
+      content: "options ipv6 disable=1\ninstall ipv6 /bin/true"
+    name: Disable ipv6 module
+
+  - name: Create various directories for tests
+    file:
+      name: "{{ item }}"
+      mode: "u=rwx,g=rx,o=rx"
+      owner: root
+      group: root
+      state: directory
+    with_items:
+    - /var/log/glusterfs
+    - /var/lib/glusterd
+    - /var/run/gluster
+    - /d
+    - /archives
+    - /d/archived_builds
+    - /d/backends
+    - /d/build
+    - /d/logs
+    - /archives/archived_builds
+    - /archives/log
+    - /archives/logs
+
+  - name: Make sure that root can use password
+    lineinfile:
+      dest: /etc/ssh/sshd_config
+      regexp: "^PermitRootLogin"
+      line: "PermitRootLogin yes"
+      state: present
+    notify: restart sshd
