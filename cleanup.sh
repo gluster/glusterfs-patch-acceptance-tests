@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e;
+#set -e;
 
 M=/mnt;
 P=/build;
