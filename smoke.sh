@@ -92,8 +92,6 @@ function finish ()
     #Move statedumps to be archived
     mv /var/run/gluster/*dump* /var/log/glusterfs/ || true
     tar -czf $WORKSPACE/glusterfs-logs.tgz /var/log/glusterfs /var/log/messages* || true
-    scp -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -i $LOG_KEY glusterfs-logs.tgz "_logs-collector@http.int.rht.gluster.org:/var/www/glusterfs-logs/$JOB_NAME-logs-$BUILD_ID.tgz" || true;
-    echo "Logs stored in https://ci-logs.gluster.org/$JOB_NAME-logs-$BUILD_ID.tgz";
     cleanup;
     kill %1;
 }
