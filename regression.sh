@@ -43,12 +43,16 @@ getliblistfromcore() {
     rm -f ${BASE}/cores/gdbout.txt
 }
 
-# Retrieve the Python version
-PY_VER=$(python -c "import sys; print sys.version[:3]")
+# Determine the python version used by the installed Gluster
+PY_NAME=($(ls "${BASE}/lib/" | grep "python"))
+if [[ ${#PY_NAME[@]} -ne 1 ]]; then
+    echo "Unable to determine python location" >&2
+    exit 1
+fi
 
 # Point to the build we're testing
 export PATH="${BASE}/sbin${PATH:+:${PATH}}"
-export PYTHONPATH="${BASE}/lib/python${PY_VER}/site-packages${PYTHONPATH:+:${PYTHONPATH}}"
+export PYTHONPATH="${BASE}/lib/${PY_NAME[0]}/site-packages${PYTHONPATH:+:${PYTHONPATH}}"
 export LIBRARY_PATH="${BASE}/lib${LIBRARY_PATH:+:${LIBRARY_PATH}}"
 export LD_LIBRARY_PATH="${BASE}/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 
