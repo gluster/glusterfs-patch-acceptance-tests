@@ -43,6 +43,20 @@ getliblistfromcore() {
     rm -f ${BASE}/cores/gdbout.txt
 }
 
+function cleanup_d() {
+    local dev
+
+    dev="$(mount | grep "on /d type" | awk '{ print $1; }')"
+    if [[ -n "${dev}" ]]; then
+        umount /d
+        if [[ -f "${dev}" ]]; then
+            rm -f "${dev}"
+        elif [[ "${dev}" == "/dev/zram"* ]]; then
+            zramctl -r "${dev}"
+        fi
+    fi
+}
+
 # Determine the python version used by the installed Gluster
 PY_NAME=($(ls "${BASE}/lib/" | grep "python"))
 if [[ ${#PY_NAME[@]} -ne 1 ]]; then
@@ -68,6 +82,22 @@ case $(uname -s) in
         ;;
 esac
 
+# Cleanup any existing mount on /d and its backend
+cleanup_d
+
+# Try to get a zram device to use it as /d. If it's not possible, just use
+# a regular file.
+D_DEV="$(zramctl -f -s 10G 2>/dev/null)"
+D_OPTS=""
+if [[ -z "${D_DEV}" ]]; then
+    truncate -s 10G /var/data
+    D_DEV="/var/data"
+    D_OPTS="-o loop"
+fi
+
+mkfs.xfs -K -i size=1024 "${D_DEV}"
+mount ${D_OPTS} "${D_DEV}" /d
+
 # Count the number of core files in /
 core_count=$(ls -l /*.core|wc -l);
 old_cores=$(ls /*.core);
@@ -82,6 +112,8 @@ elif [ -x ${BASE}/share/glusterfs/run-tests.sh ]; then
     ${BASE}/share/glusterfs/run-tests.sh "$@"
     RET=$?
 fi
+
+cleanup_d
 
 # If there are new core files in /, archive this build for later analysis
 cur_count=$(ls -l /*.core 2>/dev/null|wc -l);
