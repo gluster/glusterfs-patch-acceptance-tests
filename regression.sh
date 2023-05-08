@@ -95,7 +95,7 @@ if [[ -z "${D_DEV}" ]]; then
     D_OPTS="-o loop"
 fi
 
-mkfs.xfs -i size=1024 "${D_DEV}"
+mkfs.xfs -K -i size=1024 "${D_DEV}"
 mount ${D_OPTS} "${D_DEV}" /d
 
 # Count the number of core files in /
